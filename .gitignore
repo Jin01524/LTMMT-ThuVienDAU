@@ -1,0 +1,43 @@
+# Visual Studio and build outputs
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+TestResults/
+artifacts/
+
+# Local tools and caches
+.tooling/
+.nuget/
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Machine-specific configuration and secrets
+**/appsettings.local.json
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+
+# Office lock files and generated inspection output
+~$*
+*.inspect.ndjson
+*.tmp
+*.log
+
+# Database backups and runtime files (keep SQL schema scripts)
+backups/
+*.sql.bak
+*.dmp
+*.ibd
+ibdata*
+*.pid
+
+# Superseded task tracker retained locally because it was open in Excel
+/outputs/phan_cong_nhom_3/Phan_cong_module_nhom_3.xlsx

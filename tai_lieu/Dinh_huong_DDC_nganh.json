@@ -1,0 +1,216 @@
+{
+  "LuuY": "49 đề xuất tham khảo, chưa đối chiếu/duyệt; không tự gán mã cho sách.",
+  "DinhHuong": [
+    {
+      "MaNganh": "7580101",
+      "TenNganh": "Kiến trúc",
+      "Khoa": "Khoa Kiến trúc",
+      "MaDDC": [
+        "720",
+        "624",
+        "690"
+      ],
+      "CanCu": "Tài liệu kiến trúc có thể liên quan kết cấu và thi công; chọn mã theo nội dung từng cuốn.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7580105",
+      "TenNganh": "Quy hoạch vùng và đô thị",
+      "Khoa": "Khoa Kiến trúc",
+      "MaDDC": [
+        "711",
+        "710",
+        "388"
+      ],
+      "CanCu": "Phân biệt quy hoạch không gian, cảnh quan và nghiên cứu vận tải.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7580108",
+      "TenNganh": "Thiết kế nội thất",
+      "Khoa": "Khoa Kiến trúc",
+      "MaDDC": [
+        "747",
+        "720",
+        "740"
+      ],
+      "CanCu": "Phân biệt trang trí, tổ chức không gian và thiết kế; không quy mọi tài liệu nội thất vào một mã.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7210403",
+      "TenNganh": "Thiết kế đồ họa",
+      "Khoa": "Khoa Thiết kế & Nghệ thuật",
+      "MaDDC": [
+        "740",
+        "741",
+        "006"
+      ],
+      "CanCu": "Chọn lớp rộng để định hướng thiết kế/vẽ và công cụ số; mã chi tiết cần tra bản in.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7580201",
+      "TenNganh": "Kỹ thuật xây dựng",
+      "Khoa": "Khoa Xây dựng",
+      "MaDDC": [
+        "624",
+        "690",
+        "620"
+      ],
+      "CanCu": "Phân biệt kỹ thuật công trình với quy trình xây dựng nhà.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7580302",
+      "TenNganh": "Quản lý xây dựng",
+      "Khoa": "Khoa Xây dựng",
+      "MaDDC": [
+        "690",
+        "658",
+        "624"
+      ],
+      "CanCu": "Phân biệt quản lý dự án/nguồn lực với nội dung kỹ thuật xây dựng.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7580205",
+      "TenNganh": "Kỹ thuật xây dựng công trình giao thông",
+      "Khoa": "Khoa Cầu đường",
+      "MaDDC": [
+        "625",
+        "624",
+        "388"
+      ],
+      "CanCu": "Phân biệt thiết kế hạ tầng đường với hoạt động vận tải.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7580210",
+      "TenNganh": "Kỹ thuật cơ sở hạ tầng",
+      "Khoa": "Khoa Cầu đường",
+      "MaDDC": [
+        "624",
+        "627",
+        "628",
+        "625"
+      ],
+      "CanCu": "Hạ tầng gồm nhiều chuyên đề; tra nội dung công trình, nước, môi trường và đường.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7480201",
+      "TenNganh": "Công nghệ thông tin",
+      "Khoa": "Khoa Công nghệ Thông tin",
+      "MaDDC": [
+        "004",
+        "005",
+        "006"
+      ],
+      "CanCu": "Phân biệt cơ sở tin học, phần mềm/dữ liệu và phương pháp ứng dụng.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7510301",
+      "TenNganh": "Công nghệ kỹ thuật Điện – Điện tử",
+      "Khoa": "Khoa Kỹ thuật Điện - Điện tử",
+      "MaDDC": [
+        "621",
+        "620",
+        "004"
+      ],
+      "CanCu": "621 chỉ là định hướng rộng; điện/điện tử cần tra phân mục chi tiết trong bộ bản in.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7340101",
+      "TenNganh": "Quản trị kinh doanh",
+      "Khoa": "Khoa Kinh tế",
+      "MaDDC": [
+        "658",
+        "330"
+      ],
+      "CanCu": "Phân biệt quản lý tổ chức với lý thuyết kinh tế.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7340201",
+      "TenNganh": "Tài chính – Ngân hàng",
+      "Khoa": "Khoa Kinh tế",
+      "MaDDC": [
+        "332",
+        "330"
+      ],
+      "CanCu": "Phân biệt nội dung tài chính/ngân hàng với kinh tế học tổng quát.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7340301",
+      "TenNganh": "Kế toán",
+      "Khoa": "Khoa Kinh tế",
+      "MaDDC": [
+        "657",
+        "332"
+      ],
+      "CanCu": "Chọn theo trọng tâm kế toán hay tài chính của tài liệu.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7510605",
+      "TenNganh": "Logistics và Quản lý chuỗi cung ứng",
+      "Khoa": "Khoa Kinh tế",
+      "MaDDC": [
+        "658",
+        "388",
+        "380"
+      ],
+      "CanCu": "Chuỗi cung ứng có góc độ quản trị, vận tải và thương mại; không có ánh xạ một-một.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7220201",
+      "TenNganh": "Ngôn ngữ Anh",
+      "Khoa": "Khoa Ngoại ngữ",
+      "MaDDC": [
+        "420",
+        "400"
+      ],
+      "CanCu": "Phạm vi định hướng là ngôn ngữ; tác phẩm văn học cần tra phân loại riêng.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7220204",
+      "TenNganh": "Ngôn ngữ Trung Quốc",
+      "Khoa": "Khoa Ngoại ngữ",
+      "MaDDC": [
+        "495",
+        "490"
+      ],
+      "CanCu": "495 rộng hơn tiếng Trung; tra bản in để chọn phân mục phù hợp, không dùng làm mã riêng của ngành.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7810103",
+      "TenNganh": "Quản trị dịch vụ du lịch và lữ hành",
+      "Khoa": "Khoa Du lịch",
+      "MaDDC": [
+        "910",
+        "658"
+      ],
+      "CanCu": "Tài liệu lữ hành có thể thiên về điểm đến hoặc quản trị; các góc độ kinh tế khác phải tra thêm.",
+      "DaDuyet": false
+    },
+    {
+      "MaNganh": "7810201",
+      "TenNganh": "Quản trị khách sạn",
+      "Khoa": "Khoa Du lịch",
+      "MaDDC": [
+        "647",
+        "658",
+        "641"
+      ],
+      "CanCu": "Phân biệt điều hành cơ sở lưu trú, quản trị doanh nghiệp và dịch vụ ăn uống.",
+      "DaDuyet": false
+    }
+  ]
+}

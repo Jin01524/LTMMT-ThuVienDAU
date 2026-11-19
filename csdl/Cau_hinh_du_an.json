@@ -1,0 +1,49 @@
+{
+  "MuiGio": "+07:00",
+  "PhamVi": {
+    "DatTruoc": false,
+    "SoTang": 1,
+    "SoPhong": 1,
+    "SoVaiTroMoiTaiKhoan": 1
+  },
+  "Muon": {
+    "SinhVien": {
+      "SoDauSachToiDa": 2,
+      "SoNgayMuon": 10,
+      "MucPhatNgay": 2000
+    },
+    "CanBoGiangVien": {
+      "SoDauSachToiDa": 3,
+      "SoNgayMuon": 15,
+      "MucPhatNgay": 0
+    },
+    "SoPhutNgungTruocDongCua": 15
+  },
+  "NgayLeTetMienPhat": [],
+  "DaXacNhanLichMienPhat": false,
+  "SoCuonDocTaiCho": 2,
+  "BoiThuong": {
+    "HeSoGiaBia": 2,
+    "PhiKyThuatDenSach": 20000
+  },
+  "DinhChiSinhVien": {
+    "SoNgayToiThieu": 7,
+    "SoNgayToiDa": 28
+  },
+  "DDC23BanIn": {
+    "TenBoSach": "DDC23 bản in tiếng Việt rút gọn của thư viện trường",
+    "NgonNgu": "vie",
+    "PhamVi": "RUT_GON",
+    "ChiThi1MARC082": "1",
+    "SoAnBanTheoDuAn": "23",
+    "SoAnBanTrenTrangTen": null,
+    "NamIn": null,
+    "ISBN": null
+  },
+  "VaiTro": {
+    "QUAN_TRI": "Cấu hình và gán vai trò cho tài khoản nhập từ danh sách trường",
+    "QUAN_LY_THU_VIEN": "Nghiệp vụ thư viện; độc quyền khóa/mở mượn và hủy vi phạm",
+    "THU_THU": "Biên mục, mượn trả, thu tiền, phòng đọc, kiểm kê",
+    "DOC_GIA": "Tra cứu, phản hồi và xem thông tin cá nhân"
+  }
+}

@@ -1,0 +1,50 @@
+KIỂM TRA CSDL THƯ VIỆN DAU — 20 BẢNG
+09/11/2026
+MySQL Community Server 8.0.46. Tạo schema mới trên server thử riêng.
+Tạo schema và chạy kiem_tra_gon.sql đều trả mã 0. Dữ liệu thử được rollback.
+
+KetQua
+PASS: manager-only locks/voids; no reader/fine delete; copy/title uniqueness; quota; renewals/history; staff notices; receipts; two-table inventory; disposal; feedback
+KetQua
+PASS: 9/18 academic data; 40 pending DDC; notation/cycles; print confirmation; shared history; MARC JSON controls/blank/leading zero/repeated ISBN/order/NR/edit invalidation/version/082-abridged
+TABLE_TYPE	SoLuong
+BASE TABLE	20
+VIEW	10
+SoCot
+160
+SoTaiKhoanThu
+0
+SoDocGiaThu
+0
+
+MySQLVersion
+8.0.46
+SoFK
+45
+SoTrigger
+15
+SoProcedure
+9
+SoBangDaGop
+0
+
+Đối chiếu đúng 9 khoa và 18 ngành.
+Ca tệp đính kèm đọc lại hai mục đúng thứ tự, giữ tên tiếng Việt và đường dẫn. Mặc định là mảng rỗng. Mục thiếu đường dẫn bị CHECK từ chối với lỗi 3819.
+ERD khớp 20 bảng, 160 cột và 45 khóa ngoại.
+Slide 12 trang đã cập nhật các trang 1, 2, 9 và 10. Tám trang còn lại trùng ảnh với bản người dùng. PPTX đã qua kiểm tra cấu trúc, bố cục và nhập lại.
+Liên kết nội bộ trong tài liệu hợp lệ.
+
+SHA-256
+bdd5a27cd33f6edfd9d51d9d6bfb974ae8564c307560d4caece7253591112dde  csdl/01_Tao_CSDL.sql
+3cd113312d731acf1c63b2a595e5fda1ad0f90094b3e1eb6a49511f363468e28  cong_cu/csdl/kiem_tra_gon.sql
+1c7d6c06f053699cf27fb0059c661973accce9ebd9108a0dc7cdeefff701398a  so_do/So_do_CSDL.svg
+45e9db7942665b03c86f35928b818188e98833957f16029c9f580ef8ca7ff2ea  so_do/So_do_CSDL.png
+a076e3105a53c4096060735bda8a7c74a0d08c038b9dfcefca9056ada195f497  slides/Database_Thu_vien_DAU.pptx
+
+PHẠM VI
+Kiểm thử bằng dữ liệu tổng hợp. Bộ SQL phục vụ tạo CSDL mới. Chưa kiểm thử chuyển dữ liệu, giao diện, MARCXML/ISO2709, lịch lễ/Tết thật hay nhiều máy đồng thời.
+40 mục DDC và 49 định hướng ngành vẫn chờ đối chiếu hoặc duyệt.
+
+SAO LƯU BẢN 23 BẢNG
+21 file đã đối chiếu SHA-256.
+C:/Users/ngocb/.codex/visualizations/2026/11/01/01a19766-c3b9-7f82-830e-4d367ef38209/LTMMT_truoc_thu_gon_20_bang_2026-11-09.zip
