@@ -21,7 +21,7 @@ cho cả nhóm ở [CONTRIBUTING.md](CONTRIBUTING.md). Các file bin/obj/.vs và
 
 ## Tài liệu và CSDL hiện hành
 
-Cập nhật ngày **09/11/2026**. CSDL gồm **20 bảng, 160 cột và 45 khóa ngoại**, dùng MySQL **8.0.21+**. Thư viện dùng DDC23 bản in tiếng Việt rút gọn để phân loại và MARC21 để biên mục.
+Cập nhật ngày **20/11/2026**. CSDL gồm **20 bảng, 160 cột và 45 khóa ngoại**, dùng MySQL **8.0.21+**. Thư viện dùng DDC23 bản in tiếng Việt rút gọn để phân loại và MARC21 để biên mục.
 
 | Nội dung | File |
 |---|---|
@@ -34,7 +34,7 @@ Cập nhật ngày **09/11/2026**. CSDL gồm **20 bảng, 160 cột và 45 khó
 | Tất cả cột/khóa ngoại | [Tu_dien_CSDL.md](tai_lieu/Tu_dien_CSDL.md) |
 | Cây chức năng và workflow | [Cây module](tai_lieu/Cay_module_chuc_nang.md), [Workflow](tai_lieu/Workflow.md) |
 | Kế hoạch triển khai nhóm 3 thành viên | [Luồng làm việc và phân công](tai_lieu/Ke_hoach_va_phan_cong_module.md) |
-| Bảng theo dõi 30 module đến hạn nộp 29/11/2026 | [Phân công module](outputs/phan_cong_nhom_3/Theo_doi_cong_viec_den_29_11_2026.xlsx) |
+| Bảng theo dõi 29 module đến hạn nộp 29/11/2026 | [Phân công module](outputs/phan_cong_nhom_3/Theo_doi_cong_viec_den_29_11_2026.xlsx) |
 | Kiểm tra SQL và ảnh hiện hành | [Ket_qua_MySQL80.txt](kiem_tra/Ket_qua_MySQL80.txt) |
 
 ## Phạm vi học tập
@@ -58,3 +58,5 @@ Mở SQL trong Workbench, chạy toàn bộ khi schema **ThuVienDAU chưa tồn 
 Đã bỏ hai slide thiết kế/workflow cũ vì còn nội dung khác phạm vi hiện hành. Giữ một bộ SQL, tài liệu, cấu hình và ảnh sơ đồ. FigJam cũ không dùng làm căn cứ DB mới.
 
 Sao lưu **21 file** của bản 23 bảng và đối chiếu SHA-256 trong `C:/Users/ngocb/.codex/visualizations/2026/11/01/01a19766-c3b9-7f82-830e-4d367ef38209/LTMMT_truoc_thu_gon_20_bang_2026-11-09.zip`.
+
+Quyền cập nhật 20/11/2026: BIEN_MUC độc quyền khóa/mở đăng nhập độc giả; QUAN_LY_THU_VIEN giữ khóa/mở mượn và hủy phiếu phạt. [Kết quả kiểm thử quyền](kiem_tra/Quyen_dang_nhap_2026-11-20.txt). Khung WinForms chưa triển khai đăng nhập nghiệp vụ.

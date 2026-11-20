@@ -77,7 +77,8 @@ HTTT QUẢN LÝ THƯ VIỆN ĐẠI HỌC KIẾN TRÚC ĐÀ NẴNG
 │   │   ├── 3.1.2 Nhập danh sách Excel cán bộ/giảng viên, gồm nhân sự thư viện [Yêu cầu]
 │   │   ├── 3.1.3 Kiểm tra bản ghi thiếu hoặc trùng trước khi nhập [Phân rã]
 │   │   ├── 3.1.4 Nhập/cập nhật hồ sơ từ danh sách hợp lệ; cơ chế cấp đăng nhập cần chốt [Phân rã]
-│   │   └── 3.1.5 Đối chiếu trạng thái học tập và đề nghị Quản lý thư viện khóa/mở quyền mượn [Phân rã]
+│   │   ├── 3.1.5 Đối chiếu trạng thái học tập và đề nghị Quản lý thư viện khóa/mở quyền mượn [Phân rã]
+│   │   └── 3.1.6 Biên mục khóa/mở tài khoản đăng nhập độc giả, ghi lý do và nhật ký [Yêu cầu]
 │   └── 3.2 Định danh người đọc bằng thẻ trường
 │       ├── 3.2.1 Đối chiếu thẻ trường với hồ sơ độc giả đã có [Yêu cầu]
 │       └── 3.2.2 Tra cứu hồ sơ theo mã định danh trường [Phân rã]
@@ -115,14 +116,10 @@ HTTT QUẢN LÝ THƯ VIỆN ĐẠI HỌC KIẾN TRÚC ĐÀ NẴNG
 │       ├── 4.6.2 Đình chỉ sinh viên 1–4 tuần theo mức vi phạm [Yêu cầu]
 │       └── 4.6.3 Quản lý thư viện mở lại quyền mượn sau khi trả sách và thanh toán đủ [Yêu cầu]
 │
-├── 5. Tra cứu và tiện ích bạn đọc [OPAC]
-│   ├── 5.1 Tra cứu danh mục
-│   │   ├── 5.1.1 Tìm tài liệu theo từ khóa [Phân rã]
-│   │   ├── 5.1.2 Lọc theo tác giả/thể loại/năm/tài liệu [Phân rã]
-│   │   └── 5.1.3 Xem chi tiết thư mục, vị trí và tình trạng sẵn có [Phân rã]
-│   └── 5.2 Góp ý và đề xuất
-│       ├── 5.2.1 Gửi đề xuất bổ sung tài liệu [Gốc]
-│       └── 5.2.2 Gửi góp ý/đánh giá tài liệu [Gốc]
+├── 5. Tiện ích bạn đọc [PH]
+│   └── 5.1 Góp ý và đề xuất
+│       ├── 5.1.1 Gửi đề xuất bổ sung tài liệu [Gốc]
+│       └── 5.1.2 Gửi góp ý/đánh giá tài liệu [Gốc]
 │
 ├── 6. Kiểm kê và thanh lý kho [CA-08]
 │   ├── 6.1 Kiểm kê bản sách
@@ -161,12 +158,12 @@ HTTT QUẢN LÝ THƯ VIỆN ĐẠI HỌC KIẾN TRÚC ĐÀ NẴNG
 
 ## 3. Quyền truy cập dùng chung
 
-Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, THU_THU hoặc DOC_GIA. Thủ thư kiêm biên mục; chỉ Quản lý thư viện được khóa/mở quyền mượn và hủy hiệu lực phiếu phạt. Hồ sơ nhân sự nhập từ danh sách trường, không có phân hệ quản lý nhân viên riêng. Không tạo nhóm quyền động; code kiểm tra quyền theo vai trò.
+Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU hoặc DOC_GIA. Biên mục phụ trách tài liệu và khóa/mở tài khoản đăng nhập của độc giả; Thủ thư phụ trách lưu thông; chỉ Quản lý thư viện được khóa/mở quyền mượn và hủy hiệu lực phiếu phạt. Hồ sơ nhân sự nhập từ danh sách trường, không có phân hệ quản lý nhân viên riêng. Không tạo nhóm quyền động; code kiểm tra quyền theo vai trò.
 
 ## 4. Quy trình và quy định thư viện đã cung cấp
 
 - **Không cấp thẻ thư viện.** Dùng thẻ Sinh viên hoặc thẻ cán bộ/giảng viên để định danh; khi vào phòng đọc mở, bạn đọc gửi thẻ Sinh viên tại quầy trong suốt lượt đọc.
-- **Phòng đọc mở:** gửi tư trang vào tủ và giữ chìa khóa; chỉ mang vở, dụng cụ học tập vào phòng. Tra cứu OPAC, ghi khung phân loại và ĐKCB, mỗi lượt lấy tối đa 02 cuốn. Đọc xong tự xếp sách về vị trí cũ; khi ra về trả chìa khóa và nhận lại thẻ.
+- **Phòng đọc mở:** gửi tư trang vào tủ và giữ chìa khóa; chỉ mang vở, dụng cụ học tập vào phòng. Nhờ thủ thư hướng dẫn hoặc theo biển chỉ dẫn dãy kệ/ngăn, mỗi lượt lấy tối đa 02 cuốn. Đọc xong tự xếp sách về vị trí cũ; khi ra về trả chìa khóa và nhận lại thẻ.
 - **Mượn về:** cán bộ/giảng viên, trợ giảng, CNV được mượn tối đa 03 đầu sách trong 15 ngày; sinh viên tối đa 02 đầu sách trong 10 ngày. Không mượn hai cuốn cùng nhan đề và không làm thủ tục trong 15 phút trước giờ đóng cửa. Chỉ gia hạn khi chưa có bạn đọc khác đăng ký và vẫn trong hạn mức.
 - **Trễ hạn:** sinh viên chịu phạt 2.000 đồng/ngày/cuốn, không tính ngày lễ/Tết; có thể bị đình chỉ quyền sử dụng thư viện từ 1–4 tuần. Với cán bộ/giảng viên, trợ giảng, CNV, thư viện thông báo đơn vị quản lý và báo cáo lãnh đạo nhà trường để xem xét xử lý. Sau khi trả sách và thanh toán đủ khoản phạt, bạn đọc mới được tiếp tục mượn.
 - **Mất/hỏng tài liệu:** đền tiền bằng 2 lần giá bìa; nếu đền sách thì nộp thêm 20.000 đồng phí kỹ thuật. Sách không ghi giá được tính theo sách tương đương do Thư viện xác định rồi nhân 2. Rách/hỏng trang bồi thường theo chi phí tái tạo/thay thế; thiệt hại lớn phải bồi thường toàn bộ và có thể bị kỷ luật.
@@ -182,3 +179,10 @@ Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, 
 ## 6. Giai đoạn dự án
 
 Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và phạm vi đã thống nhất, gồm bản thu gọn 20 bảng ngày 09/11/2026. Dự án đang ở giai đoạn thiết kế CSDL.
+
+## Quyền khóa tài khoản và quyền mượn
+
+- **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
+- **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
+- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+- HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.

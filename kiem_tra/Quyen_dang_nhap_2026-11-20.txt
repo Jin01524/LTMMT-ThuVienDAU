@@ -1,0 +1,25 @@
+MySQL test instance only; production database untouched.
+2026-11-20T10:40:47.819603
+VERSION()
+8.0.46
+
+csdl/01_Tao_CSDL.sql
+
+cong_cu/csdl/kiem_tra_gon.sql
+KetQua
+PASS: manager-only locks/voids; no reader/fine delete; copy/title uniqueness; quota; renewals/history; staff notices; receipts; two-table inventory; disposal; feedback
+KetQua
+PASS: 9/18 academic data; 40 pending DDC; notation/cycles; print confirmation; shared history; MARC JSON controls/blank/leading zero/repeated ISBN/order/NR/edit invalidation/version/082-abridged
+TABLE_TYPE	SoLuong
+BASE TABLE	20
+VIEW	10
+SoCot
+160
+SoTaiKhoanThu
+0
+SoDocGiaThu
+0
+
+cong_cu/csdl/kiem_tra_quyen_dang_nhap.sql
+KetQua
+PASS: BIEN_MUC-only login lock/unlock; manager-only borrowing; independent flags; audit; invalid actor/target/reason rejected

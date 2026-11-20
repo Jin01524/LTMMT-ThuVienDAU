@@ -41,7 +41,7 @@ TenDangNhap VARCHAR(100) NOT NULL UNIQUE
 MatKhauDaBam VARBINARY(512) NULL
 DinhDanhNgoai VARCHAR(200) NULL UNIQUE
 VaiTro VARCHAR(25) NOT NULL DEFAULT 'DOC_GIA'
-DangHoatDong BOOLEAN NOT NULL DEFAULT 0`,[fk('IdDocGia','DocGia'),ck("VaiTro IN ('QUAN_TRI','QUAN_LY_THU_VIEN','THU_THU','DOC_GIA')"),ck('DangHoatDong IN (0,1)'),ck('DangHoatDong=0 OR MatKhauDaBam IS NOT NULL OR DinhDanhNgoai IS NOT NULL')]),
+DangHoatDong BOOLEAN NOT NULL DEFAULT 0`,[fk('IdDocGia','DocGia'),ck("VaiTro IN ('QUAN_TRI','QUAN_LY_THU_VIEN','BIEN_MUC','THU_THU','DOC_GIA')"),ck('DangHoatDong IN (0,1)'),ck('DangHoatDong=0 OR MatKhauDaBam IS NOT NULL OR DinhDanhNgoai IS NOT NULL')]),
 t('MucPhanLoaiDDC',`MaDDC VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY
 MaCha VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL
 TenMuc VARCHAR(200) NOT NULL

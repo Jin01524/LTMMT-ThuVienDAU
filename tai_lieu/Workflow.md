@@ -10,13 +10,13 @@ Dự án đang ở giai đoạn đầu. Ngày 19/11/2026 đã tạo khung WinFor
 
 - **Bạn đọc:** sinh viên; cán bộ, giảng viên, trợ giảng, CNV.
 - **Thủ thư:** xác minh hồ sơ, ghi nhận mượn/trả, gia hạn và xử lý vi phạm tại quầy.
-- **Biên mục:** lập hồ sơ tài liệu, bản sách, mã ĐKCB và vị trí kho.
-- **Quản trị hệ thống:** gán một trong bốn vai trò cố định cho tài khoản; không tạo/sửa/xóa riêng tài khoản nhân viên.
+- **Biên mục:** lập hồ sơ tài liệu, bản sách, mã ĐKCB và vị trí kho; duy nhất khóa/mở tài khoản đăng nhập độc giả.
+- **Quản trị hệ thống:** gán một trong năm vai trò cố định cho tài khoản; không tạo/sửa/xóa riêng tài khoản nhân viên.
 - **Nguồn sinh viên:** một quy trình tiếp nhận danh sách gồm mã số, họ tên, trạng thái học tập; ưu tiên Portal DAU nếu đủ trường dữ liệu và có phương thức kết nối, Excel Phòng Đào tạo là phương án nhập đầu/dự phòng. Không nạp lặp song song cùng một danh sách.
 - **Nguồn cán bộ/giảng viên:** Excel theo điều chỉnh đã thống nhất.
 - **Định danh:** dùng thẻ trường; thư viện không phát hành thẻ thư viện. Barcode dùng để nhận diện bản sách.
 
-Phạm vi hiện hành dùng 20 bảng. Kiểm kê dùng `KiemKe` và `ChiTietKiemKe`. Vị trí kho gồm dãy kệ và ngăn. Thủ thư kiêm biên mục, mỗi tài khoản có một vai trò cố định. Các quy trình giữ mã WF hiện có để khớp tài liệu nghiệp vụ.
+Phạm vi hiện hành dùng 20 bảng. Kiểm kê dùng `KiemKe` và `ChiTietKiemKe`. Vị trí kho gồm dãy kệ và ngăn. Biên mục và Thủ thư là hai vai trò riêng, mỗi tài khoản có một vai trò cố định. Các quy trình giữ mã WF hiện có để khớp tài liệu nghiệp vụ.
 
 ## 2. Danh mục workflow
 
@@ -39,7 +39,7 @@ Phạm vi hiện hành dùng 20 bảng. Kiểm kê dùng `KiemKe` và `ChiTietKi
 flowchart LR
     profiles["Hồ sơ độc giả được nạp/cập nhật"] --> ready["Dữ liệu phục vụ đã sẵn sàng"]
     catalog["Tài liệu được biên mục và có bản sách"] --> ready
-    ready --> search["Bạn đọc tra cứu OPAC"]
+    ready --> search["Thủ thư hướng dẫn vị trí sách"]
     search --> choice{"Nhu cầu sử dụng?"}
     choice -->|"Đọc tại chỗ"| reading["WF-03 Phòng đọc mở"]
     reading --> reshelve["Xếp sách đúng vị trí, trả chìa khóa và nhận lại thẻ"]
@@ -94,7 +94,7 @@ flowchart LR
     copy --> id["Phát sinh ĐKCB và barcode duy nhất"]
     id --> location["Gán vị trí và trạng thái bản sách"]
     location --> labels["In nhãn mã vạch và nhãn gáy"]
-    labels --> available(["Sẵn sàng tra cứu theo tình trạng bản sách"])
+    labels --> available(["Hoàn tất ghi nhận bản sách và vị trí trong kho"])
 ```
 
 Khi lưu biên mục, mảng `BieuGhiMARC.Truong` chứa các trường, chỉ thị và trường con theo thứ tự. Khi đính kèm bản vẽ hoặc luận văn, `DauTaiLieu.DanhSachTep` chứa tên và đường dẫn của từng tệp. Kiểm tra MARC hiện áp dụng hồ sơ cấu trúc cục bộ. Giao diện và bộ đọc, xuất MARCXML/ISO2709 thuộc bước triển khai ứng dụng. Cần chốt quy tắc nhận diện trùng và thông tin bắt buộc theo loại tài liệu.
@@ -107,7 +107,7 @@ flowchart LR
     locker --> card["Xuất trình thẻ Sinh viên tại quầy"]
     card --> hold["Thủ thư giữ thẻ trong thời gian đọc"]
     hold --> visit["Ghi nhận lượt vào phòng đọc"]
-    visit --> search["Tra cứu OPAC, ghi khung phân loại và ĐKCB"]
+    visit --> search["Theo biển chỉ dẫn hoặc nhờ thủ thư hướng dẫn vị trí sách"]
     search --> take["Lấy tối đa 02 cuốn mỗi lượt"]
     take --> read["Sử dụng tài liệu, giữ trật tự và vệ sinh"]
     read --> reshelve["Tự xếp sách lại đúng vị trí cũ"]
@@ -256,3 +256,18 @@ flowchart LR
 - Dữ liệu tiền phạt/bồi thường phải thể hiện số tiền, căn cứ tính, ngày thu và trạng thái thanh toán; các trường lưu cụ thể cần xác nhận khi thiết kế CSDL.
 - Nghiệm thu workflow bằng các nhánh tối thiểu: hợp lệ, thiếu/trùng dữ liệu, vượt hạn mức, đúng/sát giờ đóng cửa, có/không quá hạn, đã/chưa thanh toán.
 - Workflow WF-09 chỉ là khung nghiệp vụ cho tới khi các điểm cần thống nhất ở mục 5 được xác nhận.
+
+## Quyền khóa tài khoản và quyền mượn
+
+- **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
+- **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
+- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+- HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.
+
+### Luồng khóa/mở đăng nhập độc giả (HT-02)
+
+1. Biên mục đăng nhập bằng tài khoản BIEN_MUC đang hoạt động.
+2. Chọn tài khoản DOC_GIA đã liên kết hồ sơ trường, chọn khóa hoặc mở và nhập lý do.
+3. Service lấy ID người xử lý từ phiên đã xác thực; kiểm quyền và gọi DoiTrangThaiDangNhapDocGia trong giao dịch.
+4. Thủ tục cập nhật TaiKhoan.DangHoatDong và ghi nhật ký; lỗi thì Service rollback toàn bộ.
+5. Đăng nhập/thao tác bảo vệ kiểm lại trạng thái tài khoản. Không cập nhật DocGia.DuocMuon; việc đình chỉ/mở quyền mượn theo quy trình của Quản lý thư viện.

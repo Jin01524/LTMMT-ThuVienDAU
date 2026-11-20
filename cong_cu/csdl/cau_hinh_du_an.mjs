@@ -2,7 +2,7 @@
 // Ngày lễ/Tết thực tế phải do thư viện bổ sung; không mặc định tính phạt các ngày này.
 export const cauHinh = {
   MuiGio: '+07:00',
-  PhamVi: {DatTruoc: false, SoTang: 1, SoPhong: 1, SoVaiTroMoiTaiKhoan: 1},
+  PhamVi: {TraCuuBanDoc: false, DatTruoc: false, SoTang: 1, SoPhong: 1, SoVaiTroMoiTaiKhoan: 1},
   Muon: {
     SinhVien: {SoDauSachToiDa: 2, SoNgayMuon: 10, MucPhatNgay: 2000},
     CanBoGiangVien: {SoDauSachToiDa: 3, SoNgayMuon: 15, MucPhatNgay: 0},
@@ -21,7 +21,8 @@ export const cauHinh = {
   VaiTro: {
     QUAN_TRI: 'Cấu hình và gán vai trò cho tài khoản nhập từ danh sách trường',
     QUAN_LY_THU_VIEN: 'Nghiệp vụ thư viện; độc quyền khóa/mở mượn và hủy vi phạm',
-    THU_THU: 'Biên mục, mượn trả, thu tiền, phòng đọc, kiểm kê',
-    DOC_GIA: 'Tra cứu, phản hồi và xem thông tin cá nhân'
+    BIEN_MUC: 'Biên mục tài liệu; độc quyền khóa/mở tài khoản đăng nhập độc giả',
+    THU_THU: 'Mượn trả, thu tiền, phòng đọc, kiểm kê',
+    DOC_GIA: 'Phản hồi và xem thông tin cá nhân'
   }
 };

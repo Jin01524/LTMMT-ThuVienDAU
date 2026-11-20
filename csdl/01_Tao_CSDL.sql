@@ -60,7 +60,7 @@ CREATE TABLE TaiKhoan
     VaiTro VARCHAR(25) NOT NULL DEFAULT 'DOC_GIA',
     DangHoatDong BOOLEAN NOT NULL DEFAULT 0,
     CONSTRAINT RB_TaiKhoan_1 FOREIGN KEY (IdDocGia) REFERENCES DocGia(IdDocGia),
-    CONSTRAINT RB_TaiKhoan_2 CHECK (VaiTro IN ('QUAN_TRI','QUAN_LY_THU_VIEN','THU_THU','DOC_GIA')),
+    CONSTRAINT RB_TaiKhoan_2 CHECK (VaiTro IN ('QUAN_TRI','QUAN_LY_THU_VIEN','BIEN_MUC','THU_THU','DOC_GIA')),
     CONSTRAINT RB_TaiKhoan_3 CHECK (DangHoatDong IN (0,1)),
     CONSTRAINT RB_TaiKhoan_4 CHECK (DangHoatDong=0 OR MatKhauDaBam IS NOT NULL OR DinhDanhNgoai IS NOT NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -425,6 +425,30 @@ BEGIN
         WHERE t.IdTaiKhoan=pNguoi AND t.DangHoatDong=1 AND t.VaiTro='QUAN_LY_THU_VIEN') THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Chi Quan ly thu vien duoc thuc hien thao tac nay.';
     END IF;
+END$$
+-- Goi trong transaction cua Service; Id nguoi xu ly lay tu phien dang nhap, khong tu UI.
+-- Service phai ROLLBACK neu CALL that bai; khong cap UPDATE DangHoatDong truc tiep cho luong nay.
+CREATE PROCEDURE DoiTrangThaiDangNhapDocGia(IN pNguoi INT, IN pTaiKhoan INT, IN pHoatDong BOOLEAN, IN pLyDo VARCHAR(300))
+BEGIN
+    DECLARE vVaiTro VARCHAR(25) DEFAULT NULL;
+    DECLARE vDocGia INT DEFAULT NULL;
+    DECLARE vCu BOOLEAN DEFAULT NULL;
+    DECLARE vNguoi VARCHAR(25) DEFAULT NULL;
+    SELECT VaiTro INTO vNguoi FROM TaiKhoan WHERE IdTaiKhoan=pNguoi AND DangHoatDong=1 FOR UPDATE;
+    IF vNguoi IS NULL OR vNguoi<>'BIEN_MUC' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Chi Bien muc duoc khoa/mo dang nhap doc gia.';
+    END IF;
+    IF pHoatDong IS NULL OR pHoatDong NOT IN (0,1) OR pLyDo IS NULL OR CHAR_LENGTH(TRIM(pLyDo))=0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Can trang thai 0/1 va ly do.';
+    END IF;
+    SELECT VaiTro,IdDocGia,DangHoatDong INTO vVaiTro,vDocGia,vCu FROM TaiKhoan WHERE IdTaiKhoan=pTaiKhoan FOR UPDATE;
+    IF vVaiTro IS NULL OR vVaiTro<>'DOC_GIA' OR vDocGia IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Chi ap dung tai khoan dang nhap cua doc gia.';
+    END IF;
+    UPDATE TaiKhoan SET DangHoatDong=pHoatDong WHERE IdTaiKhoan=pTaiKhoan;
+    INSERT INTO NhatKy(IdTaiKhoan,HanhDong,BangDuLieu,KhoaBanGhi,ChiTiet)
+    VALUES(pNguoi,'DOI_DANG_NHAP_DOC_GIA','TaiKhoan',pTaiKhoan,
+        JSON_OBJECT('TrangThaiCu',vCu,'TrangThaiMoi',pHoatDong,'LyDo',pLyDo));
 END$$
 CREATE TRIGGER DocGia_ChanXoa BEFORE DELETE ON DocGia FOR EACH ROW
 BEGIN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Khong xoa doc gia; hay khoa quyen hoac ngung hoat dong.'; END$$

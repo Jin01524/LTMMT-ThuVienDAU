@@ -13,7 +13,7 @@ SDK mới hơn có thể build target .NET 10 khi có bộ targeting pack tươn
 5. Người rà soát kiểm thay đổi. Ghép sau khi đã rà soát và build thành công.
 6. Cả nhóm cập nhật main; nhiệm vụ mới tạo nhánh mới từ main đã cập nhật.
 
-Không cần tạo sẵn 30 nhánh. Một nhánh cho một nhiệm vụ vừa đủ để rà soát.
+Không cần tạo sẵn 29 nhánh. Một nhánh cho một nhiệm vụ vừa đủ để rà soát.
 Người khởi tạo repo có thể là TV2; việc đó không đổi phân công nghiệp vụ.
 
 ## Phân chia file

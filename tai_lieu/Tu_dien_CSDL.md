@@ -389,6 +389,7 @@ Khóa ngoại:
 | Loại | Tên |
 |---|---|
 | PROCEDURE | KiemTraQuanLy |
+| PROCEDURE | DoiTrangThaiDangNhapDocGia |
 | TRIGGER | DocGia_ChanXoa |
 | TRIGGER | DocGia_KiemTraThem |
 | TRIGGER | DocGia_KiemTraSua |

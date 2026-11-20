@@ -115,7 +115,7 @@ BEGIN
  BEGIN DECLARE CONTINUE HANDLER FOR SQLSTATE '45000' SET tuChoi=TRUE; CALL ThuTienPhat(cb,ct,'TIEN_MAT'); END;
  IF NOT tuChoi THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='FAIL: reader can collect money'; END IF;
  ROLLBACK;
- SELECT 'PASS: manager-only locks/voids; no reader/fine delete; copy/title uniqueness; quota; renewals/history; staff notices; receipts; two-table inventory; disposal; feedback' AS KetQua;
+ SELECT 'PASS: manager-only borrowing locks/fine voids; no reader/fine delete; copy/title uniqueness; quota; renewals/history; staff notices; receipts; two-table inventory; disposal; feedback' AS KetQua;
 END$$
 
 CREATE PROCEDURE KiemThuDDC_MARC()

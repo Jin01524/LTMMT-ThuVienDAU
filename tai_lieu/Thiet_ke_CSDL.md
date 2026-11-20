@@ -1,6 +1,6 @@
 # Thiết kế CSDL thư viện DAU — phạm vi báo cáo học tập
 
-Cập nhật ngày **09/11/2026**. CSDL gồm **20 bảng, 160 cột, 45 khóa ngoại, 10 view, 15 trigger và 9 procedure**. Phiên bản tối thiểu là MySQL **8.0.21**, mốc `JSON_TABLE` đọc giá trị JSON null thành SQL `NULL`. [Tài liệu MySQL](https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html)
+Cập nhật ngày **20/11/2026**. CSDL gồm **20 bảng, 160 cột, 45 khóa ngoại, 10 view, 15 trigger và 10 procedure**. Phiên bản tối thiểu là MySQL **8.0.21**, mốc `JSON_TABLE` đọc giá trị JSON null thành SQL `NULL`. [Tài liệu MySQL](https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html)
 
 ## 1. Cách chạy
 
@@ -30,16 +30,17 @@ So với bản 23 bảng, mô hình mới bớt **3 bảng, 14 cột và 3 khóa
 
 ### Tài khoản
 
-TaiKhoan có VaiTro với bốn giá trị cố định:
+TaiKhoan có VaiTro với năm giá trị cố định:
 
 | Giá trị | Chức năng |
 |---|---|
 | QUAN_TRI | Cấu hình, gán vai trò cho tài khoản nhập từ danh sách trường |
 | QUAN_LY_THU_VIEN | Nghiệp vụ thư viện; riêng vai trò này được khóa/mở mượn và hủy vi phạm |
-| THU_THU | Biên mục, mượn/trả, thu tiền, phòng đọc, kiểm kê |
-| DOC_GIA | Tra cứu, phản hồi và xem thông tin của mình |
+| BIEN_MUC | Biên mục tài liệu; độc quyền khóa/mở tài khoản đăng nhập độc giả |
+| THU_THU | mượn/trả, thu tiền, phòng đọc, kiểm kê |
+| DOC_GIA | phản hồi và xem thông tin của mình |
 
-Vai trò biên mục được gộp vào thủ thư. Hồ sơ cán bộ/giảng viên vẫn nhập từ Excel, không thêm phân hệ quản lý nhân viên riêng. IdDocGia liên kết tài khoản với hồ sơ trường; chưa tạo tài khoản thật, chưa chốt cách cấp mật khẩu hay SSO.
+Vai trò BIEN_MUC tách riêng khỏi THU_THU. Hồ sơ cán bộ/giảng viên vẫn nhập từ Excel, không thêm phân hệ quản lý nhân viên riêng. IdDocGia liên kết tài khoản với hồ sơ trường; chưa tạo tài khoản thật, chưa chốt cách cấp mật khẩu hay SSO.
 
 ### Kiểm kê
 
@@ -185,3 +186,12 @@ Chưa thử giao diện, import Excel/Portal, tính phạt bằng lịch thật,
 Sơ đồ thể hiện 20 bảng, 160 cột và 45 khóa ngoại. Bản PNG dùng để chèn báo cáo, bản SVG dùng để phóng to hoặc chỉnh sửa vector. [PNG](../so_do/So_do_CSDL.png) · [SVG](../so_do/So_do_CSDL.svg) · [Slide thuyết trình](../slides/Database_Thu_vien_DAU.pptx)
 
 Nguồn vẽ: cong_cu/csdl/ve_so_do.mjs, dùng cùng cau_truc.mjs với generator SQL. Chạy node cong_cu/csdl/ve_so_do.mjs với thư viện @viz-js/viz và sharp; có thể đặt ERD_NODE_MODULES tới node_modules của runtime. Cần sinh lại ảnh khi cấu trúc thay đổi.
+
+## Quyền khóa tài khoản và quyền mượn
+
+- **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
+- **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
+- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+- HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.
+
+`DoiTrangThaiDangNhapDocGia` được gọi trong giao dịch của Service (BEGIN → CALL → COMMIT; lỗi thì ROLLBACK). ID người thao tác lấy từ phiên đã xác thực. Tài khoản MySQL dùng chung không thay thế vai trò nghiệp vụ; cần giới hạn cập nhật trực tiếp cột DangHoatDong và kiểm quyền ở Service. Truy vấn đăng nhập phải kiểm DangHoatDong=1; trước thao tác bảo vệ cần kiểm lại trạng thái phiên để tài khoản vừa khóa không tiếp tục sử dụng phiên cũ. Quy tắc này là hợp đồng triển khai HT-02; khung WinForms hiện chưa có đăng nhập nghiệp vụ.
