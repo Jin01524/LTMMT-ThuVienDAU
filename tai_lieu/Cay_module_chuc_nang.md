@@ -2,7 +2,7 @@
 
 Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
 [kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
-Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Giao diện MVC ở client gọi TCP Socket/JSON; server thực hiện xử lý và truy cập MySQL.
 Phân công mô đun áp dụng cho cả hai phía.
 
 ## 1. Căn cứ và cách phân rã
@@ -183,7 +183,7 @@ Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, 
 
 ## 6. Giai đoạn dự án
 
-Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và phạm vi đã thống nhất, gồm bản thu gọn 20 bảng ngày 09/11/2026. Đã có khung server API và client MVC để tiếp tục triển khai nghiệp vụ.
+Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và phạm vi đã thống nhất, gồm bản thu gọn 20 bảng ngày 09/11/2026. Đã có khung server TCP và client MVC để tiếp tục triển khai nghiệp vụ.
 
 ## Quyền khóa tài khoản và quyền mượn
 

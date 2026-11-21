@@ -2,7 +2,7 @@
 
 Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
 [kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
-Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Giao diện MVC ở client gọi TCP Socket/JSON; server thực hiện xử lý và truy cập MySQL.
 Phân công mô đun áp dụng cho cả hai phía.
 
 ## 1. Phạm vi và căn cứ

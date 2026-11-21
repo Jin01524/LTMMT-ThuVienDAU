@@ -3,4 +3,4 @@
 Người phụ trách **Huỳnh Công Thủ**.
 
 Điều phối các thao tác giao diện của LT-04.
-Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+Gọi dịch vụ TCP, chuyển model cho View và thông báo lỗi.

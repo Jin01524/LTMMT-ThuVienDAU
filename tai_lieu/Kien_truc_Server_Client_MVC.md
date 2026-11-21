@@ -6,12 +6,12 @@ Cấu trúc này nối tiếp bản MVC tại commit 21856d8.
 
 ## Kiến trúc thực thi
 
-Client Windows Forms .NET 10 gọi server ASP.NET Core .NET 10 bằng HTTP/JSON.
-Server thực hiện truy cập MySQL. HTTP/JSON được chọn để triển khai khung mạng,
-yêu cầu giảng viên cung cấp chưa chỉ định giao thức truyền.
+Client Windows Forms .NET 10 gọi server TCP Socket .NET 10 bằng TCP Socket/JSON.
+Server thực hiện truy cập MySQL. TCP Socket/JSON được dùng để triển khai khung mạng;
+giảng viên yêu cầu giao thức TCP trực tiếp.
 
-View WinForms phát sự kiện tới Controller client. Dịch vụ HTTP nhận model JSON
-từ Controller API trên server. Service và Data server thực hiện đọc dữ liệu.
+View WinForms phát sự kiện tới Controller client. Dịch vụ TCP nhận model JSON
+từ Controller TCP trên server. Service và Data server thực hiện đọc dữ liệu.
 Program.cs ở mỗi phía là điểm khởi động riêng.
 Các DTO dùng chung đặt tại server/Contracts và liên kết vào client khi build.
 
@@ -20,16 +20,16 @@ Các DTO dùng chung đặt tại server/Contracts và liên kết vào client k
 | client/Modules/TV1_VoNgocBinh/HT-01/Views | MainForm, Designer và IMainView |
 | client/Modules/TV1_VoNgocBinh/HT-01/Controllers | MainController |
 | client/Modules/TV1_VoNgocBinh/HT-01/Models | Ngoại lệ kiểm tra và DTO Compile Link |
-| client/Modules/TV1_VoNgocBinh/HT-01/Services | DatabaseHealthService gọi API |
+| client/Modules/TV1_VoNgocBinh/HT-01/Services | DatabaseHealthService gọi lệnh TCP |
 | server/Modules/TV1_VoNgocBinh/HT-01/Controllers | DatabaseHealthController |
 | server/Modules/TV1_VoNgocBinh/HT-01/Services | DatabaseHealthService truy vấn MySQL |
 | server/Data | MySqlConnectionFactory |
 | server/Configuration | DatabaseOptions |
 | server/Contracts | Dữ liệu thành công và lỗi qua mạng |
 
-Cấu hình client giữ Server.BaseUrl. Cấu hình server giữ MySql.
-Chạy server rồi client. Trên LAN, đặt URL server thực tế ở client;
---urls của server xác định giao diện mạng lắng nghe.
+Cấu hình client giữ Server.Host, Port, TimeoutSeconds. Cấu hình server giữ MySql.
+Chạy server rồi client. Trên LAN, đặt IP/cổng server thực tế ở client;
+--host và --port của server xác định địa chỉ TCP lắng nghe.
 
 ## Phân công đủ 29 mô đun
 
@@ -103,3 +103,7 @@ Báo cáo Word và Excel đang lưu mốc thiết kế/phân công trước thay
 Khi thuyết trình cấu trúc đang chạy, dùng README gốc và tài liệu kiến trúc này.
 CSDL giữ 20 bảng và các quy tắc quyền, DDC23/MARC21 đã chốt.
 Kiểm quyền và giao dịch của mô đun tương lai cần triển khai ở server theo tiêu chí nghiệm thu.
+
+## Giao thức giảng viên yêu cầu
+
+Khung mới dùng TCP Socket trực tiếp (TcpListener/TcpClient), không dùng HTTP. Tham chiếu [giao thức TCP](Giao_thuc_TCP.md) và bộ kiểm thử `cong_cu/kiem_tra_tcp`. Kiểm tra Server_Client_MVC.md trước thay đổi là lịch sử HTTP, không mô tả giao thức hiện hành.

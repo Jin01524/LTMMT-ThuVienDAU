@@ -1,4 +1,3 @@
-using System.Net.Http;
 using ThuVienDAU.Controllers;
 using ThuVienDAU.Forms;
 using ThuVienDAU.Services;
@@ -12,8 +11,7 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
         using var mainForm = new MainForm();
-        using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-        _ = new MainController(mainForm, new DatabaseHealthService(httpClient));
+        _ = new MainController(mainForm, new DatabaseHealthService(new TcpCommandClient()));
         Application.Run(mainForm);
     }
 }

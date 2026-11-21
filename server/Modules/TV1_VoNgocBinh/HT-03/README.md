@@ -10,7 +10,7 @@ Dịch vụ ghi/tra cứu nhật ký; đọc cấu hình; giờ đóng cửa, l�
 
 ## Trách nhiệm server
 
-Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
+Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
 Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
 
 Các bảng hoặc dữ liệu liên quan theo kế hoạch **NhatKy; JSON cấu hình**.

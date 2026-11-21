@@ -10,7 +10,7 @@ Chỉ Quản lý thư viện được hủy; giữ bản ghi và lý do/nhật k
 
 ## Trách nhiệm server
 
-Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
+Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
 Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
 
 Các bảng hoặc dữ liệu liên quan theo kế hoạch **ViPham, PhieuThu, NhatKy**.

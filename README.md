@@ -7,8 +7,8 @@ Solution **ThuVienDAU.sln** có hai chương trình chạy riêng.
 
 | Thư mục | Chương trình và trách nhiệm |
 |---|---|
-| [server](server/README.md) | ASP.NET Core API .NET 10, xử lý nghiệp vụ và truy cập MySQL |
-| [client](client/README.md) | Windows Forms .NET 10, giao diện MVC và gọi server qua HTTP/JSON |
+| [server](server/README.md) | TCP Socket Console .NET 10, xử lý nghiệp vụ và truy cập MySQL |
+| [client](client/README.md) | Windows Forms .NET 10, giao diện MVC và gọi server qua TCP Socket/JSON |
 | [server/Contracts](server/Contracts) | Kiểu dữ liệu JSON dùng chung, được client liên kết khi biên dịch |
 | [csdl](csdl) | Bộ SQL và cấu hình nghiệp vụ dùng chung cho server |
 | [tai_lieu](tai_lieu) | Thiết kế nghiệp vụ, kế hoạch và đối chiếu kiến trúc |
@@ -27,7 +27,7 @@ trách nhiệm ở mỗi phía và điều kiện nghiệm thu. Phân công đ�
 
 ## Mở và chạy project
 
-Dùng Visual Studio có workload **.NET desktop development**, **ASP.NET and web development**
+Dùng Visual Studio có workload **.NET desktop development**
 và SDK **.NET 10**. Mở ThuVienDAU.sln.
 
     dotnet restore ThuVienDAU.sln --locked-mode
@@ -37,8 +37,8 @@ Chạy server trong terminal thứ nhất.
 
     dotnet run --project server/ThuVienDAU.Server.csproj
 
-Server mặc định lắng nghe http://localhost:5080. Mở
-http://localhost:5080/api/health để kiểm tra tiến trình.
+Server mặc định lắng nghe TCP tại 127.0.0.1:5080.
+Lệnh PING kiểm tra tiến trình; DATABASE_HEALTH kiểm tra MySQL.
 Chạy client trong terminal thứ hai trên Windows.
 
     dotnet run --project client/ThuVienDAU.WinForms.csproj
@@ -51,9 +51,9 @@ server/appsettings.local.json, điền tài khoản DB rồi build lại server.
 Chọn **Công cụ → Kiểm tra kết nối MySQL** trong client.
 Client gửi yêu cầu đến server, server truy vấn MySQL và trả kết quả để hiển thị.
 
-Khi chạy máy khác, đặt địa chỉ IP/tên máy server trong
+Khi chạy máy khác, đặt Server.Host là địa chỉ IP/tên máy server, Server.Port là cổng TCP trong
 client/appsettings.local.json theo mẫu ở client và build lại client.
-Chạy server với --urls http://0.0.0.0:5080 trên mạng demo nội bộ
+Chạy server với --host 0.0.0.0 --port 5080 trên mạng demo nội bộ
 được cho phép. Chi tiết cấu hình nằm trong README của hai thư mục.
 
 HT-01 có luồng kiểm tra kết nối qua mạng. Các mô đun nghiệp vụ đã có vị trí,
@@ -104,3 +104,5 @@ Mở SQL trong Workbench, chạy toàn bộ khi schema **ThuVienDAU chưa tồn 
 Sao lưu **21 file** của bản 23 bảng và đối chiếu SHA-256 trong `C:/Users/ngocb/.codex/visualizations/2026/11/01/01a19766-c3b9-7f82-830e-4d367ef38209/LTMMT_truoc_thu_gon_20_bang_2026-11-09.zip`.
 
 Quyền cập nhật 20/11/2026: BIEN_MUC độc quyền khóa/mở đăng nhập độc giả; QUAN_LY_THU_VIEN giữ khóa/mở mượn và hủy phiếu phạt. [Kết quả kiểm thử quyền](kiem_tra/Quyen_dang_nhap_2026-11-20.txt). Khung WinForms chưa triển khai đăng nhập nghiệp vụ.
+
+Giao thức hiện hành: [TCP Socket](tai_lieu/Giao_thuc_TCP.md). Khung mạng đã chuyển khỏi HTTP; bản ghi Server_Client_MVC.md trước đây là lịch sử. Kiểm thử hiện hành: `dotnet run --project cong_cu/kiem_tra_tcp`.

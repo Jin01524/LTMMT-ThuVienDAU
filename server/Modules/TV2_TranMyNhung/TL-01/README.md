@@ -10,7 +10,7 @@ Tra cây DDC23 bản in tiếng Việt rút gọn; lưu nguồn/người/vị tr
 
 ## Trách nhiệm server
 
-Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
+Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
 Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
 
 Các bảng hoặc dữ liệu liên quan theo kế hoạch **MucPhanLoaiDDC, DauTaiLieu**.

@@ -3,4 +3,4 @@
 Người phụ trách **Trần Mỹ Nhung**.
 
 Điều phối các thao tác giao diện của KK-02.
-Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+Gọi dịch vụ TCP, chuyển model cho View và thông báo lỗi.

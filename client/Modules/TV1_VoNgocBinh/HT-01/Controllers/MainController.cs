@@ -1,4 +1,4 @@
-using System.Net.Http;
+using System.Net.Sockets;
 using System.Text.Json;
 using ThuVienDAU.Models;
 using ThuVienDAU.Forms;
@@ -33,19 +33,23 @@ internal sealed class MainController
                 : exception.Message;
             view.ShowConnectionCheckFailed(message);
         }
-        catch (HttpRequestException)
+        catch (SocketException)
         {
-            view.ShowConnectionCheckFailed("Không kết nối được server. Kiểm tra Server.BaseUrl, mạng và tiến trình server.");
+            view.ShowConnectionCheckFailed("Không kết nối được server. Kiểm tra Server.Host/Port, mạng và tiến trình server.");
         }
-        catch (TaskCanceledException)
+        catch (OperationCanceledException)
         {
             view.ShowConnectionCheckFailed("Server phản hồi quá thời gian chờ. Kiểm tra kết nối rồi thử lại.");
+        }
+        catch (IOException)
+        {
+            view.ShowConnectionCheckFailed("Kết nối TCP bị ngắt hoặc bản tin không hợp lệ. Kiểm tra server rồi thử lại.");
         }
         catch (JsonException)
         {
             view.ShowConnectionConfigurationError("Cấu hình client hoặc dữ liệu JSON trả về từ server không hợp lệ.");
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is UnauthorizedAccessException)
         {
             view.ShowConnectionConfigurationError("Không đọc được file cấu hình client. Kiểm tra đường dẫn và quyền truy cập.");
         }

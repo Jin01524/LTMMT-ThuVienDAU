@@ -1,35 +1,29 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
-using ThuVienDAU.Models;
+using ThuVienDAU.Protocol;
 using ThuVienDAU.Services;
-
 namespace ThuVienDAU.Server.Controllers;
-
-[ApiController]
-[Route("api/database")]
-public sealed class DatabaseHealthController(DatabaseHealthService service) : ControllerBase
+public sealed class DatabaseHealthController(DatabaseHealthService service)
 {
-    [HttpGet("health")]
-    public async Task<ActionResult<DatabaseConnectionInfo>> Check(CancellationToken cancellationToken)
+    public async Task<TcpResponse> HandleAsync(TcpRequest request, CancellationToken token)
     {
+        if (request.Version != TcpProtocol.Version || string.IsNullOrWhiteSpace(request.RequestId) || request.RequestId.Length > 64)
+            return new(1, request.RequestId, false, Error: "Phiên bản hoặc mã yêu cầu không hợp lệ.");
+        if (request.Command == "PING")
+            return new(1, request.RequestId, true, JsonSerializer.SerializeToElement(new { status = "ok", application = "ThuVienDAU.Server" }, TcpProtocol.Json));
+        if (request.Command != "DATABASE_HEALTH")
+            return new(1, request.RequestId, false, Error: "Lệnh TCP không được hỗ trợ.");
         try
         {
-            return Ok(await service.CheckAsync(cancellationToken));
+            return new(1, request.RequestId, true, JsonSerializer.SerializeToElement(await service.CheckAsync(token), TcpProtocol.Json));
         }
         catch (MySqlException exception)
         {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable,
-                new DatabaseHealthError(
-                    "Server chưa kết nối được MySQL. Kiểm tra máy chủ, cổng, tài khoản và quyền truy cập.",
-                    exception.Number));
+            return new(1, request.RequestId, false, Error: "Server chưa kết nối được MySQL. Kiểm tra cấu hình và quyền truy cập.", ErrorNumber: exception.Number);
         }
-        catch (Exception exception) when (exception is InvalidOperationException or
-            ArgumentException or JsonException or IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is InvalidOperationException or ArgumentException or JsonException or IOException or UnauthorizedAccessException)
         {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable,
-                new DatabaseHealthError(
-                    "Server cần cấu hình MySQL. Kiểm tra appsettings.local.json trong thư mục server và build lại."));
+            return new(1, request.RequestId, false, Error: "Server cần cấu hình MySQL. Kiểm tra appsettings.local.json trong server và build lại.");
         }
     }
 }

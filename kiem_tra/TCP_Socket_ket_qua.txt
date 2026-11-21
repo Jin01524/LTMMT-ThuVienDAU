@@ -1,0 +1,19 @@
+PASS real server PING
+PASS database health response
+PASS unknown command rejected
+PASS fragmented request header/body
+PASS server closes after one response
+PASS unsupported version
+PASS malformed/oversized/truncated client does not stop listener
+PASS 40 concurrent clients
+PASS client reads fragmented success response
+PASS typed database error
+PASS request ID mismatch
+PASS disconnect mid-response
+PASS oversized response
+PASS null JSON response
+PASS client timeout
+PASS invalid configuration
+PASS legacy HTTP configuration rejected
+PASS unavailable server (refused or connect timeout)
+PASS: 18 TCP integration checks; real server and actual client transport/service. UI and LAN not tested.

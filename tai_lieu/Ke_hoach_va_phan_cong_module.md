@@ -2,7 +2,7 @@
 
 Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
 [kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
-Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Giao diện MVC ở client gọi TCP Socket/JSON; server thực hiện xử lý và truy cập MySQL.
 Phân công mô đun áp dụng cho cả hai phía.
 
 Ngày lập: 19/11/2026. Nền tảng dự kiến: C# WinForms, .NET, MySQL 8.0.21+. Căn cứ: [Cây chức năng](Cay_module_chuc_nang.md), [Workflow](Workflow.md), [Thiết kế CSDL](Thiet_ke_CSDL.md) và cấu hình dự án hiện hành. Đây là kế hoạch triển khai, không phải xác nhận đã lập trình xong.
@@ -88,7 +88,7 @@ HT: hệ thống; DG: độc giả; TL: tài liệu; KK: kiểm kê/thanh lý; L
 
 | Bên cung cấp | Bên dùng | Dữ liệu/hợp đồng cần bàn giao |
 |---|---|---|
-| TV1 — HT-01/02/03 | TV2, TV3 | URL server và hợp đồng API; truy vấn DB có tham số trên server; phiên IdTaiKhoan/VaiTro/IdDocGia; bộ kiểm quyền; cấu hình và hàm ghi nhật ký. |
+| TV1 — HT-01/02/03 | TV2, TV3 | IP/cổng server và hợp đồng lệnh TCP; truy vấn DB có tham số trên server; phiên IdTaiKhoan/VaiTro/IdDocGia; bộ kiểm quyền; cấu hình và hàm ghi nhật ký. |
 | TV1 — DG-01/02/03 | TV2, TV3 | Tìm độc giả theo mã trường; nhóm độc giả/trạng thái/quyền mượn; dữ liệu SV/GV cho đồ án. Chỉ DG-03 thay đổi khóa/mở bằng quyền quản lý. |
 | TV2 — TL-02/04 | TV3 | Tra bản sách theo barcode: IdBanTaiLieu, IdDauTaiLieu, trạng thái, giá và vị trí. LT-01/02 được cập nhật trạng thái trong giao dịch, không sửa thông tin biên mục. |
 | TV2 — TL-03 | TV2 — BC-02, TV3 — LT-04 | Tên, tác giả, ISBN và dữ liệu MARC cần trình bày; không để các form tự phân tích JSON khác nhau. |
@@ -96,7 +96,7 @@ HT: hệ thống; DG: độc giả; TL: tài liệu; KK: kiểm kê/thanh lý; L
 | Mỗi thành viên — BC-01/02/03 | TV1 — TC-01 | Màn hình/kết quả báo cáo của mảng mình; TV1 ghép dashboard theo vai trò. Người sở hữu báo cáo chịu trách nhiệm phép đếm và bộ lọc. |
 | TV2 — TL-07; TV3 — LT-04 | TV1 — TC-01 | Thành phần in dùng chung, mẫu nhãn/phiếu riêng; máy quét dạng bàn phím qua ô nhập, chưa có thiết bị thì kiểm bằng nhập mã và xem trước. |
 
-Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Luồng triển khai là View → Controller client → HTTP API → Controller server → Service → Repository/Data. Nghiệp vụ mượn/trả/thu tiền phải có một giao dịch DB cho toàn bộ thay đổi liên quan. TV3 chủ trì giao dịch; hàm đọc dữ liệu của TV1/TV2 phải hỗ trợ dùng cùng kết nối/giao dịch khi cần. Dùng trigger/procedure hiện có sau khi rà SQL để tránh cập nhật trạng thái hoặc tính tiền hai lần.
+Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Luồng triển khai là View → Controller client → TCP Socket → Controller server → Service → Repository/Data. Nghiệp vụ mượn/trả/thu tiền phải có một giao dịch DB cho toàn bộ thay đổi liên quan. TV3 chủ trì giao dịch; hàm đọc dữ liệu của TV1/TV2 phải hỗ trợ dùng cùng kết nối/giao dịch khi cần. Dùng trigger/procedure hiện có sau khi rà SQL để tránh cập nhật trạng thái hoặc tính tiền hai lần.
 
 ## 5. Phạm vi và các điểm chưa chốt
 
