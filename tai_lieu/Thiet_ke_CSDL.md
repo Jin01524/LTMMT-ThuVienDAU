@@ -1,5 +1,10 @@
 # Thiết kế CSDL thư viện DAU — phạm vi báo cáo học tập
 
+Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
+[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
+Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Phân công mô đun áp dụng cho cả hai phía.
+
 Cập nhật ngày **20/11/2026**. CSDL gồm **20 bảng, 160 cột, 45 khóa ngoại, 10 view, 15 trigger và 10 procedure**. Phiên bản tối thiểu là MySQL **8.0.21**, mốc `JSON_TABLE` đọc giá trị JSON null thành SQL `NULL`. [Tài liệu MySQL](https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html)
 
 ## 1. Cách chạy

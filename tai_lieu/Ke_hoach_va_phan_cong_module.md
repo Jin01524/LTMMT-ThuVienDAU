@@ -1,5 +1,10 @@
 # Kế hoạch triển khai và phân công module — nhóm 3 thành viên
 
+Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
+[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
+Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Phân công mô đun áp dụng cho cả hai phía.
+
 Ngày lập: 19/11/2026. Nền tảng dự kiến: C# WinForms, .NET, MySQL 8.0.21+. Căn cứ: [Cây chức năng](Cay_module_chuc_nang.md), [Workflow](Workflow.md), [Thiết kế CSDL](Thiet_ke_CSDL.md) và cấu hình dự án hiện hành. Đây là kế hoạch triển khai, không phải xác nhận đã lập trình xong.
 
 ## 1. Phân công tổng thể
@@ -83,7 +88,7 @@ HT: hệ thống; DG: độc giả; TL: tài liệu; KK: kiểm kê/thanh lý; L
 
 | Bên cung cấp | Bên dùng | Dữ liệu/hợp đồng cần bàn giao |
 |---|---|---|
-| TV1 — HT-01/02/03 | TV2, TV3 | Kết nối DB có tham số; phiên IdTaiKhoan/VaiTro/IdDocGia; bộ kiểm quyền; cấu hình và hàm ghi nhật ký. |
+| TV1 — HT-01/02/03 | TV2, TV3 | URL server và hợp đồng API; truy vấn DB có tham số trên server; phiên IdTaiKhoan/VaiTro/IdDocGia; bộ kiểm quyền; cấu hình và hàm ghi nhật ký. |
 | TV1 — DG-01/02/03 | TV2, TV3 | Tìm độc giả theo mã trường; nhóm độc giả/trạng thái/quyền mượn; dữ liệu SV/GV cho đồ án. Chỉ DG-03 thay đổi khóa/mở bằng quyền quản lý. |
 | TV2 — TL-02/04 | TV3 | Tra bản sách theo barcode: IdBanTaiLieu, IdDauTaiLieu, trạng thái, giá và vị trí. LT-01/02 được cập nhật trạng thái trong giao dịch, không sửa thông tin biên mục. |
 | TV2 — TL-03 | TV2 — BC-02, TV3 — LT-04 | Tên, tác giả, ISBN và dữ liệu MARC cần trình bày; không để các form tự phân tích JSON khác nhau. |
@@ -91,7 +96,7 @@ HT: hệ thống; DG: độc giả; TL: tài liệu; KK: kiểm kê/thanh lý; L
 | Mỗi thành viên — BC-01/02/03 | TV1 — TC-01 | Màn hình/kết quả báo cáo của mảng mình; TV1 ghép dashboard theo vai trò. Người sở hữu báo cáo chịu trách nhiệm phép đếm và bộ lọc. |
 | TV2 — TL-07; TV3 — LT-04 | TV1 — TC-01 | Thành phần in dùng chung, mẫu nhãn/phiếu riêng; máy quét dạng bàn phím qua ô nhập, chưa có thiết bị thì kiểm bằng nhập mã và xem trước. |
 
-Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Dùng UI gọi Service, Service gọi Repository; không thêm tầng riêng nếu không có trách nhiệm rõ. Nghiệp vụ mượn/trả/thu tiền phải có một giao dịch DB cho toàn bộ thay đổi liên quan. TV3 chủ trì giao dịch; hàm đọc dữ liệu của TV1/TV2 phải hỗ trợ dùng cùng kết nối/giao dịch khi cần. Dùng trigger/procedure hiện có sau khi rà SQL để tránh cập nhật trạng thái hoặc tính tiền hai lần.
+Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Luồng triển khai là View → Controller client → HTTP API → Controller server → Service → Repository/Data. Nghiệp vụ mượn/trả/thu tiền phải có một giao dịch DB cho toàn bộ thay đổi liên quan. TV3 chủ trì giao dịch; hàm đọc dữ liệu của TV1/TV2 phải hỗ trợ dùng cùng kết nối/giao dịch khi cần. Dùng trigger/procedure hiện có sau khi rà SQL để tránh cập nhật trạng thái hoặc tính tiền hai lần.
 
 ## 5. Phạm vi và các điểm chưa chốt
 
@@ -111,7 +116,7 @@ Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Dùng
 4. Trả thường, trả một phần, trả lặp; quá hạn SV có ngày miễn phạt; CB/GV sinh thông báo đơn vị. Khi lịch lễ chưa xác nhận, hệ thống không tự chốt số tiền theo toàn bộ ngày.
 5. Mất/hỏng: 2 lần giá, sách thay thế cộng 20.000đ, hoặc chi phí trang theo quyết định. Thu đủ, chặn thu trùng; thủ thư bị từ chối hủy phiếu/khóa mở; quản lý được thao tác và có nhật ký. Hủy khoản đã thu giữ số tiền chứng từ.
 6. Gia hạn hợp lệ và bị từ chối; nhập/ra phòng đọc; kiểm kê thiếu/thừa/sai vị trí; thanh lý theo quyết định; số báo cáo khớp chứng từ và bộ lọc.
-7. Chạy bản cài trên máy khác kết nối DB thử, thử backup/restore trên DB riêng; in xem trước và ghi rõ thiết bị chưa có. Mỗi bạn trình bày phần mình và bàn giao hướng dẫn.
+7. Chạy client trên máy khác gọi server kết nối DB thử, thử backup/restore trên DB riêng; in xem trước và ghi rõ thiết bị chưa có. Mỗi bạn trình bày phần mình và bàn giao hướng dẫn.
 
 Chỉ chuyển trạng thái Hoàn thành khi có kết quả tự kiểm, người khác rà soát và chạy luồng liên quan. TC-02 là đầu mối tổng hợp, cả ba cùng chạy kiểm thử và sửa lỗi. Không dùng dữ liệu thử để ghi đè DB đang dùng.
 

@@ -1,0 +1,17 @@
+# TL-01 Danh mục DDC23 và xác nhận phân loại
+
+Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
+
+Phụ thuộc trước khi hoàn tất HT-02, HT-03.
+
+## Nghiệm thu
+
+Tra cây DDC23 bản in tiếng Việt rút gọn; lưu nguồn/người/vị trí tra; mục chưa đối chiếu không tự xác nhận.
+
+## Trách nhiệm client
+
+Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
+dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
+Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
+
+Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.

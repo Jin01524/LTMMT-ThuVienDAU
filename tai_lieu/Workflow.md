@@ -1,5 +1,10 @@
 # Phân tích và thiết kế workflow – HTTT Quản lý Thư viện DAU
 
+Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
+[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
+Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Phân công mô đun áp dụng cho cả hai phía.
+
 ## 1. Phạm vi và căn cứ
 
 Tài liệu dựa trên cây chức năng, quy định thư viện và phạm vi người dùng đã chốt. Bản ngày 09/11/2026 dùng MySQL 8.0.21+, DDC23 bản in tiếng Việt rút gọn và MARC21. [Cây chức năng](Cay_module_chuc_nang.md) · [Thiết kế CSDL](Thiet_ke_CSDL.md)

@@ -1,32 +1,67 @@
 # Hệ thống quản lý thư viện DAU
 
+## Tổ chức server và client
+
+Cấu trúc cập nhật ngày **21/11/2026** theo yêu cầu bài tập MVC.
+Solution **ThuVienDAU.sln** có hai chương trình chạy riêng.
+
+| Thư mục | Chương trình và trách nhiệm |
+|---|---|
+| [server](server/README.md) | ASP.NET Core API .NET 10, xử lý nghiệp vụ và truy cập MySQL |
+| [client](client/README.md) | Windows Forms .NET 10, giao diện MVC và gọi server qua HTTP/JSON |
+| [server/Contracts](server/Contracts) | Kiểu dữ liệu JSON dùng chung, được client liên kết khi biên dịch |
+| [csdl](csdl) | Bộ SQL và cấu hình nghiệp vụ dùng chung cho server |
+| [tai_lieu](tai_lieu) | Thiết kế nghiệp vụ, kế hoạch và đối chiếu kiến trúc |
+
+Các mô đun được bố trí đối xứng trong client/Modules và server/Modules.
+
+| Thành viên | Thư mục trong Modules | Số mô đun | Tài khoản GitHub |
+|---|---|---:|---|
+| Võ Ngọc Bình | [TV1_VoNgocBinh](client/Modules/TV1_VoNgocBinh) | 10 | [Jin01524](https://github.com/Jin01524) |
+| Trần Mỹ Nhung | [TV2_TranMyNhung](client/Modules/TV2_TranMyNhung) | 9 | Chưa cung cấp |
+| Huỳnh Công Thủ | [TV3_HuynhCongThu](client/Modules/TV3_HuynhCongThu) | 10 | Chưa cung cấp |
+
+Mỗi thư mục mô đun có README ghi người làm, người rà soát, phụ thuộc,
+trách nhiệm ở mỗi phía và điều kiện nghiệm thu. Phân công đầy đủ nằm tại
+[kiến trúc và đối chiếu tài liệu](tai_lieu/Kien_truc_Server_Client_MVC.md).
+
 ## Mở và chạy project
 
-Mở **ThuVienDAU.sln** bằng Visual Studio có workload **.NET desktop development** và hỗ trợ **.NET 10**.
-Chọn **ThuVienDAU.WinForms** làm Startup Project rồi nhấn F5. Lần đầu cần kết nối Internet để restore NuGet.
+Dùng Visual Studio có workload **.NET desktop development**, **ASP.NET and web development**
+và SDK **.NET 10**. Mở ThuVienDAU.sln.
 
-```powershell
-dotnet restore ThuVienDAU.sln --locked-mode
-dotnet build ThuVienDAU.sln -c Release --no-restore
-dotnet run --project src/ThuVienDAU.WinForms
-```
+    dotnet restore ThuVienDAU.sln --locked-mode
+    dotnet build ThuVienDAU.sln -c Release --no-restore
 
-Khung ban đầu chạy được khi chưa có MySQL. Để kiểm tra kết nối, sao chép
-`src/ThuVienDAU.WinForms/appsettings.example.json` thành `appsettings.local.json` cùng thư mục,
-điền thông tin máy mình rồi build lại. Trong app chọn **Công cụ → Kiểm tra kết nối MySQL**.
-Ứng dụng không tự chạy SQL tạo bảng, không tự nhập dữ liệu và chưa có đăng nhập/nghiệp vụ.
+Chạy server trong terminal thứ nhất.
 
-Project WinForms tổ chức theo MVC. `Forms/` chứa View, `Controllers/` điều phối thao tác
-từ giao diện và `Models/` chứa các kiểu dữ liệu. `Services/` thực hiện xử lý ứng dụng,
-`Data/` phụ trách kết nối CSDL và `Configuration/` đọc cấu hình.
-`Program.cs` khởi tạo và kết nối các thành phần.
+    dotnet run --project server/ThuVienDAU.Server.csproj
 
-Luồng kiểm tra MySQL đi từ `MainForm` qua `MainController` đến
-`DatabaseHealthService` và `MySqlConnectionFactory`. Service trả về
-`DatabaseConnectionInfo` để form hiển thị kết quả.
+Server mặc định lắng nghe http://localhost:5080. Mở
+http://localhost:5080/api/health để kiểm tra tiến trình.
+Chạy client trong terminal thứ hai trên Windows.
 
-Quy ước nhánh, PR và hướng dẫn cho cả nhóm ở [CONTRIBUTING.md](CONTRIBUTING.md).
-Các file bin/obj/.vs và cấu hình local được Git bỏ qua.
+    dotnet run --project client/ThuVienDAU.WinForms.csproj
+
+Trong Visual Studio có thể chọn **Configure Startup Projects** và đặt cả
+**ThuVienDAU.Server** và **ThuVienDAU.WinForms** sang **Start**.
+
+Để kiểm tra MySQL, sao chép server/appsettings.example.json thành
+server/appsettings.local.json, điền tài khoản DB rồi build lại server.
+Chọn **Công cụ → Kiểm tra kết nối MySQL** trong client.
+Client gửi yêu cầu đến server, server truy vấn MySQL và trả kết quả để hiển thị.
+
+Khi chạy máy khác, đặt địa chỉ IP/tên máy server trong
+client/appsettings.local.json theo mẫu ở client và build lại client.
+Chạy server với --urls http://0.0.0.0:5080 trên mạng demo nội bộ
+được cho phép. Chi tiết cấu hình nằm trong README của hai thư mục.
+
+HT-01 có luồng kiểm tra kết nối qua mạng. Các mô đun nghiệp vụ đã có vị trí,
+phân công và tiêu chí bàn giao, đang chờ triển khai chức năng.
+Kết quả xác minh khung mới ghi ở
+[kiểm tra server và client](kiem_tra/Server_Client_MVC.md).
+
+Quy ước làm việc nhóm nằm ở [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Tài liệu và CSDL hiện hành
 

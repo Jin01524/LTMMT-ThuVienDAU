@@ -1,5 +1,10 @@
 # Cây module chức năng – Hệ thống thông tin quản lý thư viện DAU
 
+Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
+[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
+Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Phân công mô đun áp dụng cho cả hai phía.
+
 ## 1. Căn cứ và cách phân rã
 
 Cây chức năng dựa trên quy định thư viện và phạm vi người dùng đã chốt. Bản CSDL ngày 09/11/2026 dùng MySQL 8.0.21+, DDC23 bản in tiếng Việt rút gọn và MARC21. [Thiết kế CSDL](Thiet_ke_CSDL.md)
@@ -170,7 +175,7 @@ Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, 
 
 ## 5. Ranh giới kỹ thuật và điểm cần chốt
 
-- Nền tảng hiện tại: C# .NET/Windows Forms, MySQL 8.0 và Client–Server. DDC23/MARC21 hiện đã được hỗ trợ ở cấu trúc DB; chưa có code ứng dụng, parser/serializer hay giao diện tương ứng.
+- Nền tảng hiện tại: C# .NET/Windows Forms, MySQL 8.0 và Client–Server. DDC23/MARC21 hiện đã được hỗ trợ ở cấu trúc DB; các giao diện và xử lý nghiệp vụ DDC23/MARC21 đang chờ triển khai trên khung server/client.
 - Các lá gắn `[Phân rã]` là đề xuất để làm rõ các chức năng mức cao; luồng ngoại lệ, quy tắc dữ liệu và tiêu chí nghiệm thu chi tiết vẫn cần đặc tả.
 - Các workflow cho các quy trình nghiệp vụ chính và danh sách điểm cần chốt được lập riêng tại `Workflow.md`.
 - CSDL 20 bảng. Mỗi đầu tài liệu giữ danh sách tệp đính kèm và mỗi biểu ghi MARC giữ mảng trường, trường con. Vị trí kho gồm dãy kệ và ngăn. Kiểm kê gồm đợt kiểm kê và các dòng chi tiết.
@@ -178,7 +183,7 @@ Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, 
 
 ## 6. Giai đoạn dự án
 
-Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và phạm vi đã thống nhất, gồm bản thu gọn 20 bảng ngày 09/11/2026. Dự án đang ở giai đoạn thiết kế CSDL.
+Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và phạm vi đã thống nhất, gồm bản thu gọn 20 bảng ngày 09/11/2026. Đã có khung server API và client MVC để tiếp tục triển khai nghiệp vụ.
 
 ## Quyền khóa tài khoản và quyền mượn
 
