@@ -16,8 +16,17 @@ Khung ban đầu chạy được khi chưa có MySQL. Để kiểm tra kết n�
 điền thông tin máy mình rồi build lại. Trong app chọn **Công cụ → Kiểm tra kết nối MySQL**.
 Ứng dụng không tự chạy SQL tạo bảng, không tự nhập dữ liệu và chưa có đăng nhập/nghiệp vụ.
 
-Một project chia thư mục Forms/Models/Services/Data/Configuration. Quy ước nhánh, PR và hướng dẫn
-cho cả nhóm ở [CONTRIBUTING.md](CONTRIBUTING.md). Các file bin/obj/.vs và cấu hình local được Git bỏ qua.
+Project WinForms tổ chức theo MVC. `Forms/` chứa View, `Controllers/` điều phối thao tác
+từ giao diện và `Models/` chứa các kiểu dữ liệu. `Services/` thực hiện xử lý ứng dụng,
+`Data/` phụ trách kết nối CSDL và `Configuration/` đọc cấu hình.
+`Program.cs` khởi tạo và kết nối các thành phần.
+
+Luồng kiểm tra MySQL đi từ `MainForm` qua `MainController` đến
+`DatabaseHealthService` và `MySqlConnectionFactory`. Service trả về
+`DatabaseConnectionInfo` để form hiển thị kết quả.
+
+Quy ước nhánh, PR và hướng dẫn cho cả nhóm ở [CONTRIBUTING.md](CONTRIBUTING.md).
+Các file bin/obj/.vs và cấu hình local được Git bỏ qua.
 
 ## Tài liệu và CSDL hiện hành
 

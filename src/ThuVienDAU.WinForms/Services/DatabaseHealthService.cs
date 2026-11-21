@@ -1,11 +1,14 @@
+using ThuVienDAU.Configuration;
 using ThuVienDAU.Data;
+using ThuVienDAU.Models;
 
 namespace ThuVienDAU.Services;
 
-public sealed class DatabaseHealthService(MySqlConnectionFactory connectionFactory)
+public sealed class DatabaseHealthService
 {
-    public async Task<string> CheckAsync(CancellationToken cancellationToken = default)
+    public async Task<DatabaseConnectionInfo> CheckAsync(CancellationToken cancellationToken = default)
     {
+        var connectionFactory = new MySqlConnectionFactory(DatabaseOptions.Load());
         await using var connection = await connectionFactory.OpenAsync(cancellationToken);
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT VERSION(), DATABASE();";
@@ -15,6 +18,6 @@ public sealed class DatabaseHealthService(MySqlConnectionFactory connectionFacto
             throw new InvalidOperationException("Không đọc được thông tin máy chủ MySQL.");
         }
 
-        return $"Kết nối thành công.\nMySQL: {reader.GetString(0)}\nCSDL: {reader.GetString(1)}";
+        return new DatabaseConnectionInfo(reader.GetString(0), reader.GetString(1));
     }
 }
