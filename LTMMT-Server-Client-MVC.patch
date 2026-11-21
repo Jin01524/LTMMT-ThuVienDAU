@@ -1,0 +1,3562 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index bae49ba..4dc2f68 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -18,25 +18,28 @@ Người khởi tạo repo có thể là TV2; việc đó không đổi phân c
+ 
+ ## Phân chia file
+ 
+-- TV1: hệ thống, hồ sơ độc giả, BC-01 và điều phối tích hợp.
+-- TV2: tài liệu, DDC23/MARC21, kho và BC-02.
+-- TV3: mượn/trả, vi phạm/thu tiền, phòng đọc/phản hồi và BC-03.
++- TV1 Võ Ngọc Bình — Modules/TV1_VoNgocBinh ở cả client và server. Hệ thống, độc giả, BC-01 và tích hợp.
++- TV2 Trần Mỹ Nhung — Modules/TV2_TranMyNhung ở cả client và server. Tài liệu, DDC23/MARC21, kho và BC-02.
++- TV3 Huỳnh Công Thủ — Modules/TV3_HuynhCongThu ở cả client và server. Mượn/trả, vi phạm/thu tiền, phòng đọc/phản hồi và BC-03.
+ - Chỉ một người sửa MainForm hoặc một Form cụ thể tại một thời điểm.
+ - Commit đủ bộ `.cs`, `.Designer.cs`, `.resx` khi Designer tạo/sửa form.
+ - Đổi tên model, chữ ký dịch vụ, bảng/cột hoặc package dùng chung cần báo cả nhóm trước khi ghép.
+ - Word/Excel/PowerPoint khó tự ghép xung đột. Mỗi lần chỉ một người sửa một file tài liệu rồi bàn giao.
+ 
+-## Cấu hình MySQL trên từng máy
++## Cấu hình khi phát triển
+ 
+-1. Chạy SQL tạo CSDL mới theo README khi schema chưa có. Không chạy lại để ghi đè CSDL hiện hữu.
+-2. Sao chép `src/ThuVienDAU.WinForms/appsettings.example.json` thành `appsettings.local.json` trong cùng thư mục.
+-3. Điền máy chủ, cổng, CSDL và tài khoản riêng được cấp quyền. File local được Git bỏ qua.
+-4. Build lại, chạy ứng dụng và chọn Công cụ → Kiểm tra kết nối MySQL.
++1. Cập nhật mã nguồn và mở ThuVienDAU.sln ở gốc repo.
++2. Trên máy server, chuẩn bị CSDL thử theo README và tạo server/appsettings.local.json từ mẫu.
++3. Trên máy client, tạo client/appsettings.local.json theo mẫu nếu cần đổi Server.BaseUrl.
++4. Build solution, chạy server trước và client sau; kiểm tra MySQL qua menu client.
++5. Mỗi người sửa mô đun của mình trong cả client/Modules và server/Modules.
++   DTO dùng chung đặt tại server/Contracts; thay đổi hợp đồng cần báo người gọi API.
+ 
+-Mỗi máy phát triển có thể dùng CSDL thử riêng nhưng phải cùng cấu trúc SQL chuẩn.
+-Khi demo Client–Server, các máy trạm dùng cùng máy chủ và dữ liệu demo đã thống nhất.
+-Không đưa mật khẩu thật vào code, PR hoặc cấu hình mẫu. Không dùng root cho máy khách khi triển khai chung.
+-Không bật AllowPublicKeyRetrieval để né lỗi xác thực; cấu hình TLS/chứng chỉ hoặc khóa máy chủ đúng môi trường.
++Mỗi máy phát triển có thể chạy cả hai chương trình với CSDL thử riêng cùng cấu trúc.
++Khi demo nhiều máy, các client dùng cùng URL server và dữ liệu demo thống nhất.
++Cấu hình MySQL được đặt ở máy server. Dùng tài khoản DB giới hạn quyền.
++Địa chỉ và cổng server phải khớp cấu hình client. Bổ sung tài khoản GitHub
++của TV2 và TV3 vào README khi hai bạn cung cấp để giảng viên đối chiếu đóng góp.
+ 
+ ## Khi gặp conflict
+ 
+@@ -46,7 +49,7 @@ Không force-push hoặc reset main để bỏ qua lỗi.
+ 
+ ## Giới hạn bản khởi đầu
+ 
+-Bản đầu có khung form, cấu hình mẫu và kiểm tra kết nối chỉ đọc. Chưa có đăng nhập/phân quyền
++Khung hiện tại có server API, client MVC, cấu hình riêng mỗi phía và kiểm tra kết nối chỉ đọc. Chưa có đăng nhập/phân quyền
+ hay nghiệp vụ mượn/trả. Chưa dùng bản khởi đầu với dữ liệu vận hành thật.
+ 
+ Hạn nộp: 29/11/2026. Chốt chức năng 27/11, kiểm thử 28/11, rà soát và nộp 29/11.
+diff --git a/README.md b/README.md
+index a4db0a3..d64ac31 100644
+--- a/README.md
++++ b/README.md
+@@ -1,32 +1,67 @@
+ # Hệ thống quản lý thư viện DAU
+ 
++## Tổ chức server và client
++
++Cấu trúc cập nhật ngày **21/11/2026** theo yêu cầu bài tập MVC.
++Solution **ThuVienDAU.sln** có hai chương trình chạy riêng.
++
++| Thư mục | Chương trình và trách nhiệm |
++|---|---|
++| [server](server/README.md) | ASP.NET Core API .NET 10, xử lý nghiệp vụ và truy cập MySQL |
++| [client](client/README.md) | Windows Forms .NET 10, giao diện MVC và gọi server qua HTTP/JSON |
++| [server/Contracts](server/Contracts) | Kiểu dữ liệu JSON dùng chung, được client liên kết khi biên dịch |
++| [csdl](csdl) | Bộ SQL và cấu hình nghiệp vụ dùng chung cho server |
++| [tai_lieu](tai_lieu) | Thiết kế nghiệp vụ, kế hoạch và đối chiếu kiến trúc |
++
++Các mô đun được bố trí đối xứng trong client/Modules và server/Modules.
++
++| Thành viên | Thư mục trong Modules | Số mô đun | Tài khoản GitHub |
++|---|---|---:|---|
++| Võ Ngọc Bình | [TV1_VoNgocBinh](client/Modules/TV1_VoNgocBinh) | 10 | [Jin01524](https://github.com/Jin01524) |
++| Trần Mỹ Nhung | [TV2_TranMyNhung](client/Modules/TV2_TranMyNhung) | 9 | Chưa cung cấp |
++| Huỳnh Công Thủ | [TV3_HuynhCongThu](client/Modules/TV3_HuynhCongThu) | 10 | Chưa cung cấp |
++
++Mỗi thư mục mô đun có README ghi người làm, người rà soát, phụ thuộc,
++trách nhiệm ở mỗi phía và điều kiện nghiệm thu. Phân công đầy đủ nằm tại
++[kiến trúc và đối chiếu tài liệu](tai_lieu/Kien_truc_Server_Client_MVC.md).
++
+ ## Mở và chạy project
+ 
+-Mở **ThuVienDAU.sln** bằng Visual Studio có workload **.NET desktop development** và hỗ trợ **.NET 10**.
+-Chọn **ThuVienDAU.WinForms** làm Startup Project rồi nhấn F5. Lần đầu cần kết nối Internet để restore NuGet.
++Dùng Visual Studio có workload **.NET desktop development**, **ASP.NET and web development**
++và SDK **.NET 10**. Mở ThuVienDAU.sln.
++
++    dotnet restore ThuVienDAU.sln --locked-mode
++    dotnet build ThuVienDAU.sln -c Release --no-restore
++
++Chạy server trong terminal thứ nhất.
++
++    dotnet run --project server/ThuVienDAU.Server.csproj
++
++Server mặc định lắng nghe http://localhost:5080. Mở
++http://localhost:5080/api/health để kiểm tra tiến trình.
++Chạy client trong terminal thứ hai trên Windows.
++
++    dotnet run --project client/ThuVienDAU.WinForms.csproj
+ 
+-```powershell
+-dotnet restore ThuVienDAU.sln --locked-mode
+-dotnet build ThuVienDAU.sln -c Release --no-restore
+-dotnet run --project src/ThuVienDAU.WinForms
+-```
++Trong Visual Studio có thể chọn **Configure Startup Projects** và đặt cả
++**ThuVienDAU.Server** và **ThuVienDAU.WinForms** sang **Start**.
+ 
+-Khung ban đầu chạy được khi chưa có MySQL. Để kiểm tra kết nối, sao chép
+-`src/ThuVienDAU.WinForms/appsettings.example.json` thành `appsettings.local.json` cùng thư mục,
+-điền thông tin máy mình rồi build lại. Trong app chọn **Công cụ → Kiểm tra kết nối MySQL**.
+-Ứng dụng không tự chạy SQL tạo bảng, không tự nhập dữ liệu và chưa có đăng nhập/nghiệp vụ.
++Để kiểm tra MySQL, sao chép server/appsettings.example.json thành
++server/appsettings.local.json, điền tài khoản DB rồi build lại server.
++Chọn **Công cụ → Kiểm tra kết nối MySQL** trong client.
++Client gửi yêu cầu đến server, server truy vấn MySQL và trả kết quả để hiển thị.
+ 
+-Project WinForms tổ chức theo MVC. `Forms/` chứa View, `Controllers/` điều phối thao tác
+-từ giao diện và `Models/` chứa các kiểu dữ liệu. `Services/` thực hiện xử lý ứng dụng,
+-`Data/` phụ trách kết nối CSDL và `Configuration/` đọc cấu hình.
+-`Program.cs` khởi tạo và kết nối các thành phần.
++Khi chạy máy khác, đặt địa chỉ IP/tên máy server trong
++client/appsettings.local.json theo mẫu ở client và build lại client.
++Chạy server với --urls http://0.0.0.0:5080 trên mạng demo nội bộ
++được cho phép. Chi tiết cấu hình nằm trong README của hai thư mục.
+ 
+-Luồng kiểm tra MySQL đi từ `MainForm` qua `MainController` đến
+-`DatabaseHealthService` và `MySqlConnectionFactory`. Service trả về
+-`DatabaseConnectionInfo` để form hiển thị kết quả.
++HT-01 có luồng kiểm tra kết nối qua mạng. Các mô đun nghiệp vụ đã có vị trí,
++phân công và tiêu chí bàn giao, đang chờ triển khai chức năng.
++Kết quả xác minh khung mới ghi ở
++[kiểm tra server và client](kiem_tra/Server_Client_MVC.md).
+ 
+-Quy ước nhánh, PR và hướng dẫn cho cả nhóm ở [CONTRIBUTING.md](CONTRIBUTING.md).
+-Các file bin/obj/.vs và cấu hình local được Git bỏ qua.
++Quy ước làm việc nhóm nằm ở [CONTRIBUTING.md](CONTRIBUTING.md).
+ 
+ ## Tài liệu và CSDL hiện hành
+ 
+diff --git a/ThuVienDAU.sln b/ThuVienDAU.sln
+index a976daf..223ab79 100644
+--- a/ThuVienDAU.sln
++++ b/ThuVienDAU.sln
+@@ -2,7 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
+ # Visual Studio Version 18
+ VisualStudioVersion = 18.0.0.0
+ MinimumVisualStudioVersion = 10.0.40219.1
+-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThuVienDAU.WinForms", "src\ThuVienDAU.WinForms\ThuVienDAU.WinForms.csproj", "{CB744061-F27F-459E-B75C-651359899CDD}"
++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThuVienDAU.WinForms", "client\ThuVienDAU.WinForms.csproj", "{CB744061-F27F-459E-B75C-651359899CDD}"
++EndProject
++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThuVienDAU.Server", "server\ThuVienDAU.Server.csproj", "{E6895766-13B1-4F05-A84D-2518F85BE850}"
+ EndProject
+ Global
+     GlobalSection(SolutionConfigurationPlatforms) = preSolution
+@@ -14,5 +16,9 @@ Global
+         {CB744061-F27F-459E-B75C-651359899CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+         {CB744061-F27F-459E-B75C-651359899CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+         {CB744061-F27F-459E-B75C-651359899CDD}.Release|Any CPU.Build.0 = Release|Any CPU
++        {E6895766-13B1-4F05-A84D-2518F85BE850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
++        {E6895766-13B1-4F05-A84D-2518F85BE850}.Debug|Any CPU.Build.0 = Debug|Any CPU
++        {E6895766-13B1-4F05-A84D-2518F85BE850}.Release|Any CPU.ActiveCfg = Release|Any CPU
++        {E6895766-13B1-4F05-A84D-2518F85BE850}.Release|Any CPU.Build.0 = Release|Any CPU
+     EndGlobalSection
+ EndGlobal
+diff --git a/client/Configuration/ServerOptions.cs b/client/Configuration/ServerOptions.cs
+new file mode 100644
+index 0000000..f152a64
+--- /dev/null
++++ b/client/Configuration/ServerOptions.cs
+@@ -0,0 +1,42 @@
++using System.Text.Json;
++
++namespace ThuVienDAU.Configuration;
++
++public sealed class ServerOptions
++{
++    public string BaseUrl { get; init; } = "http://localhost:5080/";
++
++    public static ServerOptions Load()
++    {
++        var path = Path.Combine(AppContext.BaseDirectory, "appsettings.local.json");
++        if (!File.Exists(path))
++        {
++            return new ServerOptions();
++        }
++
++        using var document = JsonDocument.Parse(File.ReadAllText(path));
++        if (!document.RootElement.TryGetProperty("Server", out var section))
++        {
++            throw new InvalidOperationException("Cấu hình client thiếu mục Server.");
++        }
++
++        var options = section.Deserialize<ServerOptions>(new JsonSerializerOptions
++        {
++            PropertyNameCaseInsensitive = true
++        }) ?? throw new InvalidOperationException("Cấu hình server không hợp lệ.");
++
++        if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri) ||
++            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) ||
++            !string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment))
++        {
++            throw new InvalidOperationException("Server.BaseUrl phải là địa chỉ HTTP hoặc HTTPS hợp lệ.");
++        }
++
++        return options;
++    }
++
++    public Uri GetDatabaseHealthUri()
++    {
++        return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/database/health");
++    }
++}
+diff --git a/client/Modules/TV1_VoNgocBinh/BC-01/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/BC-01/Controllers/README.md
+new file mode 100644
+index 0000000..8ae1d13
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/BC-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của BC-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của BC-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/BC-01/Models/README.md b/client/Modules/TV1_VoNgocBinh/BC-01/Models/README.md
+new file mode 100644
+index 0000000..623bc1e
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/BC-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của BC-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho BC-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/BC-01/README.md b/client/Modules/TV1_VoNgocBinh/BC-01/README.md
+new file mode 100644
+index 0000000..510b9c4
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/BC-01/README.md
+@@ -0,0 +1,17 @@
++# BC-01 Thống kê độc giả và nhật ký truy cập
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất DG-01, HT-03.
++
++## Nghiệm thu
++
++Thống kê độc giả theo đối tượng/khoa/ngành; lọc kỳ; xuất danh sách đúng bộ lọc.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/BC-01/Views/README.md b/client/Modules/TV1_VoNgocBinh/BC-01/Views/README.md
+new file mode 100644
+index 0000000..11577cb
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/BC-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của BC-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của BC-01 Thống kê độc giả và nhật ký truy cập.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-01/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/DG-01/Controllers/README.md
+new file mode 100644
+index 0000000..6c3cd6e
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của DG-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của DG-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-01/Models/README.md b/client/Modules/TV1_VoNgocBinh/DG-01/Models/README.md
+new file mode 100644
+index 0000000..2c50b19
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của DG-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho DG-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-01/README.md b/client/Modules/TV1_VoNgocBinh/DG-01/README.md
+new file mode 100644
+index 0000000..7632efc
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-01/README.md
+@@ -0,0 +1,17 @@
++# DG-01 Khoa, ngành và nhập hồ sơ
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất HT-02, HT-03.
++
++## Nghiệm thu
++
++Một pipeline Excel: xem trước, kiểm thiếu/trùng mã, thêm/cập nhật và xuất lỗi; gồm SV và CB/GV; không sửa tay hồ sơ.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-01/Views/README.md b/client/Modules/TV1_VoNgocBinh/DG-01/Views/README.md
+new file mode 100644
+index 0000000..3e84d05
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của DG-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của DG-01 Khoa, ngành và nhập hồ sơ.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-02/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/DG-02/Controllers/README.md
+new file mode 100644
+index 0000000..468e320
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của DG-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của DG-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-02/Models/README.md b/client/Modules/TV1_VoNgocBinh/DG-02/Models/README.md
+new file mode 100644
+index 0000000..fd8666a
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của DG-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho DG-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-02/README.md b/client/Modules/TV1_VoNgocBinh/DG-02/README.md
+new file mode 100644
+index 0000000..56c49f7
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-02/README.md
+@@ -0,0 +1,17 @@
++# DG-02 Tra cứu và định danh thẻ trường
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất DG-01.
++
++## Nghiệm thu
++
++Tìm theo mã thẻ trường, xem nhóm/trạng thái/hạn mức; không cấp thẻ mới, không xóa độc giả.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-02/Views/README.md b/client/Modules/TV1_VoNgocBinh/DG-02/Views/README.md
+new file mode 100644
+index 0000000..324e534
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của DG-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của DG-02 Tra cứu và định danh thẻ trường.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-03/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/DG-03/Controllers/README.md
+new file mode 100644
+index 0000000..8f0e002
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-03/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của DG-03
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của DG-03.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-03/Models/README.md b/client/Modules/TV1_VoNgocBinh/DG-03/Models/README.md
+new file mode 100644
+index 0000000..db401f0
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-03/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của DG-03
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho DG-03.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-03/README.md b/client/Modules/TV1_VoNgocBinh/DG-03/README.md
+new file mode 100644
+index 0000000..f6b1cc5
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-03/README.md
+@@ -0,0 +1,17 @@
++# DG-03 Khóa và mở quyền mượn
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất DG-02, HT-03.
++
++## Nghiệm thu
++
++Chỉ Quản lý thư viện thao tác; ghi lý do/thời gian; chỉ mở khi đáp ứng điều kiện trả sách, thanh toán và đình chỉ.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/DG-03/Views/README.md b/client/Modules/TV1_VoNgocBinh/DG-03/Views/README.md
+new file mode 100644
+index 0000000..0d671df
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/DG-03/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của DG-03
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của DG-03 Khóa và mở quyền mượn.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/src/ThuVienDAU.WinForms/Controllers/MainController.cs b/client/Modules/TV1_VoNgocBinh/HT-01/Controllers/MainController.cs
+similarity index 54%
+rename from src/ThuVienDAU.WinForms/Controllers/MainController.cs
+rename to client/Modules/TV1_VoNgocBinh/HT-01/Controllers/MainController.cs
+index 5e4351e..c4f930b 100644
+--- a/src/ThuVienDAU.WinForms/Controllers/MainController.cs
++++ b/client/Modules/TV1_VoNgocBinh/HT-01/Controllers/MainController.cs
+@@ -1,5 +1,6 @@
++using System.Net.Http;
+ using System.Text.Json;
+-using MySql.Data.MySqlClient;
++using ThuVienDAU.Models;
+ using ThuVienDAU.Forms;
+ using ThuVienDAU.Services;
+ 
+@@ -25,17 +26,28 @@ internal sealed class MainController
+             var connectionInfo = await databaseHealthService.CheckAsync();
+             view.ShowConnectionCheckSucceeded(connectionInfo);
+         }
+-        catch (MySqlException exception)
++        catch (DatabaseHealthCheckException exception)
+         {
+-            view.ShowConnectionCheckFailed(exception.Number);
++            var message = exception.ErrorNumber is int number
++                ? $"{exception.Message}\nMã MySQL: {number}"
++                : exception.Message;
++            view.ShowConnectionCheckFailed(message);
++        }
++        catch (HttpRequestException)
++        {
++            view.ShowConnectionCheckFailed("Không kết nối được server. Kiểm tra Server.BaseUrl, mạng và tiến trình server.");
++        }
++        catch (TaskCanceledException)
++        {
++            view.ShowConnectionCheckFailed("Server phản hồi quá thời gian chờ. Kiểm tra kết nối rồi thử lại.");
+         }
+         catch (JsonException)
+         {
+-            view.ShowConnectionConfigurationError("File appsettings.local.json không đúng định dạng JSON.");
++            view.ShowConnectionConfigurationError("Cấu hình client hoặc dữ liệu JSON trả về từ server không hợp lệ.");
+         }
+-        catch (IOException)
++        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+         {
+-            view.ShowConnectionConfigurationError("Không đọc được file cấu hình MySQL. Kiểm tra đường dẫn và quyền truy cập.");
++            view.ShowConnectionConfigurationError("Không đọc được file cấu hình client. Kiểm tra đường dẫn và quyền truy cập.");
+         }
+         catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
+         {
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-01/Models/DatabaseHealthCheckException.cs b/client/Modules/TV1_VoNgocBinh/HT-01/Models/DatabaseHealthCheckException.cs
+new file mode 100644
+index 0000000..6f6fdb8
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-01/Models/DatabaseHealthCheckException.cs
+@@ -0,0 +1,6 @@
++namespace ThuVienDAU.Models;
++
++public sealed class DatabaseHealthCheckException(string message, int? errorNumber) : Exception(message)
++{
++    public int? ErrorNumber { get; } = errorNumber;
++}
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-01/README.md b/client/Modules/TV1_VoNgocBinh/HT-01/README.md
+new file mode 100644
+index 0000000..635a993
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-01/README.md
+@@ -0,0 +1,17 @@
++# HT-01 Khung ứng dụng và kết nối MySQL
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất Không.
++
++## Nghiệm thu
++
++Chạy server API và client WinForms riêng; client gọi HTTP/JSON, server đọc cấu hình và truy vấn MySQL; hiển thị được lỗi kết nối.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++HT-01 đã có luồng kiểm tra kết nối. Các nghiệp vụ tiếp theo thực hiện theo kế hoạch.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-01/Services/DatabaseHealthService.cs b/client/Modules/TV1_VoNgocBinh/HT-01/Services/DatabaseHealthService.cs
+new file mode 100644
+index 0000000..c1e9e70
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-01/Services/DatabaseHealthService.cs
+@@ -0,0 +1,25 @@
++using System.Net.Http;
++using System.Net.Http.Json;
++using ThuVienDAU.Configuration;
++using ThuVienDAU.Models;
++
++namespace ThuVienDAU.Services;
++
++public sealed class DatabaseHealthService(HttpClient httpClient)
++{
++    public async Task<DatabaseConnectionInfo> CheckAsync(CancellationToken cancellationToken = default)
++    {
++        var options = ServerOptions.Load();
++        using var response = await httpClient.GetAsync(options.GetDatabaseHealthUri(), cancellationToken);
++        if (!response.IsSuccessStatusCode)
++        {
++            var error = await response.Content.ReadFromJsonAsync<DatabaseHealthError>(cancellationToken);
++            throw new DatabaseHealthCheckException(
++                error?.Message ?? "Server không thực hiện được yêu cầu kiểm tra MySQL.",
++                error?.ErrorNumber);
++        }
++
++        return await response.Content.ReadFromJsonAsync<DatabaseConnectionInfo>(cancellationToken)
++            ?? throw new InvalidOperationException("Server trả về kết quả kiểm tra MySQL rỗng.");
++    }
++}
+diff --git a/src/ThuVienDAU.WinForms/Forms/IMainView.cs b/client/Modules/TV1_VoNgocBinh/HT-01/Views/IMainView.cs
+similarity index 86%
+rename from src/ThuVienDAU.WinForms/Forms/IMainView.cs
+rename to client/Modules/TV1_VoNgocBinh/HT-01/Views/IMainView.cs
+index e1c3cfc..5280543 100644
+--- a/src/ThuVienDAU.WinForms/Forms/IMainView.cs
++++ b/client/Modules/TV1_VoNgocBinh/HT-01/Views/IMainView.cs
+@@ -8,7 +8,7 @@ internal interface IMainView
+ 
+     void ShowConnectionCheckStarted();
+     void ShowConnectionCheckSucceeded(DatabaseConnectionInfo connectionInfo);
+-    void ShowConnectionCheckFailed(int errorNumber);
++    void ShowConnectionCheckFailed(string message);
+     void ShowConnectionConfigurationError(string message);
+     void EnableConnectionCheck();
+ }
+diff --git a/src/ThuVienDAU.WinForms/Forms/MainForm.Designer.cs b/client/Modules/TV1_VoNgocBinh/HT-01/Views/MainForm.Designer.cs
+similarity index 100%
+rename from src/ThuVienDAU.WinForms/Forms/MainForm.Designer.cs
+rename to client/Modules/TV1_VoNgocBinh/HT-01/Views/MainForm.Designer.cs
+diff --git a/src/ThuVienDAU.WinForms/Forms/MainForm.cs b/client/Modules/TV1_VoNgocBinh/HT-01/Views/MainForm.cs
+similarity index 82%
+rename from src/ThuVienDAU.WinForms/Forms/MainForm.cs
+rename to client/Modules/TV1_VoNgocBinh/HT-01/Views/MainForm.cs
+index e669cd7..70506d6 100644
+--- a/src/ThuVienDAU.WinForms/Forms/MainForm.cs
++++ b/client/Modules/TV1_VoNgocBinh/HT-01/Views/MainForm.cs
+@@ -29,18 +29,17 @@ public partial class MainForm : Form, IMainView
+             "Kết nối MySQL", MessageBoxIcon.Information, "Đã kết nối MySQL.");
+     }
+ 
+-    void IMainView.ShowConnectionCheckFailed(int errorNumber)
++    void IMainView.ShowConnectionCheckFailed(string message)
+     {
+         ShowConnectionResult(
+-            $"Không thể kết nối MySQL (mã {errorNumber}).\n" +
+-            "Kiểm tra máy chủ, cổng, tài khoản, CSDL và quyền truy cập.",
++            message,
+             "Kết nối MySQL", MessageBoxIcon.Warning, "Kết nối chưa thành công.");
+     }
+ 
+     void IMainView.ShowConnectionConfigurationError(string message)
+     {
+         ShowConnectionResult(
+-            message, "Cấu hình MySQL", MessageBoxIcon.Warning, "Cần kiểm tra cấu hình MySQL.");
++            message, "Cấu hình hệ thống", MessageBoxIcon.Warning, "Cần kiểm tra cấu hình hệ thống.");
+     }
+ 
+     void IMainView.EnableConnectionCheck()
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-02/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/HT-02/Controllers/README.md
+new file mode 100644
+index 0000000..be397f6
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của HT-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của HT-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-02/Models/README.md b/client/Modules/TV1_VoNgocBinh/HT-02/Models/README.md
+new file mode 100644
+index 0000000..0e5b9ed
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của HT-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho HT-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-02/README.md b/client/Modules/TV1_VoNgocBinh/HT-02/README.md
+new file mode 100644
+index 0000000..116ec07
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-02/README.md
+@@ -0,0 +1,17 @@
++# HT-02 Đăng nhập, phiên và vai trò
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-01.
++
++## Nghiệm thu
++
++Đăng nhập năm vai trò; chỉ BIEN_MUC khóa/mở đăng nhập DOC_GIA, bắt buộc lý do/nhật ký; không đổi quyền mượn. Lấy ID thao tác từ phiên đã xác thực.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-02/Views/README.md b/client/Modules/TV1_VoNgocBinh/HT-02/Views/README.md
+new file mode 100644
+index 0000000..5d5d98a
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của HT-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của HT-02 Đăng nhập, phiên và vai trò.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-03/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/HT-03/Controllers/README.md
+new file mode 100644
+index 0000000..c4d115a
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-03/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của HT-03
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của HT-03.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-03/Models/README.md b/client/Modules/TV1_VoNgocBinh/HT-03/Models/README.md
+new file mode 100644
+index 0000000..efacf74
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-03/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của HT-03
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho HT-03.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-03/README.md b/client/Modules/TV1_VoNgocBinh/HT-03/README.md
+new file mode 100644
+index 0000000..7c73592
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-03/README.md
+@@ -0,0 +1,17 @@
++# HT-03 Cấu hình và nhật ký
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-01.
++
++## Nghiệm thu
++
++Dịch vụ ghi/tra cứu nhật ký; đọc cấu hình; giờ đóng cửa, lịch miễn phạt và gia hạn chưa chốt phải hiện rõ.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-03/Views/README.md b/client/Modules/TV1_VoNgocBinh/HT-03/Views/README.md
+new file mode 100644
+index 0000000..ddec8ec
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-03/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của HT-03
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của HT-03 Cấu hình và nhật ký.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-04/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/HT-04/Controllers/README.md
+new file mode 100644
+index 0000000..f196ecc
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-04/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của HT-04
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của HT-04.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-04/Models/README.md b/client/Modules/TV1_VoNgocBinh/HT-04/Models/README.md
+new file mode 100644
+index 0000000..b353935
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-04/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của HT-04
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho HT-04.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-04/README.md b/client/Modules/TV1_VoNgocBinh/HT-04/README.md
+new file mode 100644
+index 0000000..ca9f079
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-04/README.md
+@@ -0,0 +1,17 @@
++# HT-04 Sao lưu và phục hồi
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất HT-02, HT-03.
++
++## Nghiệm thu
++
++Quản trị tạo bản sao lưu; phục hồi thử trên DB riêng; có xác nhận trước ghi đè và nhật ký kết quả.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/HT-04/Views/README.md b/client/Modules/TV1_VoNgocBinh/HT-04/Views/README.md
+new file mode 100644
+index 0000000..39853fe
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/HT-04/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của HT-04
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của HT-04 Sao lưu và phục hồi.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV1_VoNgocBinh/README.md b/client/Modules/TV1_VoNgocBinh/README.md
+new file mode 100644
+index 0000000..ad9880f
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/README.md
+@@ -0,0 +1,20 @@
++# Mô đun do Võ Ngọc Bình phụ trách
++
++Mã thành viên **TV1**, mã sinh viên **2351220274**. Tài khoản GitHub **[Jin01524](https://github.com/Jin01524)**.
++Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
++
++| Mã | Mô đun | Rà soát |
++|---|---|---|
++| [HT-01](HT-01/README.md) | Khung ứng dụng và kết nối MySQL | TV2 |
++| [HT-02](HT-02/README.md) | Đăng nhập, phiên và vai trò | TV3 |
++| [HT-03](HT-03/README.md) | Cấu hình và nhật ký | TV3 |
++| [HT-04](HT-04/README.md) | Sao lưu và phục hồi | TV2 |
++| [DG-01](DG-01/README.md) | Khoa, ngành và nhập hồ sơ | TV2 |
++| [DG-02](DG-02/README.md) | Tra cứu và định danh thẻ trường | TV3 |
++| [DG-03](DG-03/README.md) | Khóa và mở quyền mượn | TV3 |
++| [BC-01](BC-01/README.md) | Thống kê độc giả và nhật ký truy cập | TV2 |
++| [TC-01](TC-01/README.md) | Tích hợp giao diện và bản cài | TV2, TV3 |
++| [TC-02](TC-02/README.md) | Kiểm thử toàn hệ thống và demo | TV2, TV3 |
++
++Mỗi người phát triển phần client của mô đun mình, tự kiểm và tạo PR.
++Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-01/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/TC-01/Controllers/README.md
+new file mode 100644
+index 0000000..f50120f
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TC-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của TC-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-01/Models/README.md b/client/Modules/TV1_VoNgocBinh/TC-01/Models/README.md
+new file mode 100644
+index 0000000..9d2c636
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TC-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho TC-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-01/README.md b/client/Modules/TV1_VoNgocBinh/TC-01/README.md
+new file mode 100644
+index 0000000..4dc22da
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-01/README.md
+@@ -0,0 +1,17 @@
++# TC-01 Tích hợp giao diện và bản cài
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2, TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-02.
++
++## Nghiệm thu
++
++Menu theo vai trò; tích hợp form, cấu hình URL server trên máy khách và cấu hình MySQL trên server; đóng gói hai ứng dụng.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-01/Views/README.md b/client/Modules/TV1_VoNgocBinh/TC-01/Views/README.md
+new file mode 100644
+index 0000000..5d4685e
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TC-01
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của TC-01 Tích hợp giao diện và bản cài.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-02/Controllers/README.md b/client/Modules/TV1_VoNgocBinh/TC-02/Controllers/README.md
+new file mode 100644
+index 0000000..7701644
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TC-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Điều phối các thao tác giao diện của TC-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-02/Models/README.md b/client/Modules/TV1_VoNgocBinh/TC-02/Models/README.md
+new file mode 100644
+index 0000000..76dac5a
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TC-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Dữ liệu trình bày cho TC-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-02/README.md b/client/Modules/TV1_VoNgocBinh/TC-02/README.md
+new file mode 100644
+index 0000000..9b953f9
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-02/README.md
+@@ -0,0 +1,17 @@
++# TC-02 Kiểm thử toàn hệ thống và demo
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2, TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-04, BC-01, TC-01, TL-05, TL-07, KK-02, BC-02, LT-03, VP-03, PD-01, PH-01, BC-03, LT-04.
++
++## Nghiệm thu
++
++Ba thành viên chạy ca xuyên module, sửa lỗi phần mình; kịch bản demo, hướng dẫn và báo cáo thống nhất.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV1_VoNgocBinh/TC-02/Views/README.md b/client/Modules/TV1_VoNgocBinh/TC-02/Views/README.md
+new file mode 100644
+index 0000000..ee645e0
+--- /dev/null
++++ b/client/Modules/TV1_VoNgocBinh/TC-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TC-02
++
++Người phụ trách **Võ Ngọc Bình**.
++
++Giao diện WinForms của TC-02 Kiểm thử toàn hệ thống và demo.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/BC-02/Controllers/README.md b/client/Modules/TV2_TranMyNhung/BC-02/Controllers/README.md
+new file mode 100644
+index 0000000..4339349
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/BC-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của BC-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của BC-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/BC-02/Models/README.md b/client/Modules/TV2_TranMyNhung/BC-02/Models/README.md
+new file mode 100644
+index 0000000..97b5fd2
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/BC-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của BC-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho BC-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/BC-02/README.md b/client/Modules/TV2_TranMyNhung/BC-02/README.md
+new file mode 100644
+index 0000000..2aa308a
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/BC-02/README.md
+@@ -0,0 +1,17 @@
++# BC-02 Thống kê tài liệu và kho
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất KK-01, TL-03.
++
++## Nghiệm thu
++
++Số đầu tài liệu/bản sách theo DDC/loại/trạng thái; kết quả kiểm kê; xuất báo cáo có kỳ/bộ lọc.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/BC-02/Views/README.md b/client/Modules/TV2_TranMyNhung/BC-02/Views/README.md
+new file mode 100644
+index 0000000..b2ab73c
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/BC-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của BC-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của BC-02 Thống kê tài liệu và kho.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-01/Controllers/README.md b/client/Modules/TV2_TranMyNhung/KK-01/Controllers/README.md
+new file mode 100644
+index 0000000..888744e
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của KK-01
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của KK-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-01/Models/README.md b/client/Modules/TV2_TranMyNhung/KK-01/Models/README.md
+new file mode 100644
+index 0000000..cf57b27
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của KK-01
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho KK-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-01/README.md b/client/Modules/TV2_TranMyNhung/KK-01/README.md
+new file mode 100644
+index 0000000..5b89a52
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-01/README.md
+@@ -0,0 +1,17 @@
++# KK-01 Kiểm kê kho
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất TL-04, HT-03.
++
++## Nghiệm thu
++
++Lập danh sách/số lượng dự kiến; quét thực tế; người kiểm trên dòng; đối chiếu thiếu/thừa/hỏng/sai vị trí; xuất kiểm kê.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-01/Views/README.md b/client/Modules/TV2_TranMyNhung/KK-01/Views/README.md
+new file mode 100644
+index 0000000..0ae6e6b
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của KK-01
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của KK-01 Kiểm kê kho.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-02/Controllers/README.md b/client/Modules/TV2_TranMyNhung/KK-02/Controllers/README.md
+new file mode 100644
+index 0000000..356763f
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của KK-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của KK-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-02/Models/README.md b/client/Modules/TV2_TranMyNhung/KK-02/Models/README.md
+new file mode 100644
+index 0000000..dc01036
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của KK-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho KK-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-02/README.md b/client/Modules/TV2_TranMyNhung/KK-02/README.md
+new file mode 100644
+index 0000000..f203163
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-02/README.md
+@@ -0,0 +1,17 @@
++# KK-02 Đề nghị và xử lý thanh lý
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất KK-01.
++
++## Nghiệm thu
++
++Lập đề nghị và ghi kết quả quyết định; không tự thanh lý khi kiểm kê thiếu; thẩm quyền duyệt cần chốt.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/KK-02/Views/README.md b/client/Modules/TV2_TranMyNhung/KK-02/Views/README.md
+new file mode 100644
+index 0000000..ef5fd4c
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/KK-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của KK-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của KK-02 Đề nghị và xử lý thanh lý.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/README.md b/client/Modules/TV2_TranMyNhung/README.md
+new file mode 100644
+index 0000000..9788b7a
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/README.md
+@@ -0,0 +1,19 @@
++# Mô đun do Trần Mỹ Nhung phụ trách
++
++Mã thành viên **TV2**, mã sinh viên **2351220273**. Tài khoản GitHub **Chưa cung cấp**.
++Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
++
++| Mã | Mô đun | Rà soát |
++|---|---|---|
++| [TL-01](TL-01/README.md) | Danh mục DDC23 và xác nhận phân loại | TV1 |
++| [TL-02](TL-02/README.md) | Hồ sơ đầu tài liệu | TV3 |
++| [TL-03](TL-03/README.md) | Biên mục MARC21 | TV1 |
++| [TL-04](TL-04/README.md) | Bản sách và dãy kệ/ngăn | TV3 |
++| [TL-05](TL-05/README.md) | Đồ án, luận văn và tệp đính kèm | TV1 |
++| [TL-07](TL-07/README.md) | In barcode và nhãn gáy | TV3 |
++| [KK-01](KK-01/README.md) | Kiểm kê kho | TV1 |
++| [KK-02](KK-02/README.md) | Đề nghị và xử lý thanh lý | TV3 |
++| [BC-02](BC-02/README.md) | Thống kê tài liệu và kho | TV1 |
++
++Mỗi người phát triển phần client của mô đun mình, tự kiểm và tạo PR.
++Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-01/Controllers/README.md b/client/Modules/TV2_TranMyNhung/TL-01/Controllers/README.md
+new file mode 100644
+index 0000000..65960d1
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TL-01
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của TL-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-01/Models/README.md b/client/Modules/TV2_TranMyNhung/TL-01/Models/README.md
+new file mode 100644
+index 0000000..4d055c4
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TL-01
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho TL-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-01/README.md b/client/Modules/TV2_TranMyNhung/TL-01/README.md
+new file mode 100644
+index 0000000..5e43b68
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-01/README.md
+@@ -0,0 +1,17 @@
++# TL-01 Danh mục DDC23 và xác nhận phân loại
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất HT-02, HT-03.
++
++## Nghiệm thu
++
++Tra cây DDC23 bản in tiếng Việt rút gọn; lưu nguồn/người/vị trí tra; mục chưa đối chiếu không tự xác nhận.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-01/Views/README.md b/client/Modules/TV2_TranMyNhung/TL-01/Views/README.md
+new file mode 100644
+index 0000000..e37be95
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TL-01
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của TL-01 Danh mục DDC23 và xác nhận phân loại.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-02/Controllers/README.md b/client/Modules/TV2_TranMyNhung/TL-02/Controllers/README.md
+new file mode 100644
+index 0000000..45a2025
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TL-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của TL-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-02/Models/README.md b/client/Modules/TV2_TranMyNhung/TL-02/Models/README.md
+new file mode 100644
+index 0000000..a89eca3
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TL-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho TL-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-02/README.md b/client/Modules/TV2_TranMyNhung/TL-02/README.md
+new file mode 100644
+index 0000000..7d88a4c
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-02/README.md
+@@ -0,0 +1,17 @@
++# TL-02 Hồ sơ đầu tài liệu
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất TL-01.
++
++## Nghiệm thu
++
++Tạo/sửa/tra cứu đầu tài liệu, loại tài liệu và phân loại; thông tin tác giả/NXB/ISBN chi tiết thuộc MARC.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-02/Views/README.md b/client/Modules/TV2_TranMyNhung/TL-02/Views/README.md
+new file mode 100644
+index 0000000..67f3295
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TL-02
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của TL-02 Hồ sơ đầu tài liệu.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-03/Controllers/README.md b/client/Modules/TV2_TranMyNhung/TL-03/Controllers/README.md
+new file mode 100644
+index 0000000..96bec50
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-03/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TL-03
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của TL-03.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-03/Models/README.md b/client/Modules/TV2_TranMyNhung/TL-03/Models/README.md
+new file mode 100644
+index 0000000..451d74f
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-03/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TL-03
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho TL-03.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-03/README.md b/client/Modules/TV2_TranMyNhung/TL-03/README.md
+new file mode 100644
+index 0000000..9a63caa
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-03/README.md
+@@ -0,0 +1,17 @@
++# TL-03 Biên mục MARC21
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất TL-02.
++
++## Nghiệm thu
++
++Form thân thiện lưu JSON trường/trường con; kiểm profile cục bộ; giữ thứ tự/lặp/chỉ thị; 082 khớp DDC, sửa về nháp.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-03/Views/README.md b/client/Modules/TV2_TranMyNhung/TL-03/Views/README.md
+new file mode 100644
+index 0000000..9212d84
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-03/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TL-03
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của TL-03 Biên mục MARC21.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-04/Controllers/README.md b/client/Modules/TV2_TranMyNhung/TL-04/Controllers/README.md
+new file mode 100644
+index 0000000..d64252b
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-04/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TL-04
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của TL-04.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-04/Models/README.md b/client/Modules/TV2_TranMyNhung/TL-04/Models/README.md
+new file mode 100644
+index 0000000..78bd4c0
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-04/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TL-04
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho TL-04.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-04/README.md b/client/Modules/TV2_TranMyNhung/TL-04/README.md
+new file mode 100644
+index 0000000..257c249
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-04/README.md
+@@ -0,0 +1,17 @@
++# TL-04 Bản sách và dãy kệ/ngăn
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất TL-02.
++
++## Nghiệm thu
++
++Tạo bản sách có ĐKCB/barcode duy nhất; giá, trạng thái, ký hiệu xếp giá và dãy kệ/ngăn; không thêm tầng/phòng.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-04/Views/README.md b/client/Modules/TV2_TranMyNhung/TL-04/Views/README.md
+new file mode 100644
+index 0000000..9447dd7
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-04/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TL-04
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của TL-04 Bản sách và dãy kệ/ngăn.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-05/Controllers/README.md b/client/Modules/TV2_TranMyNhung/TL-05/Controllers/README.md
+new file mode 100644
+index 0000000..22a16fb
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-05/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TL-05
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của TL-05.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-05/Models/README.md b/client/Modules/TV2_TranMyNhung/TL-05/Models/README.md
+new file mode 100644
+index 0000000..dc4667b
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-05/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TL-05
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho TL-05.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-05/README.md b/client/Modules/TV2_TranMyNhung/TL-05/README.md
+new file mode 100644
+index 0000000..59e4103
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-05/README.md
+@@ -0,0 +1,17 @@
++# TL-05 Đồ án, luận văn và tệp đính kèm
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất TL-02, DG-01.
++
++## Nghiệm thu
++
++Gắn SV/GV và vai trò; nhiều tệp trong DanhSachTep JSON; mở tệp hợp lệ; không tạo thêm bảng tệp.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-05/Views/README.md b/client/Modules/TV2_TranMyNhung/TL-05/Views/README.md
+new file mode 100644
+index 0000000..bff42e8
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-05/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TL-05
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của TL-05 Đồ án, luận văn và tệp đính kèm.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-07/Controllers/README.md b/client/Modules/TV2_TranMyNhung/TL-07/Controllers/README.md
+new file mode 100644
+index 0000000..c872ccc
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-07/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của TL-07
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Điều phối các thao tác giao diện của TL-07.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-07/Models/README.md b/client/Modules/TV2_TranMyNhung/TL-07/Models/README.md
+new file mode 100644
+index 0000000..8c19275
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-07/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của TL-07
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Dữ liệu trình bày cho TL-07.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-07/README.md b/client/Modules/TV2_TranMyNhung/TL-07/README.md
+new file mode 100644
+index 0000000..0b84465
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-07/README.md
+@@ -0,0 +1,17 @@
++# TL-07 In barcode và nhãn gáy
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất TL-04.
++
++## Nghiệm thu
++
++Xem trước/in mã vạch và nhãn gáy; phân biệt DDC, ký hiệu xếp giá và vị trí; thử máy in khi có thiết bị.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV2_TranMyNhung/TL-07/Views/README.md b/client/Modules/TV2_TranMyNhung/TL-07/Views/README.md
+new file mode 100644
+index 0000000..a9270a5
+--- /dev/null
++++ b/client/Modules/TV2_TranMyNhung/TL-07/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của TL-07
++
++Người phụ trách **Trần Mỹ Nhung**.
++
++Giao diện WinForms của TL-07 In barcode và nhãn gáy.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/BC-03/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/BC-03/Controllers/README.md
+new file mode 100644
+index 0000000..a0687ed
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/BC-03/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của BC-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của BC-03.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/BC-03/Models/README.md b/client/Modules/TV3_HuynhCongThu/BC-03/Models/README.md
+new file mode 100644
+index 0000000..8b449ca
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/BC-03/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của BC-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho BC-03.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/BC-03/README.md b/client/Modules/TV3_HuynhCongThu/BC-03/README.md
+new file mode 100644
+index 0000000..3342ba0
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/BC-03/README.md
+@@ -0,0 +1,17 @@
++# BC-03 Thống kê lưu thông, quá hạn và thu tiền
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất VP-02, PD-01, LT-03.
++
++## Nghiệm thu
++
++Dashboard theo quyền; mượn/trả/gia hạn/quá hạn/lượt đọc; đối chiếu tiền phạt với thực thu, không đếm trùng.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/BC-03/Views/README.md b/client/Modules/TV3_HuynhCongThu/BC-03/Views/README.md
+new file mode 100644
+index 0000000..2bb1d2c
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/BC-03/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của BC-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của BC-03 Thống kê lưu thông, quá hạn và thu tiền.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-01/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/LT-01/Controllers/README.md
+new file mode 100644
+index 0000000..a2cfbb5
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của LT-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của LT-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-01/Models/README.md b/client/Modules/TV3_HuynhCongThu/LT-01/Models/README.md
+new file mode 100644
+index 0000000..134d19e
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của LT-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho LT-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-01/README.md b/client/Modules/TV3_HuynhCongThu/LT-01/README.md
+new file mode 100644
+index 0000000..479f04b
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-01/README.md
+@@ -0,0 +1,17 @@
++# LT-01 Mượn sách tại quầy
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất DG-02, DG-03, TL-04, HT-03.
++
++## Nghiệm thu
++
++SV 2 đầu/10 ngày, CB/GV 3 đầu/15 ngày; chặn trùng nhan đề, khóa/chưa đủ điều kiện, 15 phút cuối; giao dịch nguyên tử.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-01/Views/README.md b/client/Modules/TV3_HuynhCongThu/LT-01/Views/README.md
+new file mode 100644
+index 0000000..388a5b9
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của LT-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của LT-01 Mượn sách tại quầy.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-02/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/LT-02/Controllers/README.md
+new file mode 100644
+index 0000000..458d8a1
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của LT-02
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của LT-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-02/Models/README.md b/client/Modules/TV3_HuynhCongThu/LT-02/Models/README.md
+new file mode 100644
+index 0000000..5a51057
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của LT-02
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho LT-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-02/README.md b/client/Modules/TV3_HuynhCongThu/LT-02/README.md
+new file mode 100644
+index 0000000..727aa63
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-02/README.md
+@@ -0,0 +1,17 @@
++# LT-02 Trả sách và tình trạng bản sách
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất LT-01.
++
++## Nghiệm thu
++
++Quét bản đang mượn; ghi ngày trả/tình trạng; trả một phần; trả lặp không ghi hai lần; chuyển căn cứ sang xử lý vi phạm.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-02/Views/README.md b/client/Modules/TV3_HuynhCongThu/LT-02/Views/README.md
+new file mode 100644
+index 0000000..839b314
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của LT-02
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của LT-02 Trả sách và tình trạng bản sách.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-03/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/LT-03/Controllers/README.md
+new file mode 100644
+index 0000000..f52c9d9
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-03/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của LT-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của LT-03.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-03/Models/README.md b/client/Modules/TV3_HuynhCongThu/LT-03/Models/README.md
+new file mode 100644
+index 0000000..730a7c5
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-03/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của LT-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho LT-03.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-03/README.md b/client/Modules/TV3_HuynhCongThu/LT-03/README.md
+new file mode 100644
+index 0000000..9b4ec67
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-03/README.md
+@@ -0,0 +1,17 @@
++# LT-03 Gia hạn tại quầy
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất LT-01, HT-03.
++
++## Nghiệm thu
++
++Kiểm hạn mức và điều kiện thực tế; ghi hạn mới/lý do từ chối; thiếu cấu hình số lần/thời gian thì yêu cầu chốt.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-03/Views/README.md b/client/Modules/TV3_HuynhCongThu/LT-03/Views/README.md
+new file mode 100644
+index 0000000..c3fb5aa
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-03/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của LT-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của LT-03 Gia hạn tại quầy.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-04/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/LT-04/Controllers/README.md
+new file mode 100644
+index 0000000..162a429
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-04/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của LT-04
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của LT-04.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-04/Models/README.md b/client/Modules/TV3_HuynhCongThu/LT-04/Models/README.md
+new file mode 100644
+index 0000000..5994c9c
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-04/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của LT-04
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho LT-04.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-04/README.md b/client/Modules/TV3_HuynhCongThu/LT-04/README.md
+new file mode 100644
+index 0000000..0dcd6c5
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-04/README.md
+@@ -0,0 +1,17 @@
++# LT-04 In phiếu mượn và biên lai
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất LT-01, VP-02.
++
++## Nghiệm thu
++
++Xem trước/in đúng phiếu và hạn trả; in lại không tạo giao dịch mới; thử máy in khi có thiết bị.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/LT-04/Views/README.md b/client/Modules/TV3_HuynhCongThu/LT-04/Views/README.md
+new file mode 100644
+index 0000000..498d4d5
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/LT-04/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của LT-04
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của LT-04 In phiếu mượn và biên lai.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/PD-01/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/PD-01/Controllers/README.md
+new file mode 100644
+index 0000000..4e048b2
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PD-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của PD-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của PD-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/PD-01/Models/README.md b/client/Modules/TV3_HuynhCongThu/PD-01/Models/README.md
+new file mode 100644
+index 0000000..0b123e9
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PD-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của PD-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho PD-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/PD-01/README.md b/client/Modules/TV3_HuynhCongThu/PD-01/README.md
+new file mode 100644
+index 0000000..9f1979e
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PD-01/README.md
+@@ -0,0 +1,17 @@
++# PD-01 Lượt vào và ra phòng đọc
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất DG-02.
++
++## Nghiệm thu
++
++Định danh thẻ trường, ghi vào/ra; nhắc giữ/nhận thẻ và chìa khóa; quy định tối đa 2 cuốn là thao tác tại phòng.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/PD-01/Views/README.md b/client/Modules/TV3_HuynhCongThu/PD-01/Views/README.md
+new file mode 100644
+index 0000000..b06492d
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PD-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của PD-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của PD-01 Lượt vào và ra phòng đọc.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/PH-01/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/PH-01/Controllers/README.md
+new file mode 100644
+index 0000000..1eb8d4b
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PH-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của PH-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của PH-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/PH-01/Models/README.md b/client/Modules/TV3_HuynhCongThu/PH-01/Models/README.md
+new file mode 100644
+index 0000000..960ab2a
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PH-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của PH-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho PH-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/PH-01/README.md b/client/Modules/TV3_HuynhCongThu/PH-01/README.md
+new file mode 100644
+index 0000000..1ef7502
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PH-01/README.md
+@@ -0,0 +1,17 @@
++# PH-01 Góp ý, đánh giá và đề xuất sách
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất HT-02, TL-02.
++
++## Nghiệm thu
++
++Gửi đề xuất/góp ý/đánh giá; xem/xử lý theo quyền; đề xuất không phải đặt trước tài liệu.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/PH-01/Views/README.md b/client/Modules/TV3_HuynhCongThu/PH-01/Views/README.md
+new file mode 100644
+index 0000000..6e7ddd1
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/PH-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của PH-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của PH-01 Góp ý, đánh giá và đề xuất sách.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/README.md b/client/Modules/TV3_HuynhCongThu/README.md
+new file mode 100644
+index 0000000..921f3d1
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/README.md
+@@ -0,0 +1,20 @@
++# Mô đun do Huỳnh Công Thủ phụ trách
++
++Mã thành viên **TV3**, mã sinh viên **2351220232**. Tài khoản GitHub **Chưa cung cấp**.
++Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
++
++| Mã | Mô đun | Rà soát |
++|---|---|---|
++| [LT-01](LT-01/README.md) | Mượn sách tại quầy | TV1 |
++| [LT-02](LT-02/README.md) | Trả sách và tình trạng bản sách | TV2 |
++| [LT-03](LT-03/README.md) | Gia hạn tại quầy | TV1 |
++| [VP-01](VP-01/README.md) | Quá hạn và bồi thường | TV2 |
++| [VP-02](VP-02/README.md) | Thu tiền và biên lai | TV1 |
++| [VP-03](VP-03/README.md) | Hủy hiệu lực phiếu phạt | TV1 |
++| [PD-01](PD-01/README.md) | Lượt vào và ra phòng đọc | TV1 |
++| [PH-01](PH-01/README.md) | Góp ý, đánh giá và đề xuất sách | TV2 |
++| [BC-03](BC-03/README.md) | Thống kê lưu thông, quá hạn và thu tiền | TV1 |
++| [LT-04](LT-04/README.md) | In phiếu mượn và biên lai | TV2 |
++
++Mỗi người phát triển phần client của mô đun mình, tự kiểm và tạo PR.
++Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-01/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/VP-01/Controllers/README.md
+new file mode 100644
+index 0000000..826d88a
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-01/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của VP-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của VP-01.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-01/Models/README.md b/client/Modules/TV3_HuynhCongThu/VP-01/Models/README.md
+new file mode 100644
+index 0000000..664b142
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-01/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của VP-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho VP-01.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-01/README.md b/client/Modules/TV3_HuynhCongThu/VP-01/README.md
+new file mode 100644
+index 0000000..dddacda
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-01/README.md
+@@ -0,0 +1,17 @@
++# VP-01 Quá hạn và bồi thường
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất LT-02, HT-03.
++
++## Nghiệm thu
++
++SV 2.000đ/ngày/cuốn trừ lễ/Tết; CB/GV lập thông báo đơn vị; mất/hỏng tính đúng nhánh; chưa chốt lịch thì không tự tính đủ ngày.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-01/Views/README.md b/client/Modules/TV3_HuynhCongThu/VP-01/Views/README.md
+new file mode 100644
+index 0000000..e0cb1eb
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-01/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của VP-01
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của VP-01 Quá hạn và bồi thường.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-02/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/VP-02/Controllers/README.md
+new file mode 100644
+index 0000000..6732394
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-02/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của VP-02
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của VP-02.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-02/Models/README.md b/client/Modules/TV3_HuynhCongThu/VP-02/Models/README.md
+new file mode 100644
+index 0000000..ed278da
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-02/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của VP-02
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho VP-02.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-02/README.md b/client/Modules/TV3_HuynhCongThu/VP-02/README.md
+new file mode 100644
+index 0000000..234b17e
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-02/README.md
+@@ -0,0 +1,17 @@
++# VP-02 Thu tiền và biên lai
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất VP-01.
++
++## Nghiệm thu
++
++Thu đủ khoản được chọn; một phiếu nhiều khoản; không thu lặp; lưu người/ngày/căn cứ; kiểm tra quyền ở dịch vụ.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-02/Views/README.md b/client/Modules/TV3_HuynhCongThu/VP-02/Views/README.md
+new file mode 100644
+index 0000000..79ef558
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-02/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của VP-02
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của VP-02 Thu tiền và biên lai.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-03/Controllers/README.md b/client/Modules/TV3_HuynhCongThu/VP-03/Controllers/README.md
+new file mode 100644
+index 0000000..050394d
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-03/Controllers/README.md
+@@ -0,0 +1,6 @@
++# Controllers của VP-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Điều phối các thao tác giao diện của VP-03.
++Gọi dịch vụ HTTP, chuyển model cho View và thông báo lỗi.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-03/Models/README.md b/client/Modules/TV3_HuynhCongThu/VP-03/Models/README.md
+new file mode 100644
+index 0000000..5c98a4e
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-03/Models/README.md
+@@ -0,0 +1,6 @@
++# Models của VP-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Dữ liệu trình bày cho VP-03.
++Các DTO trao đổi qua API dùng hợp đồng thống nhất tại server/Contracts.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-03/README.md b/client/Modules/TV3_HuynhCongThu/VP-03/README.md
+new file mode 100644
+index 0000000..1630c04
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-03/README.md
+@@ -0,0 +1,17 @@
++# VP-03 Hủy hiệu lực phiếu phạt
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất VP-02, HT-02.
++
++## Nghiệm thu
++
++Chỉ Quản lý thư viện được hủy; giữ bản ghi và lý do/nhật ký; phiếu đã thu vẫn giữ chứng từ tiền đã thu.
++
++## Trách nhiệm client
++
++Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
++dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
++Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/client/Modules/TV3_HuynhCongThu/VP-03/Views/README.md b/client/Modules/TV3_HuynhCongThu/VP-03/Views/README.md
+new file mode 100644
+index 0000000..ea3a8ba
+--- /dev/null
++++ b/client/Modules/TV3_HuynhCongThu/VP-03/Views/README.md
+@@ -0,0 +1,6 @@
++# Views của VP-03
++
++Người phụ trách **Huỳnh Công Thủ**.
++
++Giao diện WinForms của VP-03 Hủy hiệu lực phiếu phạt.
++Nhận dữ liệu từ Controller và hiển thị kết quả cho người dùng.
+diff --git a/src/ThuVienDAU.WinForms/Program.cs b/client/Program.cs
+similarity index 75%
+rename from src/ThuVienDAU.WinForms/Program.cs
+rename to client/Program.cs
+index 45c42dd..d7e8744 100644
+--- a/src/ThuVienDAU.WinForms/Program.cs
++++ b/client/Program.cs
+@@ -1,3 +1,4 @@
++using System.Net.Http;
+ using ThuVienDAU.Controllers;
+ using ThuVienDAU.Forms;
+ using ThuVienDAU.Services;
+@@ -11,7 +12,8 @@ internal static class Program
+     {
+         ApplicationConfiguration.Initialize();
+         using var mainForm = new MainForm();
+-        _ = new MainController(mainForm, new DatabaseHealthService());
++        using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
++        _ = new MainController(mainForm, new DatabaseHealthService(httpClient));
+         Application.Run(mainForm);
+     }
+ }
+diff --git a/client/README.md b/client/README.md
+new file mode 100644
+index 0000000..1e5a84c
+--- /dev/null
++++ b/client/README.md
+@@ -0,0 +1,40 @@
++# Client WinForms MVC
++
++Client chạy trên Windows với .NET 10 và Visual Studio.
++Mở solution ThuVienDAU.sln ở gốc repo, chọn ThuVienDAU.WinForms để chạy giao diện.
++Server cần được khởi động để dùng chức năng kiểm tra MySQL.
++
++## Cấu hình
++
++Client mặc định gọi http://localhost:5080/.
++Để đổi máy chủ, sao chép appsettings.example.json thành appsettings.local.json
++ngay trong client, sửa Server.BaseUrl rồi build lại. File local được Git bỏ qua.
++
++Ví dụ Server.BaseUrl là http://192.168.1.10:5080/.
++Thay bằng địa chỉ server của nhóm.
++
++## Phân công mô đun
++
++| Người làm | Thư mục | Mã |
++|---|---|---|
++| Võ Ngọc Bình | [TV1_VoNgocBinh](Modules/TV1_VoNgocBinh) | HT-01…04, DG-01…03, BC-01, TC-01…02 |
++| Trần Mỹ Nhung | [TV2_TranMyNhung](Modules/TV2_TranMyNhung) | TL-01…05, TL-07, KK-01…02, BC-02 |
++| Huỳnh Công Thủ | [TV3_HuynhCongThu](Modules/TV3_HuynhCongThu) | LT-01…04, VP-01…03, PD-01, PH-01, BC-03 |
++
++Trong mô đun đã có code HT-01, Views chứa form và giao diện IMainView,
++Controllers chứa MainController, Models chứa lỗi kiểm tra và các DTO liên kết,
++Services chứa lớp gọi API. Program.cs nối form, controller và HttpClient.
++
++Các DTO tại server/Contracts được Compile Link vào client để hai bên dùng cùng
++kiểu JSON. Client phụ thuộc mã hợp đồng và thư viện .NET HTTP.
++Những mô đun tiếp theo bổ sung Views, Controllers và Models theo cùng bố cục
++khi bắt đầu lập trình.
++
++## Luồng hiện có
++
++Nút kiểm tra MySQL phát sự kiện tới MainController.
++DatabaseHealthService gửi GET /api/database/health, đọc JSON và trả model
++cho form hiển thị. Lỗi mất mạng, quá thời gian chờ, cấu hình và lỗi MySQL
++được thông báo trên giao diện.
++
++Chạy dotnet run --project client/ThuVienDAU.WinForms.csproj từ gốc repo.
+diff --git a/src/ThuVienDAU.WinForms/ThuVienDAU.WinForms.csproj b/client/ThuVienDAU.WinForms.csproj
+similarity index 84%
+rename from src/ThuVienDAU.WinForms/ThuVienDAU.WinForms.csproj
+rename to client/ThuVienDAU.WinForms.csproj
+index ac0c119..a4269ca 100644
+--- a/src/ThuVienDAU.WinForms/ThuVienDAU.WinForms.csproj
++++ b/client/ThuVienDAU.WinForms.csproj
+@@ -11,7 +11,7 @@
+   </PropertyGroup>
+ 
+   <ItemGroup>
+-    <PackageReference Include="MySql.Data" Version="26.10.0" />
++    <Compile Include="../server/Contracts/*.cs" Link="Modules/TV1_VoNgocBinh/HT-01/Models/%(Filename)%(Extension)" />
+     <None Update="appsettings.example.json" CopyToOutputDirectory="PreserveNewest" />
+     <None Update="appsettings.local.json" CopyToOutputDirectory="PreserveNewest" />
+   </ItemGroup>
+diff --git a/client/appsettings.example.json b/client/appsettings.example.json
+new file mode 100644
+index 0000000..e4bf82f
+--- /dev/null
++++ b/client/appsettings.example.json
+@@ -0,0 +1,5 @@
++{
++  "Server": {
++    "BaseUrl": "http://localhost:5080/"
++  }
++}
+diff --git a/client/packages.lock.json b/client/packages.lock.json
+new file mode 100644
+index 0000000..2a64009
+--- /dev/null
++++ b/client/packages.lock.json
+@@ -0,0 +1,6 @@
++{
++  "version": 1,
++  "dependencies": {
++    "net10.0-windows7.0": {}
++  }
++}
+\ No newline at end of file
+diff --git a/kiem_tra/Server_Client_MVC.md b/kiem_tra/Server_Client_MVC.md
+new file mode 100644
+index 0000000..7b84c14
+--- /dev/null
++++ b/kiem_tra/Server_Client_MVC.md
+@@ -0,0 +1,58 @@
++# Kiểm tra khung server client và MVC
++
++Ngày **21/11/2026**. Nền mã nguồn trước thay đổi là commit 21856d8.
++Môi trường kiểm tra Linux, SDK .NET 10.0.404. Client WinForms được biên dịch
++với EnableWindowsTargeting=true. Chương trình desktop cần Windows để chạy giao diện.
++
++## Restore và build
++
++    dotnet restore ThuVienDAU.sln --locked-mode -p:EnableWindowsTargeting=true -m:1
++    dotnet build ThuVienDAU.sln -c Release --no-restore -p:EnableWindowsTargeting=true -m:1
++
++Kết quả hai project **0 lỗi, 0 cảnh báo**.
++Server và client có packages.lock.json riêng.
++Client dùng HTTP và DTO liên kết từ server/Contracts.
++
++## Chạy server thật trên địa chỉ loopback tạm
++
++| Tình huống | Kết quả |
++|---|---|
++| GET /api/health | HTTP 200, status ok |
++| GET /api/database/health khi chưa có cấu hình | HTTP 503 và hướng dẫn cấu hình |
++| appsettings.local.json sai JSON | HTTP 503 và thông báo cấu hình |
++| MySQL tại cổng thử chưa mở | HTTP 503 và mã lỗi MySQL |
++
++Các lần kiểm tra dùng cấu hình tổng hợp và đã dọn sau khi chạy.
++Server được dừng sau thử nghiệm.
++
++## Kiểm tra logic client qua điểm vào Controller
++
++Dùng mã Controller, IMainView, Service, Models và ServerOptions thực tế
++với View kiểm tra và HTTP handler giả lập trong chương trình thử tạm.
++
++| Tình huống | Kết quả |
++|---|---|
++| JSON thành công | Đọc đúng phiên bản MySQL và tên CSDL |
++| HTTP 503 lỗi MySQL | Hiện thông báo và mã MySQL |
++| HTTP 503 cấu hình server | Hiện thông báo server trả về |
++| Mất kết nối HTTP | Hiện hướng dẫn kiểm tra server và mạng |
++| Hết thời gian chờ | Hiện thông báo thử lại |
++| JSON phản hồi sai | Hiện lỗi dữ liệu JSON |
++| URL server thiếu dấu / cuối | Tạo đúng đường dẫn /api/database/health |
++| URL khác HTTP/HTTPS | Từ chối trước khi gọi mạng |
++| Cấu hình client sai JSON | Hiện lỗi cấu hình |
++| Thử lại sau lỗi cấu hình | Thực hiện thành công |
++
++Mỗi nhánh đều kiểm tra hành động đã được mở lại sau khi xử lý.
++
++## Cấu trúc và giới hạn kiểm tra
++
++Đối chiếu danh sách 29 mô đun với bảng Excel, phân công 10/9/10 và đường dẫn
++ở hai phía. Kiểm tra patch áp dụng được lên cây mã nguồn gốc.
++
++Kết quả này xác nhận khung mạng và luồng kiểm tra lỗi.
++Kết nối MySQL thành công bằng tài khoản thật, giao diện Windows,
++thiết bị và nhiều máy LAN cần được nhóm kiểm tra khi có môi trường tương ứng.
++28 mô đun nghiệp vụ đã được bố trí thư mục và phạm vi, đang chờ lập trình.
++Báo cáo Word lưu phương án thiết kế trước lần tách server/client, được đối chiếu
++trong tai_lieu/Kien_truc_Server_Client_MVC.md.
+diff --git a/src/ThuVienDAU.WinForms/Configuration/DatabaseOptions.cs b/server/Configuration/DatabaseOptions.cs
+similarity index 100%
+rename from src/ThuVienDAU.WinForms/Configuration/DatabaseOptions.cs
+rename to server/Configuration/DatabaseOptions.cs
+diff --git a/src/ThuVienDAU.WinForms/Models/DatabaseConnectionInfo.cs b/server/Contracts/DatabaseConnectionInfo.cs
+similarity index 100%
+rename from src/ThuVienDAU.WinForms/Models/DatabaseConnectionInfo.cs
+rename to server/Contracts/DatabaseConnectionInfo.cs
+diff --git a/server/Contracts/DatabaseHealthError.cs b/server/Contracts/DatabaseHealthError.cs
+new file mode 100644
+index 0000000..25c9f8a
+--- /dev/null
++++ b/server/Contracts/DatabaseHealthError.cs
+@@ -0,0 +1,3 @@
++namespace ThuVienDAU.Models;
++
++public sealed record DatabaseHealthError(string Message, int? ErrorNumber = null);
+diff --git a/src/ThuVienDAU.WinForms/Data/MySqlConnectionFactory.cs b/server/Data/MySqlConnectionFactory.cs
+similarity index 100%
+rename from src/ThuVienDAU.WinForms/Data/MySqlConnectionFactory.cs
+rename to server/Data/MySqlConnectionFactory.cs
+diff --git a/server/Modules/TV1_VoNgocBinh/BC-01/README.md b/server/Modules/TV1_VoNgocBinh/BC-01/README.md
+new file mode 100644
+index 0000000..d1bdd33
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/BC-01/README.md
+@@ -0,0 +1,18 @@
++# BC-01 Thống kê độc giả và nhật ký truy cập
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất DG-01, HT-03.
++
++## Nghiệm thu
++
++Thống kê độc giả theo đối tượng/khoa/ngành; lọc kỳ; xuất danh sách đúng bộ lọc.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **DocGia, NhatKy**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/DG-01/README.md b/server/Modules/TV1_VoNgocBinh/DG-01/README.md
+new file mode 100644
+index 0000000..49c36e1
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/DG-01/README.md
+@@ -0,0 +1,18 @@
++# DG-01 Khoa, ngành và nhập hồ sơ
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất HT-02, HT-03.
++
++## Nghiệm thu
++
++Một pipeline Excel: xem trước, kiểm thiếu/trùng mã, thêm/cập nhật và xuất lỗi; gồm SV và CB/GV; không sửa tay hồ sơ.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **Khoa, NganhDaoTao, DocGia, TaiKhoan**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/DG-02/README.md b/server/Modules/TV1_VoNgocBinh/DG-02/README.md
+new file mode 100644
+index 0000000..a7a734d
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/DG-02/README.md
+@@ -0,0 +1,18 @@
++# DG-02 Tra cứu và định danh thẻ trường
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất DG-01.
++
++## Nghiệm thu
++
++Tìm theo mã thẻ trường, xem nhóm/trạng thái/hạn mức; không cấp thẻ mới, không xóa độc giả.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **DocGia**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/DG-03/README.md b/server/Modules/TV1_VoNgocBinh/DG-03/README.md
+new file mode 100644
+index 0000000..5bce1e7
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/DG-03/README.md
+@@ -0,0 +1,18 @@
++# DG-03 Khóa và mở quyền mượn
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất DG-02, HT-03.
++
++## Nghiệm thu
++
++Chỉ Quản lý thư viện thao tác; ghi lý do/thời gian; chỉ mở khi đáp ứng điều kiện trả sách, thanh toán và đình chỉ.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **DocGia, ViPham, ChiTietPhieuMuon**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/HT-01/Controllers/DatabaseHealthController.cs b/server/Modules/TV1_VoNgocBinh/HT-01/Controllers/DatabaseHealthController.cs
+new file mode 100644
+index 0000000..707c962
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/HT-01/Controllers/DatabaseHealthController.cs
+@@ -0,0 +1,35 @@
++using System.Text.Json;
++using Microsoft.AspNetCore.Mvc;
++using MySql.Data.MySqlClient;
++using ThuVienDAU.Models;
++using ThuVienDAU.Services;
++
++namespace ThuVienDAU.Server.Controllers;
++
++[ApiController]
++[Route("api/database")]
++public sealed class DatabaseHealthController(DatabaseHealthService service) : ControllerBase
++{
++    [HttpGet("health")]
++    public async Task<ActionResult<DatabaseConnectionInfo>> Check(CancellationToken cancellationToken)
++    {
++        try
++        {
++            return Ok(await service.CheckAsync(cancellationToken));
++        }
++        catch (MySqlException exception)
++        {
++            return StatusCode(StatusCodes.Status503ServiceUnavailable,
++                new DatabaseHealthError(
++                    "Server chưa kết nối được MySQL. Kiểm tra máy chủ, cổng, tài khoản và quyền truy cập.",
++                    exception.Number));
++        }
++        catch (Exception exception) when (exception is InvalidOperationException or
++            ArgumentException or JsonException or IOException or UnauthorizedAccessException)
++        {
++            return StatusCode(StatusCodes.Status503ServiceUnavailable,
++                new DatabaseHealthError(
++                    "Server cần cấu hình MySQL. Kiểm tra appsettings.local.json trong thư mục server và build lại."));
++        }
++    }
++}
+diff --git a/server/Modules/TV1_VoNgocBinh/HT-01/README.md b/server/Modules/TV1_VoNgocBinh/HT-01/README.md
+new file mode 100644
+index 0000000..3564f0b
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/HT-01/README.md
+@@ -0,0 +1,18 @@
++# HT-01 Khung ứng dụng và kết nối MySQL
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất Không.
++
++## Nghiệm thu
++
++Chạy server API và client WinForms riêng; client gọi HTTP/JSON, server đọc cấu hình và truy vấn MySQL; hiển thị được lỗi kết nối.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **Dùng chung**.
++
++HT-01 đã có luồng kiểm tra kết nối. Các nghiệp vụ tiếp theo thực hiện theo kế hoạch.
+diff --git a/src/ThuVienDAU.WinForms/Services/DatabaseHealthService.cs b/server/Modules/TV1_VoNgocBinh/HT-01/Services/DatabaseHealthService.cs
+similarity index 100%
+rename from src/ThuVienDAU.WinForms/Services/DatabaseHealthService.cs
+rename to server/Modules/TV1_VoNgocBinh/HT-01/Services/DatabaseHealthService.cs
+diff --git a/server/Modules/TV1_VoNgocBinh/HT-02/README.md b/server/Modules/TV1_VoNgocBinh/HT-02/README.md
+new file mode 100644
+index 0000000..ad6cb11
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/HT-02/README.md
+@@ -0,0 +1,18 @@
++# HT-02 Đăng nhập, phiên và vai trò
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-01.
++
++## Nghiệm thu
++
++Đăng nhập năm vai trò; chỉ BIEN_MUC khóa/mở đăng nhập DOC_GIA, bắt buộc lý do/nhật ký; không đổi quyền mượn. Lấy ID thao tác từ phiên đã xác thực.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **TaiKhoan, DocGia**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/HT-03/README.md b/server/Modules/TV1_VoNgocBinh/HT-03/README.md
+new file mode 100644
+index 0000000..48d9290
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/HT-03/README.md
+@@ -0,0 +1,18 @@
++# HT-03 Cấu hình và nhật ký
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-01.
++
++## Nghiệm thu
++
++Dịch vụ ghi/tra cứu nhật ký; đọc cấu hình; giờ đóng cửa, lịch miễn phạt và gia hạn chưa chốt phải hiện rõ.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **NhatKy; JSON cấu hình**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/HT-04/README.md b/server/Modules/TV1_VoNgocBinh/HT-04/README.md
+new file mode 100644
+index 0000000..9bf6a59
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/HT-04/README.md
+@@ -0,0 +1,18 @@
++# HT-04 Sao lưu và phục hồi
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất HT-02, HT-03.
++
++## Nghiệm thu
++
++Quản trị tạo bản sao lưu; phục hồi thử trên DB riêng; có xác nhận trước ghi đè và nhật ký kết quả.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **Toàn bộ CSDL**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/README.md b/server/Modules/TV1_VoNgocBinh/README.md
+new file mode 100644
+index 0000000..41235e9
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/README.md
+@@ -0,0 +1,20 @@
++# Mô đun do Võ Ngọc Bình phụ trách
++
++Mã thành viên **TV1**, mã sinh viên **2351220274**. Tài khoản GitHub **[Jin01524](https://github.com/Jin01524)**.
++Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
++
++| Mã | Mô đun | Rà soát |
++|---|---|---|
++| [HT-01](HT-01/README.md) | Khung ứng dụng và kết nối MySQL | TV2 |
++| [HT-02](HT-02/README.md) | Đăng nhập, phiên và vai trò | TV3 |
++| [HT-03](HT-03/README.md) | Cấu hình và nhật ký | TV3 |
++| [HT-04](HT-04/README.md) | Sao lưu và phục hồi | TV2 |
++| [DG-01](DG-01/README.md) | Khoa, ngành và nhập hồ sơ | TV2 |
++| [DG-02](DG-02/README.md) | Tra cứu và định danh thẻ trường | TV3 |
++| [DG-03](DG-03/README.md) | Khóa và mở quyền mượn | TV3 |
++| [BC-01](BC-01/README.md) | Thống kê độc giả và nhật ký truy cập | TV2 |
++| [TC-01](TC-01/README.md) | Tích hợp giao diện và bản cài | TV2, TV3 |
++| [TC-02](TC-02/README.md) | Kiểm thử toàn hệ thống và demo | TV2, TV3 |
++
++Mỗi người phát triển phần server của mô đun mình, tự kiểm và tạo PR.
++Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+diff --git a/server/Modules/TV1_VoNgocBinh/TC-01/README.md b/server/Modules/TV1_VoNgocBinh/TC-01/README.md
+new file mode 100644
+index 0000000..db7a387
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/TC-01/README.md
+@@ -0,0 +1,18 @@
++# TC-01 Tích hợp giao diện và bản cài
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2, TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-02.
++
++## Nghiệm thu
++
++Menu theo vai trò; tích hợp form, cấu hình URL server trên máy khách và cấu hình MySQL trên server; đóng gói hai ứng dụng.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **Dùng chung**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV1_VoNgocBinh/TC-02/README.md b/server/Modules/TV1_VoNgocBinh/TC-02/README.md
+new file mode 100644
+index 0000000..f57c4ac
+--- /dev/null
++++ b/server/Modules/TV1_VoNgocBinh/TC-02/README.md
+@@ -0,0 +1,18 @@
++# TC-02 Kiểm thử toàn hệ thống và demo
++
++Người phụ trách **Võ Ngọc Bình** (TV1, 2351220274). Người rà soát **TV2, TV3**.
++
++Phụ thuộc trước khi hoàn tất HT-04, BC-01, TC-01, TL-05, TL-07, KK-02, BC-02, LT-03, VP-03, PD-01, PH-01, BC-03, LT-04.
++
++## Nghiệm thu
++
++Ba thành viên chạy ca xuyên module, sửa lỗi phần mình; kịch bản demo, hướng dẫn và báo cáo thống nhất.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **Toàn bộ CSDL**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/BC-02/README.md b/server/Modules/TV2_TranMyNhung/BC-02/README.md
+new file mode 100644
+index 0000000..4157452
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/BC-02/README.md
+@@ -0,0 +1,18 @@
++# BC-02 Thống kê tài liệu và kho
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất KK-01, TL-03.
++
++## Nghiệm thu
++
++Số đầu tài liệu/bản sách theo DDC/loại/trạng thái; kết quả kiểm kê; xuất báo cáo có kỳ/bộ lọc.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **DauTaiLieu, BanTaiLieu, KiemKe, ChiTietKiemKe**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/KK-01/README.md b/server/Modules/TV2_TranMyNhung/KK-01/README.md
+new file mode 100644
+index 0000000..e249b4f
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/KK-01/README.md
+@@ -0,0 +1,18 @@
++# KK-01 Kiểm kê kho
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất TL-04, HT-03.
++
++## Nghiệm thu
++
++Lập danh sách/số lượng dự kiến; quét thực tế; người kiểm trên dòng; đối chiếu thiếu/thừa/hỏng/sai vị trí; xuất kiểm kê.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **KiemKe, ChiTietKiemKe**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/KK-02/README.md b/server/Modules/TV2_TranMyNhung/KK-02/README.md
+new file mode 100644
+index 0000000..8f24cf1
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/KK-02/README.md
+@@ -0,0 +1,18 @@
++# KK-02 Đề nghị và xử lý thanh lý
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất KK-01.
++
++## Nghiệm thu
++
++Lập đề nghị và ghi kết quả quyết định; không tự thanh lý khi kiểm kê thiếu; thẩm quyền duyệt cần chốt.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **ThanhLy, BanTaiLieu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/README.md b/server/Modules/TV2_TranMyNhung/README.md
+new file mode 100644
+index 0000000..88d3635
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/README.md
+@@ -0,0 +1,19 @@
++# Mô đun do Trần Mỹ Nhung phụ trách
++
++Mã thành viên **TV2**, mã sinh viên **2351220273**. Tài khoản GitHub **Chưa cung cấp**.
++Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
++
++| Mã | Mô đun | Rà soát |
++|---|---|---|
++| [TL-01](TL-01/README.md) | Danh mục DDC23 và xác nhận phân loại | TV1 |
++| [TL-02](TL-02/README.md) | Hồ sơ đầu tài liệu | TV3 |
++| [TL-03](TL-03/README.md) | Biên mục MARC21 | TV1 |
++| [TL-04](TL-04/README.md) | Bản sách và dãy kệ/ngăn | TV3 |
++| [TL-05](TL-05/README.md) | Đồ án, luận văn và tệp đính kèm | TV1 |
++| [TL-07](TL-07/README.md) | In barcode và nhãn gáy | TV3 |
++| [KK-01](KK-01/README.md) | Kiểm kê kho | TV1 |
++| [KK-02](KK-02/README.md) | Đề nghị và xử lý thanh lý | TV3 |
++| [BC-02](BC-02/README.md) | Thống kê tài liệu và kho | TV1 |
++
++Mỗi người phát triển phần server của mô đun mình, tự kiểm và tạo PR.
++Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+diff --git a/server/Modules/TV2_TranMyNhung/TL-01/README.md b/server/Modules/TV2_TranMyNhung/TL-01/README.md
+new file mode 100644
+index 0000000..7635d86
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/TL-01/README.md
+@@ -0,0 +1,18 @@
++# TL-01 Danh mục DDC23 và xác nhận phân loại
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất HT-02, HT-03.
++
++## Nghiệm thu
++
++Tra cây DDC23 bản in tiếng Việt rút gọn; lưu nguồn/người/vị trí tra; mục chưa đối chiếu không tự xác nhận.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **MucPhanLoaiDDC, DauTaiLieu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/TL-02/README.md b/server/Modules/TV2_TranMyNhung/TL-02/README.md
+new file mode 100644
+index 0000000..25b0573
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/TL-02/README.md
+@@ -0,0 +1,18 @@
++# TL-02 Hồ sơ đầu tài liệu
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất TL-01.
++
++## Nghiệm thu
++
++Tạo/sửa/tra cứu đầu tài liệu, loại tài liệu và phân loại; thông tin tác giả/NXB/ISBN chi tiết thuộc MARC.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **DauTaiLieu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/TL-03/README.md b/server/Modules/TV2_TranMyNhung/TL-03/README.md
+new file mode 100644
+index 0000000..7baab60
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/TL-03/README.md
+@@ -0,0 +1,18 @@
++# TL-03 Biên mục MARC21
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất TL-02.
++
++## Nghiệm thu
++
++Form thân thiện lưu JSON trường/trường con; kiểm profile cục bộ; giữ thứ tự/lặp/chỉ thị; 082 khớp DDC, sửa về nháp.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **BieuGhiMARC, DauTaiLieu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/TL-04/README.md b/server/Modules/TV2_TranMyNhung/TL-04/README.md
+new file mode 100644
+index 0000000..ee607d5
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/TL-04/README.md
+@@ -0,0 +1,18 @@
++# TL-04 Bản sách và dãy kệ/ngăn
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất TL-02.
++
++## Nghiệm thu
++
++Tạo bản sách có ĐKCB/barcode duy nhất; giá, trạng thái, ký hiệu xếp giá và dãy kệ/ngăn; không thêm tầng/phòng.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **BanTaiLieu, ViTriLuuTru**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/TL-05/README.md b/server/Modules/TV2_TranMyNhung/TL-05/README.md
+new file mode 100644
+index 0000000..d192a58
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/TL-05/README.md
+@@ -0,0 +1,18 @@
++# TL-05 Đồ án, luận văn và tệp đính kèm
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất TL-02, DG-01.
++
++## Nghiệm thu
++
++Gắn SV/GV và vai trò; nhiều tệp trong DanhSachTep JSON; mở tệp hợp lệ; không tạo thêm bảng tệp.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **DauTaiLieu, ThanhVienDeTai**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV2_TranMyNhung/TL-07/README.md b/server/Modules/TV2_TranMyNhung/TL-07/README.md
+new file mode 100644
+index 0000000..5cb858f
+--- /dev/null
++++ b/server/Modules/TV2_TranMyNhung/TL-07/README.md
+@@ -0,0 +1,18 @@
++# TL-07 In barcode và nhãn gáy
++
++Người phụ trách **Trần Mỹ Nhung** (TV2, 2351220273). Người rà soát **TV3**.
++
++Phụ thuộc trước khi hoàn tất TL-04.
++
++## Nghiệm thu
++
++Xem trước/in mã vạch và nhãn gáy; phân biệt DDC, ký hiệu xếp giá và vị trí; thử máy in khi có thiết bị.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **BanTaiLieu, DauTaiLieu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/BC-03/README.md b/server/Modules/TV3_HuynhCongThu/BC-03/README.md
+new file mode 100644
+index 0000000..a38e8a5
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/BC-03/README.md
+@@ -0,0 +1,18 @@
++# BC-03 Thống kê lưu thông, quá hạn và thu tiền
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất VP-02, PD-01, LT-03.
++
++## Nghiệm thu
++
++Dashboard theo quyền; mượn/trả/gia hạn/quá hạn/lượt đọc; đối chiếu tiền phạt với thực thu, không đếm trùng.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **PhieuMuon, ChiTietPhieuMuon, ViPham, PhieuThu, LuotVaoPhongDoc**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/LT-01/README.md b/server/Modules/TV3_HuynhCongThu/LT-01/README.md
+new file mode 100644
+index 0000000..08145de
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/LT-01/README.md
+@@ -0,0 +1,18 @@
++# LT-01 Mượn sách tại quầy
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất DG-02, DG-03, TL-04, HT-03.
++
++## Nghiệm thu
++
++SV 2 đầu/10 ngày, CB/GV 3 đầu/15 ngày; chặn trùng nhan đề, khóa/chưa đủ điều kiện, 15 phút cuối; giao dịch nguyên tử.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **PhieuMuon, ChiTietPhieuMuon, BanTaiLieu, DocGia**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/LT-02/README.md b/server/Modules/TV3_HuynhCongThu/LT-02/README.md
+new file mode 100644
+index 0000000..85d811f
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/LT-02/README.md
+@@ -0,0 +1,18 @@
++# LT-02 Trả sách và tình trạng bản sách
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất LT-01.
++
++## Nghiệm thu
++
++Quét bản đang mượn; ghi ngày trả/tình trạng; trả một phần; trả lặp không ghi hai lần; chuyển căn cứ sang xử lý vi phạm.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **PhieuMuon, ChiTietPhieuMuon, BanTaiLieu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/LT-03/README.md b/server/Modules/TV3_HuynhCongThu/LT-03/README.md
+new file mode 100644
+index 0000000..f9a0b24
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/LT-03/README.md
+@@ -0,0 +1,18 @@
++# LT-03 Gia hạn tại quầy
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất LT-01, HT-03.
++
++## Nghiệm thu
++
++Kiểm hạn mức và điều kiện thực tế; ghi hạn mới/lý do từ chối; thiếu cấu hình số lần/thời gian thì yêu cầu chốt.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **ChiTietPhieuMuon**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/LT-04/README.md b/server/Modules/TV3_HuynhCongThu/LT-04/README.md
+new file mode 100644
+index 0000000..b62dfff
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/LT-04/README.md
+@@ -0,0 +1,18 @@
++# LT-04 In phiếu mượn và biên lai
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất LT-01, VP-02.
++
++## Nghiệm thu
++
++Xem trước/in đúng phiếu và hạn trả; in lại không tạo giao dịch mới; thử máy in khi có thiết bị.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **PhieuMuon, ChiTietPhieuMuon, PhieuThu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/PD-01/README.md b/server/Modules/TV3_HuynhCongThu/PD-01/README.md
+new file mode 100644
+index 0000000..6622eee
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/PD-01/README.md
+@@ -0,0 +1,18 @@
++# PD-01 Lượt vào và ra phòng đọc
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất DG-02.
++
++## Nghiệm thu
++
++Định danh thẻ trường, ghi vào/ra; nhắc giữ/nhận thẻ và chìa khóa; quy định tối đa 2 cuốn là thao tác tại phòng.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **LuotVaoPhongDoc, DocGia**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/PH-01/README.md b/server/Modules/TV3_HuynhCongThu/PH-01/README.md
+new file mode 100644
+index 0000000..604e3a1
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/PH-01/README.md
+@@ -0,0 +1,18 @@
++# PH-01 Góp ý, đánh giá và đề xuất sách
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất HT-02, TL-02.
++
++## Nghiệm thu
++
++Gửi đề xuất/góp ý/đánh giá; xem/xử lý theo quyền; đề xuất không phải đặt trước tài liệu.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **PhanHoiDocGia**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/README.md b/server/Modules/TV3_HuynhCongThu/README.md
+new file mode 100644
+index 0000000..609111e
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/README.md
+@@ -0,0 +1,20 @@
++# Mô đun do Huỳnh Công Thủ phụ trách
++
++Mã thành viên **TV3**, mã sinh viên **2351220232**. Tài khoản GitHub **Chưa cung cấp**.
++Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
++
++| Mã | Mô đun | Rà soát |
++|---|---|---|
++| [LT-01](LT-01/README.md) | Mượn sách tại quầy | TV1 |
++| [LT-02](LT-02/README.md) | Trả sách và tình trạng bản sách | TV2 |
++| [LT-03](LT-03/README.md) | Gia hạn tại quầy | TV1 |
++| [VP-01](VP-01/README.md) | Quá hạn và bồi thường | TV2 |
++| [VP-02](VP-02/README.md) | Thu tiền và biên lai | TV1 |
++| [VP-03](VP-03/README.md) | Hủy hiệu lực phiếu phạt | TV1 |
++| [PD-01](PD-01/README.md) | Lượt vào và ra phòng đọc | TV1 |
++| [PH-01](PH-01/README.md) | Góp ý, đánh giá và đề xuất sách | TV2 |
++| [BC-03](BC-03/README.md) | Thống kê lưu thông, quá hạn và thu tiền | TV1 |
++| [LT-04](LT-04/README.md) | In phiếu mượn và biên lai | TV2 |
++
++Mỗi người phát triển phần server của mô đun mình, tự kiểm và tạo PR.
++Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+diff --git a/server/Modules/TV3_HuynhCongThu/VP-01/README.md b/server/Modules/TV3_HuynhCongThu/VP-01/README.md
+new file mode 100644
+index 0000000..0e613cd
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/VP-01/README.md
+@@ -0,0 +1,18 @@
++# VP-01 Quá hạn và bồi thường
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV2**.
++
++Phụ thuộc trước khi hoàn tất LT-02, HT-03.
++
++## Nghiệm thu
++
++SV 2.000đ/ngày/cuốn trừ lễ/Tết; CB/GV lập thông báo đơn vị; mất/hỏng tính đúng nhánh; chưa chốt lịch thì không tự tính đủ ngày.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **ViPham, ChiTietPhieuMuon, BanTaiLieu**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/VP-02/README.md b/server/Modules/TV3_HuynhCongThu/VP-02/README.md
+new file mode 100644
+index 0000000..b6360be
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/VP-02/README.md
+@@ -0,0 +1,18 @@
++# VP-02 Thu tiền và biên lai
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất VP-01.
++
++## Nghiệm thu
++
++Thu đủ khoản được chọn; một phiếu nhiều khoản; không thu lặp; lưu người/ngày/căn cứ; kiểm tra quyền ở dịch vụ.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **PhieuThu, ViPham**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Modules/TV3_HuynhCongThu/VP-03/README.md b/server/Modules/TV3_HuynhCongThu/VP-03/README.md
+new file mode 100644
+index 0000000..cbc0874
+--- /dev/null
++++ b/server/Modules/TV3_HuynhCongThu/VP-03/README.md
+@@ -0,0 +1,18 @@
++# VP-03 Hủy hiệu lực phiếu phạt
++
++Người phụ trách **Huỳnh Công Thủ** (TV3, 2351220232). Người rà soát **TV1**.
++
++Phụ thuộc trước khi hoàn tất VP-02, HT-02.
++
++## Nghiệm thu
++
++Chỉ Quản lý thư viện được hủy; giữ bản ghi và lý do/nhật ký; phiếu đã thu vẫn giữ chứng từ tiền đã thu.
++
++## Trách nhiệm server
++
++Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
++Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
++
++Các bảng hoặc dữ liệu liên quan theo kế hoạch **ViPham, PhieuThu, NhatKy**.
++
++Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+diff --git a/server/Program.cs b/server/Program.cs
+new file mode 100644
+index 0000000..aedd32d
+--- /dev/null
++++ b/server/Program.cs
+@@ -0,0 +1,15 @@
++using ThuVienDAU.Services;
++
++var builder = WebApplication.CreateBuilder(args);
++if (string.IsNullOrWhiteSpace(builder.Configuration["urls"]))
++{
++    builder.WebHost.UseUrls("http://localhost:5080");
++}
++
++builder.Services.AddControllers();
++builder.Services.AddScoped<DatabaseHealthService>();
++
++var app = builder.Build();
++app.MapGet("/api/health", () => Results.Ok(new { status = "ok", application = "ThuVienDAU.Server" }));
++app.MapControllers();
++app.Run();
+diff --git a/server/README.md b/server/README.md
+new file mode 100644
+index 0000000..c8e8e1f
+--- /dev/null
++++ b/server/README.md
+@@ -0,0 +1,45 @@
++# Server API thư viện DAU
++
++Server dùng ASP.NET Core .NET 10 và Connector/NET MySql.Data 26.10.0.
++Chạy từ gốc repo bằng lệnh sau.
++
++    dotnet run --project server/ThuVienDAU.Server.csproj
++
++Server mặc định dùng http://localhost:5080.
++Có thể đặt địa chỉ lắng nghe bằng --urls hoặc biến môi trường ASPNETCORE_URLS.
++
++## Cấu hình MySQL
++
++Sao chép appsettings.example.json thành appsettings.local.json ngay trong server,
++điền máy chủ, cổng, CSDL và tài khoản riêng của nhóm, rồi build lại.
++Cấu hình mẫu của bản WinForms trước được chuyển sang vị trí này.
++File local cũ nếu đã tồn tại trên máy cần chuyển thủ công từ
++src/ThuVienDAU.WinForms/appsettings.local.json sang server/appsettings.local.json.
++
++SQL chuẩn ở ../csdl/01_Tao_CSDL.sql. Server đọc file cấu hình cạnh assembly.
++Chức năng kiểm tra đọc phiên bản và tên CSDL.
++
++## API đã triển khai
++
++| Phương thức | Đường dẫn | Kết quả |
++|---|---|---|
++| GET | /api/health | HTTP 200 với status ok khi tiến trình chạy |
++| GET | /api/database/health | HTTP 200 với serverVersion và databaseName khi MySQL kết nối được |
++| GET | /api/database/health | HTTP 503 với message và errorNumber nếu cấu hình hoặc MySQL gặp lỗi |
++
++Thông báo trả về giữ nội dung hướng dẫn, giới hạn thông tin cấu hình nội bộ.
++Contracts định nghĩa DatabaseConnectionInfo và DatabaseHealthError.
++
++## Mô đun và MVC
++
++[TV1](Modules/TV1_VoNgocBinh) phụ trách hệ thống, độc giả và tích hợp.
++[TV2](Modules/TV2_TranMyNhung) phụ trách tài liệu và kho.
++[TV3](Modules/TV3_HuynhCongThu) phụ trách lưu thông và thu tiền.
++
++Controllers nhận yêu cầu mạng và trả model JSON. Services xử lý nghiệp vụ;
++Data/Repository truy cập CSDL. Views của ứng dụng desktop nằm ở client.
++HT-01 đã có controller API và dịch vụ đọc MySQL. Các mô đun còn lại có
++README quy định phạm vi trước khi thành viên bổ sung code.
++
++Khi triển khai HT-02, xác thực phiên và kiểm quyền tại server trước khi mở API
++ghi dữ liệu. Luồng mượn, trả và thu tiền dùng một giao dịch ở server theo kế hoạch nhóm.
+diff --git a/server/ThuVienDAU.Server.csproj b/server/ThuVienDAU.Server.csproj
+new file mode 100644
+index 0000000..3b73e2f
+--- /dev/null
++++ b/server/ThuVienDAU.Server.csproj
+@@ -0,0 +1,14 @@
++<Project Sdk="Microsoft.NET.Sdk.Web">
++  <PropertyGroup>
++    <TargetFramework>net10.0</TargetFramework>
++    <Nullable>enable</Nullable>
++    <ImplicitUsings>enable</ImplicitUsings>
++    <RootNamespace>ThuVienDAU.Server</RootNamespace>
++    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
++  </PropertyGroup>
++  <ItemGroup>
++    <PackageReference Include="MySql.Data" Version="26.10.0" />
++    <None Update="appsettings.example.json" CopyToOutputDirectory="PreserveNewest" />
++    <Content Update="appsettings.local.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
++  </ItemGroup>
++</Project>
+diff --git a/src/ThuVienDAU.WinForms/appsettings.example.json b/server/appsettings.example.json
+similarity index 100%
+rename from src/ThuVienDAU.WinForms/appsettings.example.json
+rename to server/appsettings.example.json
+diff --git a/src/ThuVienDAU.WinForms/packages.lock.json b/server/packages.lock.json
+similarity index 60%
+rename from src/ThuVienDAU.WinForms/packages.lock.json
+rename to server/packages.lock.json
+index 79051c4..3506707 100644
+--- a/src/ThuVienDAU.WinForms/packages.lock.json
++++ b/server/packages.lock.json
+@@ -1,7 +1,7 @@
+ {
+   "version": 1,
+   "dependencies": {
+-    "net10.0-windows7.0": {
++    "net10.0": {
+       "MySql.Data": {
+         "type": "Direct",
+         "requested": "[26.10.0, )",
+@@ -11,6 +11,8 @@
+           "BouncyCastle.Cryptography": "2.6.2",
+           "Google.Protobuf": "3.35.0",
+           "K4os.Compression.LZ4.Streams": "1.3.8",
++          "System.Configuration.ConfigurationManager": "10.0.8",
++          "System.Security.Permissions": "10.0.8",
+           "ZstdSharp.Port": "0.8.8"
+         }
+       },
+@@ -43,6 +45,32 @@
+         "resolved": "1.0.8",
+         "contentHash": "Wp2F7BamQ2Q/7Hk834nV9vRQapgcr8kgv9Jvfm8J3D0IhDqZMMl+a2yxUq5ltJitvXvQfB8W6K4F4fCbw/P6YQ=="
+       },
++      "System.Configuration.ConfigurationManager": {
++        "type": "Transitive",
++        "resolved": "10.0.8",
++        "contentHash": "QG+HHwJjLyUiRuA9axr5pDqHAxboo7FXCTRakxMABE9CUAUij/tsd/MsgQPJUEppkf+YBLT+F/P/wKIVCAIcNg==",
++        "dependencies": {
++          "System.Security.Cryptography.ProtectedData": "10.0.8"
++        }
++      },
++      "System.Security.Cryptography.ProtectedData": {
++        "type": "Transitive",
++        "resolved": "10.0.8",
++        "contentHash": "/ldVgSfImIBp6fLWS7sLH0BnmtFj0ZwGlZo4Xx2q0K3ZhJNDbW45kj2f6zPoC+L+BTINuHdMzTsopuwmkbgcNA=="
++      },
++      "System.Security.Permissions": {
++        "type": "Transitive",
++        "resolved": "10.0.8",
++        "contentHash": "nIA3VtrHAVbx6v3UbTBkB7yb3ShjVS+A0BpdfXaYLnJP0anIfE9Z9s+kXIDlv82FxEaOoL32866N8p7KsydwdA==",
++        "dependencies": {
++          "System.Windows.Extensions": "10.0.8"
++        }
++      },
++      "System.Windows.Extensions": {
++        "type": "Transitive",
++        "resolved": "10.0.8",
++        "contentHash": "4hnHSbtc1FP91qiOsweSa/3My/tkKAU9WcUyCZNSUPhfNyFtIhTl9qEPaSK2g4XzTMaq4huRerF6tSV9q44Cnw=="
++      },
+       "ZstdSharp.Port": {
+         "type": "Transitive",
+         "resolved": "0.8.8",
+diff --git a/src/ThuVienDAU.WinForms/Forms/BaoCao/README.md b/src/ThuVienDAU.WinForms/Forms/BaoCao/README.md
+deleted file mode 100644
+index e694ac3..0000000
+--- a/src/ThuVienDAU.WinForms/Forms/BaoCao/README.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Báo cáo
+-
+-BC-01: TV1. BC-02: TV2. BC-03: TV3.
+-Mỗi người làm form/dịch vụ báo cáo phần mình; thống nhất với người điều phối trước khi sửa MainForm.
+diff --git a/src/ThuVienDAU.WinForms/Forms/DocGia/README.md b/src/ThuVienDAU.WinForms/Forms/DocGia/README.md
+deleted file mode 100644
+index a18108f..0000000
+--- a/src/ThuVienDAU.WinForms/Forms/DocGia/README.md
++++ /dev/null
+@@ -1,6 +0,0 @@
+-# Hồ sơ độc giả
+-
+-TV1 phụ trách DG-01 đến DG-03. Đặt form độc giả tại đây; xử lý nằm trong Services,
+-truy vấn nằm trong Data. Dùng thẻ trường, không cấp thẻ thư viện hoặc xóa độc giả.
+-
+-HT-02: chỉ BIEN_MUC được khóa/mở đăng nhập tài khoản DOC_GIA qua DoiTrangThaiDangNhapDocGia; ID người xử lý lấy từ phiên đã xác thực. DG-03 vẫn chỉ QUAN_LY_THU_VIEN đổi quyền mượn. Hai trạng thái độc lập; không tự mở mượn khi mở đăng nhập.
+diff --git a/src/ThuVienDAU.WinForms/Forms/Kho/README.md b/src/ThuVienDAU.WinForms/Forms/Kho/README.md
+deleted file mode 100644
+index 41fdd52..0000000
+--- a/src/ThuVienDAU.WinForms/Forms/Kho/README.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Kho
+-
+-TV2 phụ trách KK-01 và KK-02. Dùng KiemKe và ChiTietKiemKe; vị trí chỉ dãy kệ/ngăn.
+-Thẩm quyền duyệt thanh lý cần được xác nhận trước khi mở thao tác duyệt.
+diff --git a/src/ThuVienDAU.WinForms/Forms/LuuThong/README.md b/src/ThuVienDAU.WinForms/Forms/LuuThong/README.md
+deleted file mode 100644
+index 1bf71d1..0000000
+--- a/src/ThuVienDAU.WinForms/Forms/LuuThong/README.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Lưu thông
+-
+-TV3 phụ trách LT, VP, PD và PH. Mượn/trả/thu tiền phải chạy trong giao dịch phù hợp.
+-Không triển khai đặt trước. Chỉ quản lý thư viện được khóa/mở quyền mượn và hủy hiệu lực phiếu phạt.
+diff --git a/src/ThuVienDAU.WinForms/Forms/TaiLieu/README.md b/src/ThuVienDAU.WinForms/Forms/TaiLieu/README.md
+deleted file mode 100644
+index 822d1ff..0000000
+--- a/src/ThuVienDAU.WinForms/Forms/TaiLieu/README.md
++++ /dev/null
+@@ -1,11 +0,0 @@
+-# Tài liệu
+-
+-TV2 phụ trách TL-01 đến TL-05 và TL-07. Form DDC23, MARC21, đầu tài liệu, bản sách và đồ án đặt tại đây.
+-Các form sử dụng chung Services và Data. Không tạo thêm schema riêng cho module.
+-
+-## Quyền khóa tài khoản và quyền mượn
+-
+-- **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
+-- **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
+-- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+-- HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.
+diff --git a/src/ThuVienDAU.WinForms/Models/README.md b/src/ThuVienDAU.WinForms/Models/README.md
+deleted file mode 100644
+index 4bc4526..0000000
+--- a/src/ThuVienDAU.WinForms/Models/README.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Models
+-
+-Lớp dữ liệu dùng chung. Tên thuộc tính bám theo từ điển CSDL; đối chiếu trước khi đổi kiểu hoặc tên.
+-Không thêm một bản sao model khác trong từng form.
+diff --git a/tai_lieu/Cay_module_chuc_nang.md b/tai_lieu/Cay_module_chuc_nang.md
+index 6bb82bd..502b738 100644
+--- a/tai_lieu/Cay_module_chuc_nang.md
++++ b/tai_lieu/Cay_module_chuc_nang.md
+@@ -1,5 +1,10 @@
+ # Cây module chức năng – Hệ thống thông tin quản lý thư viện DAU
+ 
++Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
++[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
++Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
++Phân công mô đun áp dụng cho cả hai phía.
++
+ ## 1. Căn cứ và cách phân rã
+ 
+ Cây chức năng dựa trên quy định thư viện và phạm vi người dùng đã chốt. Bản CSDL ngày 09/11/2026 dùng MySQL 8.0.21+, DDC23 bản in tiếng Việt rút gọn và MARC21. [Thiết kế CSDL](Thiet_ke_CSDL.md)
+@@ -170,7 +175,7 @@ Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN,
+ 
+ ## 5. Ranh giới kỹ thuật và điểm cần chốt
+ 
+-- Nền tảng hiện tại: C# .NET/Windows Forms, MySQL 8.0 và Client–Server. DDC23/MARC21 hiện đã được hỗ trợ ở cấu trúc DB; chưa có code ứng dụng, parser/serializer hay giao diện tương ứng.
++- Nền tảng hiện tại: C# .NET/Windows Forms, MySQL 8.0 và Client–Server. DDC23/MARC21 hiện đã được hỗ trợ ở cấu trúc DB; các giao diện và xử lý nghiệp vụ DDC23/MARC21 đang chờ triển khai trên khung server/client.
+ - Các lá gắn `[Phân rã]` là đề xuất để làm rõ các chức năng mức cao; luồng ngoại lệ, quy tắc dữ liệu và tiêu chí nghiệm thu chi tiết vẫn cần đặc tả.
+ - Các workflow cho các quy trình nghiệp vụ chính và danh sách điểm cần chốt được lập riêng tại `Workflow.md`.
+ - CSDL 20 bảng. Mỗi đầu tài liệu giữ danh sách tệp đính kèm và mỗi biểu ghi MARC giữ mảng trường, trường con. Vị trí kho gồm dãy kệ và ngăn. Kiểm kê gồm đợt kiểm kê và các dòng chi tiết.
+@@ -178,7 +183,7 @@ Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN,
+ 
+ ## 6. Giai đoạn dự án
+ 
+-Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và phạm vi đã thống nhất, gồm bản thu gọn 20 bảng ngày 09/11/2026. Dự án đang ở giai đoạn thiết kế CSDL.
++Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và phạm vi đã thống nhất, gồm bản thu gọn 20 bảng ngày 09/11/2026. Đã có khung server API và client MVC để tiếp tục triển khai nghiệp vụ.
+ 
+ ## Quyền khóa tài khoản và quyền mượn
+ 
+diff --git a/tai_lieu/Ke_hoach_va_phan_cong_module.md b/tai_lieu/Ke_hoach_va_phan_cong_module.md
+index bb56c94..ce4d0fc 100644
+--- a/tai_lieu/Ke_hoach_va_phan_cong_module.md
++++ b/tai_lieu/Ke_hoach_va_phan_cong_module.md
+@@ -1,5 +1,10 @@
+ # Kế hoạch triển khai và phân công module — nhóm 3 thành viên
+ 
++Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
++[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
++Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
++Phân công mô đun áp dụng cho cả hai phía.
++
+ Ngày lập: 19/11/2026. Nền tảng dự kiến: C# WinForms, .NET, MySQL 8.0.21+. Căn cứ: [Cây chức năng](Cay_module_chuc_nang.md), [Workflow](Workflow.md), [Thiết kế CSDL](Thiet_ke_CSDL.md) và cấu hình dự án hiện hành. Đây là kế hoạch triển khai, không phải xác nhận đã lập trình xong.
+ 
+ ## 1. Phân công tổng thể
+@@ -83,7 +88,7 @@ HT: hệ thống; DG: độc giả; TL: tài liệu; KK: kiểm kê/thanh lý; L
+ 
+ | Bên cung cấp | Bên dùng | Dữ liệu/hợp đồng cần bàn giao |
+ |---|---|---|
+-| TV1 — HT-01/02/03 | TV2, TV3 | Kết nối DB có tham số; phiên IdTaiKhoan/VaiTro/IdDocGia; bộ kiểm quyền; cấu hình và hàm ghi nhật ký. |
++| TV1 — HT-01/02/03 | TV2, TV3 | URL server và hợp đồng API; truy vấn DB có tham số trên server; phiên IdTaiKhoan/VaiTro/IdDocGia; bộ kiểm quyền; cấu hình và hàm ghi nhật ký. |
+ | TV1 — DG-01/02/03 | TV2, TV3 | Tìm độc giả theo mã trường; nhóm độc giả/trạng thái/quyền mượn; dữ liệu SV/GV cho đồ án. Chỉ DG-03 thay đổi khóa/mở bằng quyền quản lý. |
+ | TV2 — TL-02/04 | TV3 | Tra bản sách theo barcode: IdBanTaiLieu, IdDauTaiLieu, trạng thái, giá và vị trí. LT-01/02 được cập nhật trạng thái trong giao dịch, không sửa thông tin biên mục. |
+ | TV2 — TL-03 | TV2 — BC-02, TV3 — LT-04 | Tên, tác giả, ISBN và dữ liệu MARC cần trình bày; không để các form tự phân tích JSON khác nhau. |
+@@ -91,7 +96,7 @@ HT: hệ thống; DG: độc giả; TL: tài liệu; KK: kiểm kê/thanh lý; L
+ | Mỗi thành viên — BC-01/02/03 | TV1 — TC-01 | Màn hình/kết quả báo cáo của mảng mình; TV1 ghép dashboard theo vai trò. Người sở hữu báo cáo chịu trách nhiệm phép đếm và bộ lọc. |
+ | TV2 — TL-07; TV3 — LT-04 | TV1 — TC-01 | Thành phần in dùng chung, mẫu nhãn/phiếu riêng; máy quét dạng bàn phím qua ô nhập, chưa có thiết bị thì kiểm bằng nhập mã và xem trước. |
+ 
+-Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Dùng UI gọi Service, Service gọi Repository; không thêm tầng riêng nếu không có trách nhiệm rõ. Nghiệp vụ mượn/trả/thu tiền phải có một giao dịch DB cho toàn bộ thay đổi liên quan. TV3 chủ trì giao dịch; hàm đọc dữ liệu của TV1/TV2 phải hỗ trợ dùng cùng kết nối/giao dịch khi cần. Dùng trigger/procedure hiện có sau khi rà SQL để tránh cập nhật trạng thái hoặc tính tiền hai lần.
++Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Luồng triển khai là View → Controller client → HTTP API → Controller server → Service → Repository/Data. Nghiệp vụ mượn/trả/thu tiền phải có một giao dịch DB cho toàn bộ thay đổi liên quan. TV3 chủ trì giao dịch; hàm đọc dữ liệu của TV1/TV2 phải hỗ trợ dùng cùng kết nối/giao dịch khi cần. Dùng trigger/procedure hiện có sau khi rà SQL để tránh cập nhật trạng thái hoặc tính tiền hai lần.
+ 
+ ## 5. Phạm vi và các điểm chưa chốt
+ 
+@@ -111,7 +116,7 @@ Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Dùng
+ 4. Trả thường, trả một phần, trả lặp; quá hạn SV có ngày miễn phạt; CB/GV sinh thông báo đơn vị. Khi lịch lễ chưa xác nhận, hệ thống không tự chốt số tiền theo toàn bộ ngày.
+ 5. Mất/hỏng: 2 lần giá, sách thay thế cộng 20.000đ, hoặc chi phí trang theo quyết định. Thu đủ, chặn thu trùng; thủ thư bị từ chối hủy phiếu/khóa mở; quản lý được thao tác và có nhật ký. Hủy khoản đã thu giữ số tiền chứng từ.
+ 6. Gia hạn hợp lệ và bị từ chối; nhập/ra phòng đọc; kiểm kê thiếu/thừa/sai vị trí; thanh lý theo quyết định; số báo cáo khớp chứng từ và bộ lọc.
+-7. Chạy bản cài trên máy khác kết nối DB thử, thử backup/restore trên DB riêng; in xem trước và ghi rõ thiết bị chưa có. Mỗi bạn trình bày phần mình và bàn giao hướng dẫn.
++7. Chạy client trên máy khác gọi server kết nối DB thử, thử backup/restore trên DB riêng; in xem trước và ghi rõ thiết bị chưa có. Mỗi bạn trình bày phần mình và bàn giao hướng dẫn.
+ 
+ Chỉ chuyển trạng thái Hoàn thành khi có kết quả tự kiểm, người khác rà soát và chạy luồng liên quan. TC-02 là đầu mối tổng hợp, cả ba cùng chạy kiểm thử và sửa lỗi. Không dùng dữ liệu thử để ghi đè DB đang dùng.
+ 
+diff --git a/tai_lieu/Kien_truc_Server_Client_MVC.md b/tai_lieu/Kien_truc_Server_Client_MVC.md
+new file mode 100644
+index 0000000..5327daa
+--- /dev/null
++++ b/tai_lieu/Kien_truc_Server_Client_MVC.md
+@@ -0,0 +1,105 @@
++# Kiến trúc server client và MVC
++
++Ngày cập nhật **21/11/2026**. Bài tập yêu cầu hai thư mục server và client
++trên GitHub, trong đó các mô đun thể hiện người đảm nhiệm.
++Cấu trúc này nối tiếp bản MVC tại commit 21856d8.
++
++## Kiến trúc thực thi
++
++Client Windows Forms .NET 10 gọi server ASP.NET Core .NET 10 bằng HTTP/JSON.
++Server thực hiện truy cập MySQL. HTTP/JSON được chọn để triển khai khung mạng,
++yêu cầu giảng viên cung cấp chưa chỉ định giao thức truyền.
++
++View WinForms phát sự kiện tới Controller client. Dịch vụ HTTP nhận model JSON
++từ Controller API trên server. Service và Data server thực hiện đọc dữ liệu.
++Program.cs ở mỗi phía là điểm khởi động riêng.
++Các DTO dùng chung đặt tại server/Contracts và liên kết vào client khi build.
++
++| Vị trí | Trách nhiệm |
++|---|---|
++| client/Modules/TV1_VoNgocBinh/HT-01/Views | MainForm, Designer và IMainView |
++| client/Modules/TV1_VoNgocBinh/HT-01/Controllers | MainController |
++| client/Modules/TV1_VoNgocBinh/HT-01/Models | Ngoại lệ kiểm tra và DTO Compile Link |
++| client/Modules/TV1_VoNgocBinh/HT-01/Services | DatabaseHealthService gọi API |
++| server/Modules/TV1_VoNgocBinh/HT-01/Controllers | DatabaseHealthController |
++| server/Modules/TV1_VoNgocBinh/HT-01/Services | DatabaseHealthService truy vấn MySQL |
++| server/Data | MySqlConnectionFactory |
++| server/Configuration | DatabaseOptions |
++| server/Contracts | Dữ liệu thành công và lỗi qua mạng |
++
++Cấu hình client giữ Server.BaseUrl. Cấu hình server giữ MySql.
++Chạy server rồi client. Trên LAN, đặt URL server thực tế ở client;
++--urls của server xác định giao diện mạng lắng nghe.
++
++## Phân công đủ 29 mô đun
++
++Mã mô đun, chủ trì và phạm vi theo kế hoạch nhóm và bảng Excel hiện hành.
++
++| Mã | Mô đun | Người đảm nhiệm | Vị trí |
++|---|---|---|---|
++| HT-01 | Khung ứng dụng và kết nối MySQL | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-01) · [server](../server/Modules/TV1_VoNgocBinh/HT-01) |
++| HT-02 | Đăng nhập, phiên và vai trò | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-02) · [server](../server/Modules/TV1_VoNgocBinh/HT-02) |
++| HT-03 | Cấu hình và nhật ký | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-03) · [server](../server/Modules/TV1_VoNgocBinh/HT-03) |
++| HT-04 | Sao lưu và phục hồi | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-04) · [server](../server/Modules/TV1_VoNgocBinh/HT-04) |
++| DG-01 | Khoa, ngành và nhập hồ sơ | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/DG-01) · [server](../server/Modules/TV1_VoNgocBinh/DG-01) |
++| DG-02 | Tra cứu và định danh thẻ trường | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/DG-02) · [server](../server/Modules/TV1_VoNgocBinh/DG-02) |
++| DG-03 | Khóa và mở quyền mượn | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/DG-03) · [server](../server/Modules/TV1_VoNgocBinh/DG-03) |
++| BC-01 | Thống kê độc giả và nhật ký truy cập | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/BC-01) · [server](../server/Modules/TV1_VoNgocBinh/BC-01) |
++| TC-01 | Tích hợp giao diện và bản cài | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/TC-01) · [server](../server/Modules/TV1_VoNgocBinh/TC-01) |
++| TC-02 | Kiểm thử toàn hệ thống và demo | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/TC-02) · [server](../server/Modules/TV1_VoNgocBinh/TC-02) |
++| TL-01 | Danh mục DDC23 và xác nhận phân loại | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-01) · [server](../server/Modules/TV2_TranMyNhung/TL-01) |
++| TL-02 | Hồ sơ đầu tài liệu | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-02) · [server](../server/Modules/TV2_TranMyNhung/TL-02) |
++| TL-03 | Biên mục MARC21 | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-03) · [server](../server/Modules/TV2_TranMyNhung/TL-03) |
++| TL-04 | Bản sách và dãy kệ/ngăn | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-04) · [server](../server/Modules/TV2_TranMyNhung/TL-04) |
++| TL-05 | Đồ án, luận văn và tệp đính kèm | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-05) · [server](../server/Modules/TV2_TranMyNhung/TL-05) |
++| TL-07 | In barcode và nhãn gáy | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-07) · [server](../server/Modules/TV2_TranMyNhung/TL-07) |
++| KK-01 | Kiểm kê kho | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/KK-01) · [server](../server/Modules/TV2_TranMyNhung/KK-01) |
++| KK-02 | Đề nghị và xử lý thanh lý | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/KK-02) · [server](../server/Modules/TV2_TranMyNhung/KK-02) |
++| BC-02 | Thống kê tài liệu và kho | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/BC-02) · [server](../server/Modules/TV2_TranMyNhung/BC-02) |
++| LT-01 | Mượn sách tại quầy | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-01) · [server](../server/Modules/TV3_HuynhCongThu/LT-01) |
++| LT-02 | Trả sách và tình trạng bản sách | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-02) · [server](../server/Modules/TV3_HuynhCongThu/LT-02) |
++| LT-03 | Gia hạn tại quầy | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-03) · [server](../server/Modules/TV3_HuynhCongThu/LT-03) |
++| VP-01 | Quá hạn và bồi thường | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/VP-01) · [server](../server/Modules/TV3_HuynhCongThu/VP-01) |
++| VP-02 | Thu tiền và biên lai | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/VP-02) · [server](../server/Modules/TV3_HuynhCongThu/VP-02) |
++| VP-03 | Hủy hiệu lực phiếu phạt | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/VP-03) · [server](../server/Modules/TV3_HuynhCongThu/VP-03) |
++| PD-01 | Lượt vào và ra phòng đọc | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/PD-01) · [server](../server/Modules/TV3_HuynhCongThu/PD-01) |
++| PH-01 | Góp ý, đánh giá và đề xuất sách | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/PH-01) · [server](../server/Modules/TV3_HuynhCongThu/PH-01) |
++| BC-03 | Thống kê lưu thông, quá hạn và thu tiền | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/BC-03) · [server](../server/Modules/TV3_HuynhCongThu/BC-03) |
++| LT-04 | In phiếu mượn và biên lai | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-04) · [server](../server/Modules/TV3_HuynhCongThu/LT-04) |
++
++HT-01 có mã chạy thật cho kiểm tra kết nối.
++28 mô đun còn lại đã có thư mục và hợp đồng bàn giao, đang chờ lập trình nghiệp vụ.
++Các README từng mô đun lưu người rà soát, dữ liệu liên quan và điều kiện hoàn tất.
++Mỗi thành viên làm phần client và server của mô đun mình.
++
++## Tài khoản GitHub để đối chiếu
++
++| Thành viên | Tài khoản đã có căn cứ |
++|---|---|
++| Võ Ngọc Bình | [Jin01524](https://github.com/Jin01524) |
++| Trần Mỹ Nhung | Chưa được cung cấp trong repo |
++| Huỳnh Công Thủ | Chưa được cung cấp trong repo |
++
++Thành viên dùng tài khoản cá nhân để commit và tạo PR phần mình.
++Tên thư mục thể hiện người nhận việc. Lịch sử Git thể hiện người đã thực hiện commit.
++
++## Kết quả rà soát tài liệu
++
++| Nguồn đã đối chiếu | Nội dung liên quan và cách áp dụng |
++|---|---|
++| README.md, CONTRIBUTING.md, solution và mã C# | Cập nhật đường dẫn, hai điểm khởi động, cấu hình và luồng mạng |
++| Ke_hoach_va_phan_cong_module.md | 29 mã mô đun và ba người phụ trách khớp với thư mục mới |
++| Theo_doi_cong_viec_den_29_11_2026.xlsx | Giữ phân công 10/9/10, ngày và độ khó. HT-01 nay kiểm mạng qua server; TC-01 đóng gói hai ứng dụng |
++| Workflow.md, Cay_module_chuc_nang.md | Giữ nghiệp vụ. Bổ sung thông tin server/client và vị trí kiểm quyền |
++| Thiet_ke_CSDL.md, Tu_dien_CSDL.md | Đối chiếu tên bảng và giao dịch để đặt trách nhiệm trên server |
++| Bao_cao_Quan_ly_Thu_vien_DAU.docx | Mục 1.4 và hình kiến trúc lưu phương án WinForms truy cập DB trực tiếp ở bản trước. Bản triển khai mới dùng kiến trúc mô tả tại tài liệu này |
++| Mẫu báo cáo.docx | Mẫu bố cục báo cáo tham khảo, chưa chứa mã nguồn hoặc phân công riêng |
++| Database_Thu_vien_DAU.pptx | Nội dung tập trung vào CSDL, DDC và MARC, dùng để đối chiếu phạm vi dữ liệu |
++| So_do_CSDL.png, So_do_CSDL.svg | Sơ đồ quan hệ CSDL áp dụng cho server |
++| SQL, JSON và công cụ trong csdl, cong_cu/csdl | Bộ nguồn dữ liệu, quy tắc, profile MARC, DDC và sinh SQL tiếp tục dùng chung |
++| kiem_tra/Khoi_tao_WinForms.md và kết quả MySQL | Kết quả lịch sử trước khi tách server/client. Kiểm tra khung mới ghi riêng ở Server_Client_MVC.md |
++
++Báo cáo Word và Excel đang lưu mốc thiết kế/phân công trước thay đổi ngày 21/11.
++Khi thuyết trình cấu trúc đang chạy, dùng README gốc và tài liệu kiến trúc này.
++CSDL giữ 20 bảng và các quy tắc quyền, DDC23/MARC21 đã chốt.
++Kiểm quyền và giao dịch của mô đun tương lai cần triển khai ở server theo tiêu chí nghiệm thu.
+diff --git a/tai_lieu/Thiet_ke_CSDL.md b/tai_lieu/Thiet_ke_CSDL.md
+index 96d7ca9..f7ac135 100644
+--- a/tai_lieu/Thiet_ke_CSDL.md
++++ b/tai_lieu/Thiet_ke_CSDL.md
+@@ -1,5 +1,10 @@
+ # Thiết kế CSDL thư viện DAU — phạm vi báo cáo học tập
+ 
++Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
++[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
++Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
++Phân công mô đun áp dụng cho cả hai phía.
++
+ Cập nhật ngày **20/11/2026**. CSDL gồm **20 bảng, 160 cột, 45 khóa ngoại, 10 view, 15 trigger và 10 procedure**. Phiên bản tối thiểu là MySQL **8.0.21**, mốc `JSON_TABLE` đọc giá trị JSON null thành SQL `NULL`. [Tài liệu MySQL](https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html)
+ 
+ ## 1. Cách chạy
+diff --git a/tai_lieu/Workflow.md b/tai_lieu/Workflow.md
+index 80f008c..fb03e7b 100644
+--- a/tai_lieu/Workflow.md
++++ b/tai_lieu/Workflow.md
+@@ -1,5 +1,10 @@
+ # Phân tích và thiết kế workflow – HTTT Quản lý Thư viện DAU
+ 
++Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
++[kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
++Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
++Phân công mô đun áp dụng cho cả hai phía.
++
+ ## 1. Phạm vi và căn cứ
+ 
+ Tài liệu dựa trên cây chức năng, quy định thư viện và phạm vi người dùng đã chốt. Bản ngày 09/11/2026 dùng MySQL 8.0.21+, DDC23 bản in tiếng Việt rút gọn và MARC21. [Cây chức năng](Cay_module_chuc_nang.md) · [Thiết kế CSDL](Thiet_ke_CSDL.md)
