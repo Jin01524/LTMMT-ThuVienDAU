@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 namespace ThuVienDAU.Protocol;
-public sealed record TcpRequest(int Version, string RequestId, string Command);
+public sealed record TcpRequest(int Version, string RequestId, string Command, JsonElement? Payload = null, string? SessionToken = null);
 public sealed record TcpResponse(int Version, string RequestId, bool Success, JsonElement? Data = null, string? Error = null, int? ErrorNumber = null);
 public static class TcpProtocol
 {

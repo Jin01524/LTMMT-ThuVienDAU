@@ -60,6 +60,11 @@ try
         try { await new DatabaseHealthService(new TcpCommandClient()).CheckAsync(); throw new Exception("Expected database error"); }
         catch (DatabaseHealthCheckException ex) { Check(ex.ErrorNumber == 1045, "typed database error"); }
     });
+    await Fake(async (stream, req) =>
+    {
+        Check(req.Payload?.GetProperty("text").GetString()=="tv2" && req.SessionToken=="synthetic-session", "optional TV2 payload/session transported");
+        await TcpProtocol.WriteAsync(stream,new TcpResponse(1,req.RequestId,true),CancellationToken.None);
+    },async()=> { await new TcpCommandClient().SendAsync("TV2_TITLE_LIST",new { text="tv2" },"synthetic-session"); });
     await Expect<InvalidDataException>(async (s, q) => await TcpProtocol.WriteAsync(s, new TcpResponse(1, "wrong-id", true), CancellationToken.None), "request ID mismatch");
     await Expect<EndOfStreamException>((s, q) => Task.CompletedTask, "disconnect mid-response");
     await Expect<InvalidDataException>(async (s, q) => await s.WriteAsync(new byte[] {0,16,0,1}), "oversized response");

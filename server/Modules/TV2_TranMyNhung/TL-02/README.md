@@ -15,4 +15,4 @@ Repository/Data thực hiện truy vấn có tham số và dùng chung giao dị
 
 Các bảng hoặc dữ liệu liên quan theo kế hoạch **DauTaiLieu**.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Đã có bản đầu giao diện và xử lý TCP ngày 22/11/2026. Chưa nghiệm thu cuối vì cần ghép phiên HT-02. Xem tai_lieu/TV2_Trien_khai.md ở gốc repo để chạy thử và rà soát.

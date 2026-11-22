@@ -1,3 +1,4 @@
+using ThuVienDAU.Catalog;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
@@ -9,15 +10,22 @@ using ThuVienDAU.Services;
 // One request/response per connection. Bound concurrent clients and per-request lifetime.
 var host = "127.0.0.1";
 var port = 5080;
+int? catalogDemoAccount = null;
 for (var i = 0; i < args.Length; i += 2)
 {
     if (i + 1 >= args.Length) throw new ArgumentException("Dùng --host IP --port PORT.");
     if (args[i] == "--host") host = args[i + 1];
     else if (args[i] == "--port") port = int.Parse(args[i + 1]);
+    else if (args[i] == "--tv2-demo-account") catalogDemoAccount = int.Parse(args[i + 1]);
     else throw new ArgumentException("Tham số không hợp lệ: " + args[i]);
 }
 if (!IPAddress.TryParse(host, out var address) || port is < 1 or > 65535)
     throw new ArgumentException("Host phải là địa chỉ IP, port từ 1–65535.");
+if(catalogDemoAccount is not null && (!IPAddress.IsLoopback(address) || catalogDemoAccount <= 0))
+    throw new ArgumentException("Chế độ thử TV2 chỉ cho phép loopback và ID tài khoản hợp lệ.");
+var catalogSession = catalogDemoAccount is int demoId ? new DevelopmentCatalogSession(demoId) : null;
+if(catalogSession is not null) Console.WriteLine("TV2 DEMO TOKEN (chỉ dùng DB thử): " + catalogSession.Token);
+var catalog = new CatalogController(catalogSession);
 using var shutdown = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; shutdown.Cancel(); };
 var listener = new TcpListener(address, port);
@@ -57,7 +65,9 @@ async Task HandleAsync(TcpClient client)
             var stream = client.GetStream();
             var request = await TcpProtocol.ReadAsync<TcpRequest>(stream, timeout.Token);
             var controller = new DatabaseHealthController(new DatabaseHealthService());
-            var response = await controller.HandleAsync(request, timeout.Token);
+            var response = request.Command?.StartsWith("TV2_",StringComparison.Ordinal) == true
+                ? await catalog.HandleAsync(request,timeout.Token)
+                : await controller.HandleAsync(request, timeout.Token);
             await TcpProtocol.WriteAsync(stream, response, timeout.Token);
         }
         catch (Exception exception) when (exception is IOException or SocketException or JsonException or OperationCanceledException)

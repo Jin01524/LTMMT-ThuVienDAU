@@ -106,3 +106,9 @@ Sao lưu **21 file** của bản 23 bảng và đối chiếu SHA-256 trong `C:/
 Quyền cập nhật 20/11/2026: BIEN_MUC độc quyền khóa/mở đăng nhập độc giả; QUAN_LY_THU_VIEN giữ khóa/mở mượn và hủy phiếu phạt. [Kết quả kiểm thử quyền](kiem_tra/Quyen_dang_nhap_2026-11-20.txt). Khung WinForms chưa triển khai đăng nhập nghiệp vụ.
 
 Giao thức hiện hành: [TCP Socket](tai_lieu/Giao_thuc_TCP.md). Khung mạng đã chuyển khỏi HTTP; bản ghi Server_Client_MVC.md trước đây là lịch sử. Kiểm thử hiện hành: `dotnet run --project cong_cu/kiem_tra_tcp`.
+
+## TV2 đợt đầu ngày 22/11/2026
+
+Đã triển khai TL-01 DDC23 và TL-02 đầu tài liệu qua TCP. Menu **TV2 · Biên mục** có trong client.
+Chạy thử loopback bằng tài khoản thử được chỉ định ở server; HT-02 chưa có phiên thật.
+[Hướng dẫn và bàn giao TV2](tai_lieu/TV2_Trien_khai.md). Các module TV2 còn lại chưa được triển khai trong đợt này.

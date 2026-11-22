@@ -5,13 +5,15 @@ namespace ThuVienDAU.Services;
 public sealed class TcpCommandClient
 {
     public async Task<TcpResponse> SendAsync(string command, CancellationToken token = default)
+        => await SendAsync(command, null, null, token);
+    public async Task<TcpResponse> SendAsync(string command, object? payload, string? sessionToken, CancellationToken token = default)
     {
         var options = ServerOptions.Load();
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
         timeout.CancelAfter(TimeSpan.FromSeconds(options.TimeoutSeconds));
         using var client = new TcpClient();
         await client.ConnectAsync(options.Host, options.Port, timeout.Token);
-        var request = new TcpRequest(TcpProtocol.Version, Guid.NewGuid().ToString("N"), command);
+        var request = new TcpRequest(TcpProtocol.Version, Guid.NewGuid().ToString("N"), command, payload is null ? null : System.Text.Json.JsonSerializer.SerializeToElement(payload, TcpProtocol.Json), sessionToken);
         var stream = client.GetStream();
         await TcpProtocol.WriteAsync(stream, request, timeout.Token);
         var response = await TcpProtocol.ReadAsync<TcpResponse>(stream, timeout.Token);

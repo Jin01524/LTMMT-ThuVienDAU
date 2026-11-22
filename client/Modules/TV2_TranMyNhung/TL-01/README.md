@@ -14,4 +14,4 @@ Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đ�
 dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
 Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Đã có bản đầu giao diện và xử lý TCP ngày 22/11/2026. Chưa nghiệm thu cuối vì cần ghép phiên HT-02. Xem tai_lieu/TV2_Trien_khai.md ở gốc repo để chạy thử và rà soát.

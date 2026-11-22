@@ -7,6 +7,9 @@ public partial class MainForm : Form, IMainView
     public MainForm()
     {
         InitializeComponent();
+        var catalogMenu = new ToolStripMenuItem("TV2 · Biên mục");
+        catalogMenu.Click += (_, _) => { using var workspace = new ThuVienDAU.Catalog.CatalogWorkspaceForm(); workspace.ShowDialog(this); };
+        menuStrip.Items.Insert(0,catalogMenu);
     }
 
     public event EventHandler? ConnectionCheckRequested;
