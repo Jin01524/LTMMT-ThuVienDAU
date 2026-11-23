@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime,timedelta,timezone
 import subprocess,socket,json,struct,time,shutil,os,sys
 r=Path(__file__).resolve().parents[2];work=r/'.tooling'/('tv2-fixture-'+str(time.time_ns()));work.mkdir(parents=True);data=work/'mysql-data';data.mkdir();bindir=work/'server-fixture';shutil.copytree(r/'server/bin/Release/net10.0',bindir,ignore=shutil.ignore_patterns('appsettings.local.json'))
 mysqlbin=Path(sys.argv[1]) if len(sys.argv)>1 else Path('C:/Program Files/MySQL/MySQL Server 8.0/bin'); flags=subprocess.CREATE_NO_WINDOW
@@ -75,7 +76,7 @@ try:
  denied=run(['dotnet',bindir/'ThuVienDAU.Server.dll','--host','0.0.0.0','--tv2-demo-account',str(account)])
  check(denied.returncode!=0,'development identity forbidden on LAN')
  print('PASS all TV2 DB/TCP integration cases',flush=True)
- (r/'kiem_tra/TV2_TL01_TL02.txt').write_text('22/11/2026 - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.\n'+'\n'.join(logs)+'\n','utf8')
+ (r/'kiem_tra/TV2_TL01_TL02.txt').write_text(f'{datetime.now(timezone(timedelta(hours=7))):%d/%m/%Y} - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.\n'+'\n'.join(logs)+'\n','utf8')
 finally:
  if server:server.kill();server.wait(timeout=10)
  if dbproc:
