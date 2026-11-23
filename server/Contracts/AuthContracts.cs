@@ -8,4 +8,8 @@ public sealed record ReaderAccountItem(int AccountId, int ReaderId, string Reade
 
 public sealed record ReaderAccountStatusRequest(string SessionId, int AccountId, bool IsActive, string Reason);
 
+public sealed record ProvisionAccountRequest(string SessionId, string Username, string Password, string Role, int? ReaderId);
+
+public sealed record AccountItem(int AccountId, string Username, string Role, int? ReaderId, bool IsActive);
+
 public sealed record AuthError(string Message);
