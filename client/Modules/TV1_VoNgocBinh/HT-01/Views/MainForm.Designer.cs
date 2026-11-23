@@ -9,6 +9,7 @@ partial class MainForm
     private ToolStripMenuItem toolsMenuItem = null!;
     private ToolStripMenuItem checkConnectionMenuItem = null!;
     private ToolStripMenuItem readerAccountsMenuItem = null!;
+    private ToolStripMenuItem accountProvisionMenuItem = null!;
     private StatusStrip statusStrip = null!;
     private ToolStripStatusLabel statusLabel = null!;
     private TableLayoutPanel contentPanel = null!;
@@ -32,6 +33,7 @@ partial class MainForm
         toolsMenuItem = new ToolStripMenuItem();
         checkConnectionMenuItem = new ToolStripMenuItem();
         readerAccountsMenuItem = new ToolStripMenuItem();
+        accountProvisionMenuItem = new ToolStripMenuItem();
         statusStrip = new StatusStrip();
         statusLabel = new ToolStripStatusLabel();
         contentPanel = new TableLayoutPanel();
@@ -47,7 +49,10 @@ partial class MainForm
         menuStrip.Items.AddRange(new ToolStripItem[] { toolsMenuItem });
         toolsMenuItem.Name = "toolsMenuItem";
         toolsMenuItem.Text = "Công cụ";
-        toolsMenuItem.DropDownItems.AddRange(new ToolStripItem[] { checkConnectionMenuItem, readerAccountsMenuItem });
+        toolsMenuItem.DropDownItems.AddRange(new ToolStripItem[] { checkConnectionMenuItem, accountProvisionMenuItem, readerAccountsMenuItem });
+        accountProvisionMenuItem.Name = "accountProvisionMenuItem";
+        accountProvisionMenuItem.Text = "Cấp tài khoản";
+        accountProvisionMenuItem.Click += AccountProvisionMenuItem_Click;
         readerAccountsMenuItem.Name = "readerAccountsMenuItem";
         readerAccountsMenuItem.Text = "Tài khoản độc giả";
         readerAccountsMenuItem.Click += ReaderAccountsMenuItem_Click;

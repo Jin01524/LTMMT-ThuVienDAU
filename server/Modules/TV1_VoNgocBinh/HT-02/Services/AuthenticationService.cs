@@ -17,6 +17,31 @@ public sealed class AuthenticationService
         connectionFactory = new MySqlConnectionFactory(options);
     }
 
+    public async Task EnsureDemoAccountsAsync(CancellationToken cancellationToken)
+    {
+        var accounts = new[]
+        {
+            (Username: "quantri", Role: "QUAN_TRI"),
+            (Username: "quanly", Role: "QUAN_LY_THU_VIEN"),
+            (Username: "bienmuc", Role: "BIEN_MUC"),
+            (Username: "thuthu", Role: "THU_THU"),
+        };
+
+        await using var connection = await connectionFactory.OpenAsync(cancellationToken);
+        foreach (var account in accounts)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                INSERT INTO TaiKhoan(TenDangNhap, MatKhauDaBam, VaiTro, DangHoatDong)
+                SELECT @username, @password, @role, 1
+                WHERE NOT EXISTS (SELECT 1 FROM TaiKhoan WHERE TenDangNhap = @username)";
+            command.Parameters.AddWithValue("@username", account.Username);
+            command.Parameters.AddWithValue("@password", HashPassword("demo123"));
+            command.Parameters.AddWithValue("@role", account.Role);
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+    }
+
     public async Task<SessionInfo> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
         await using var connection = await connectionFactory.OpenAsync(cancellationToken);
@@ -63,6 +88,100 @@ public sealed class AuthenticationService
     public void Logout(string sessionId)
     {
         sessions.Remove(sessionId);
+    }
+
+    public async Task<int> ProvisionAccountAsync(ProvisionAccountRequest request, CancellationToken cancellationToken)
+    {
+        if (!TryGetSession(request.SessionId, out var session) || session.Role != "QUAN_TRI")
+        {
+            throw new UnauthorizedAccessException("Chỉ Quản trị được cấp tài khoản.");
+        }
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            throw new ArgumentException("Nhập tên đăng nhập và mật khẩu.");
+        }
+        if (request.Password.Length < 8)
+        {
+            throw new ArgumentException("Mật khẩu phải có ít nhất 8 ký tự.");
+        }
+
+        var allowedRoles = new[] { "QUAN_TRI", "QUAN_LY_THU_VIEN", "BIEN_MUC", "THU_THU", "DOC_GIA" };
+        if (!allowedRoles.Contains(request.Role))
+        {
+            throw new ArgumentException("Vai trò không hợp lệ.");
+        }
+        if (request.Role == "DOC_GIA" && request.ReaderId is null)
+        {
+            throw new ArgumentException("Tài khoản độc giả phải gắn với hồ sơ đọc giả.");
+        }
+
+        await using var connection = await connectionFactory.OpenAsync(cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+        using var command = connection.CreateCommand();
+        command.Transaction = (MySqlTransaction)transaction;
+        command.CommandText = @"
+            INSERT INTO TaiKhoan(TenDangNhap, MatKhauDaBam, VaiTro, DangHoatDong, IdDocGia)
+            VALUES(@username, @password, @role, 1, @readerId)";
+        command.Parameters.AddWithValue("@username", request.Username.Trim());
+        command.Parameters.AddWithValue("@password", HashPassword(request.Password));
+        command.Parameters.AddWithValue("@role", request.Role);
+        command.Parameters.AddWithValue("@readerId", request.ReaderId);
+
+        try
+        {
+            await command.ExecuteNonQueryAsync(cancellationToken);
+            var accountId = await GetLastInsertIdAsync(command, cancellationToken);
+
+            command.Parameters.Clear();
+            command.CommandText = @"
+                INSERT INTO NhatKy(IdTaiKhoan, HanhDong, BangDuLieu, KhoaBanGhi, ChiTiet)
+                VALUES(@nguoi, 'CAP_TAI_KHOAN', 'TaiKhoan', @accountId,
+                       JSON_OBJECT('TenDangNhap', @username, 'VaiTro', @role))";
+            command.Parameters.AddWithValue("@nguoi", session.AccountId);
+            command.Parameters.AddWithValue("@accountId", accountId);
+            command.Parameters.AddWithValue("@username", request.Username.Trim());
+            command.Parameters.AddWithValue("@role", request.Role);
+            await command.ExecuteNonQueryAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+            return accountId;
+        }
+        catch (MySqlException) when (request.Username.Length > 100)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw new ArgumentException("Tên đăng nhập không được vượt quá 100 ký tự.");
+        }
+        catch (MySqlException exception) when (exception.Number == 1062)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw new ArgumentException("Tên đăng nhập đã tồn tại.");
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<IReadOnlyList<AccountItem>> GetAccountsAsync(string sessionId, CancellationToken cancellationToken)
+    {
+        if (!TryGetSession(sessionId, out var session) || session.Role != "QUAN_TRI")
+        {
+            throw new UnauthorizedAccessException("Chỉ Quản trị được xem danh sách tài khoản.");
+        }
+        await using var connection = await connectionFactory.OpenAsync(cancellationToken);
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT IdTaiKhoan, TenDangNhap, VaiTro, IdDocGia, DangHoatDong
+            FROM TaiKhoan ORDER BY IdTaiKhoan";
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        var items = new List<AccountItem>();
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            items.Add(new AccountItem(reader.GetInt32(0), reader.GetString(1), reader.GetString(2),
+                reader.IsDBNull(3) ? null : reader.GetInt32(3), reader.GetBoolean(4)));
+        }
+        return items;
     }
 
     public async Task<IReadOnlyList<ReaderAccountItem>> GetReaderAccountsAsync(string sessionId, CancellationToken cancellationToken)
@@ -121,6 +240,14 @@ public sealed class AuthenticationService
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
+    }
+
+    private static async Task<int> GetLastInsertIdAsync(MySqlCommand command, CancellationToken cancellationToken)
+    {
+        command.Parameters.Clear();
+        command.CommandText = "SELECT LAST_INSERT_ID()";
+        var value = await command.ExecuteScalarAsync(cancellationToken);
+        return Convert.ToInt32(value);
     }
 
     public static byte[] HashPassword(string password)

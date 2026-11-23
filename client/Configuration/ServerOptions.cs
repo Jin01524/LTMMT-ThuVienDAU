@@ -59,4 +59,9 @@ public sealed class ServerOptions
     {
         return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/auth/reader-accounts/status");
     }
+
+    public Uri GetAuthAccountsUri()
+    {
+        return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/auth/accounts");
+    }
 }

@@ -37,6 +37,41 @@ public sealed class AuthenticationController(AuthenticationService service) : Co
         return Ok();
     }
 
+    [HttpPost("accounts")]
+    public async Task<ActionResult<int>> ProvisionAccount(ProvisionAccountRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok(await service.ProvisionAccountAsync(request, cancellationToken));
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new AuthError(exception.Message));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new AuthError(exception.Message));
+        }
+        catch (MySqlException exception)
+        {
+            return BadRequest(new AuthError($"Không cấp được tài khoản. Mã MySQL: {exception.Number}"));
+        }
+    }
+
+    [HttpGet("accounts")]
+    public async Task<ActionResult<IReadOnlyList<AccountItem>>> Accounts(
+        [FromQuery] string sessionId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok(await service.GetAccountsAsync(sessionId, cancellationToken));
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new AuthError(exception.Message));
+        }
+    }
+
     [HttpGet("reader-accounts")]
     public async Task<ActionResult<IReadOnlyList<ReaderAccountItem>>> ReaderAccounts(
         [FromQuery] string sessionId, CancellationToken cancellationToken)

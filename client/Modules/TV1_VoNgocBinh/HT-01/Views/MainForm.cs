@@ -22,6 +22,22 @@ public partial class MainForm : Form, IMainView
         ConnectionCheckRequested?.Invoke(this, EventArgs.Empty);
     }
 
+    private void AccountProvisionMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (authenticationService is null || sessionContext?.Current is null)
+        {
+            MessageBox.Show(this, "Chưa đăng nhập.", "Tài khoản", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        if (sessionContext.Current.Role != "QUAN_TRI")
+        {
+            MessageBox.Show(this, "Chức năng này chỉ dành cho vai trò QUAN_TRI.", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+        using var form = new AccountProvisionForm(authenticationService, sessionContext);
+        form.ShowDialog(this);
+    }
+
     private void ReaderAccountsMenuItem_Click(object? sender, EventArgs e)
     {
         if (authenticationService is null || sessionContext?.Current is null)
