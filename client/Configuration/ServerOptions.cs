@@ -39,4 +39,24 @@ public sealed class ServerOptions
     {
         return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/database/health");
     }
+
+    public Uri GetAuthLoginUri()
+    {
+        return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/auth/login");
+    }
+
+    public Uri GetAuthLogoutUri()
+    {
+        return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/auth/logout");
+    }
+
+    public Uri GetAuthReaderAccountsUri()
+    {
+        return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/auth/reader-accounts");
+    }
+
+    public Uri GetAuthReaderStatusUri()
+    {
+        return new Uri(new Uri(BaseUrl.TrimEnd('/') + "/"), "api/auth/reader-accounts/status");
+    }
 }

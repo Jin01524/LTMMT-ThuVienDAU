@@ -1,11 +1,17 @@
 using ThuVienDAU.Models;
+using ThuVienDAU.Services;
 
 namespace ThuVienDAU.Forms;
 
 public partial class MainForm : Form, IMainView
 {
-    public MainForm()
+    private readonly AuthenticationService? authenticationService;
+    private readonly SessionContext? sessionContext;
+
+    public MainForm(AuthenticationService? authenticationService = null, SessionContext? sessionContext = null)
     {
+        this.authenticationService = authenticationService;
+        this.sessionContext = sessionContext;
         InitializeComponent();
     }
 
@@ -14,6 +20,30 @@ public partial class MainForm : Form, IMainView
     private void CheckConnectionMenuItem_Click(object? sender, EventArgs e)
     {
         ConnectionCheckRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ReaderAccountsMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (authenticationService is null || sessionContext?.Current is null)
+        {
+            MessageBox.Show(this, "Chưa đăng nhập.", "Tài khoản độc giả", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        if (sessionContext.Current.Role != "BIEN_MUC")
+        {
+            MessageBox.Show(this, "Chức năng này chỉ dành cho vai trò BIEN_MUC.", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+        using var form = new ReaderAccountForm(authenticationService, sessionContext);
+        form.ShowDialog(this);
+    }
+
+    public void ShowLogin(SessionInfo session)
+    {
+        if (!IsDisposed)
+        {
+            statusLabel.Text = $"Đã đăng nhập: {session.DisplayName} ({session.Role})";
+        }
     }
 
     void IMainView.ShowConnectionCheckStarted()
