@@ -8,6 +8,7 @@ partial class MainForm
     private MenuStrip menuStrip = null!;
     private ToolStripMenuItem toolsMenuItem = null!;
     private ToolStripMenuItem checkConnectionMenuItem = null!;
+    private ToolStripMenuItem readerAccountsMenuItem = null!;
     private StatusStrip statusStrip = null!;
     private ToolStripStatusLabel statusLabel = null!;
     private TableLayoutPanel contentPanel = null!;
@@ -30,6 +31,7 @@ partial class MainForm
         menuStrip = new MenuStrip();
         toolsMenuItem = new ToolStripMenuItem();
         checkConnectionMenuItem = new ToolStripMenuItem();
+        readerAccountsMenuItem = new ToolStripMenuItem();
         statusStrip = new StatusStrip();
         statusLabel = new ToolStripStatusLabel();
         contentPanel = new TableLayoutPanel();
@@ -45,7 +47,10 @@ partial class MainForm
         menuStrip.Items.AddRange(new ToolStripItem[] { toolsMenuItem });
         toolsMenuItem.Name = "toolsMenuItem";
         toolsMenuItem.Text = "Công cụ";
-        toolsMenuItem.DropDownItems.AddRange(new ToolStripItem[] { checkConnectionMenuItem });
+        toolsMenuItem.DropDownItems.AddRange(new ToolStripItem[] { checkConnectionMenuItem, readerAccountsMenuItem });
+        readerAccountsMenuItem.Name = "readerAccountsMenuItem";
+        readerAccountsMenuItem.Text = "Tài khoản độc giả";
+        readerAccountsMenuItem.Click += ReaderAccountsMenuItem_Click;
         checkConnectionMenuItem.Name = "checkConnectionMenuItem";
         checkConnectionMenuItem.Text = "Kiểm tra kết nối MySQL";
         checkConnectionMenuItem.Click += CheckConnectionMenuItem_Click;
