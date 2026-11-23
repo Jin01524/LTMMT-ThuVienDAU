@@ -18,9 +18,9 @@ Người khởi tạo repo có thể là TV2; việc đó không đổi phân c�
 
 ## Phân chia file
 
-- TV1 Võ Ngọc Bình — Modules/TV1_VoNgocBinh ở cả client và server. Hệ thống, độc giả, BC-01 và tích hợp.
-- TV2 Trần Mỹ Nhung — Modules/TV2_TranMyNhung ở cả client và server. Tài liệu, DDC23/MARC21, kho và BC-02.
-- TV3 Huỳnh Công Thủ — Modules/TV3_HuynhCongThu ở cả client và server. Mượn/trả, vi phạm/thu tiền, phòng đọc/phản hồi và BC-03.
+- TV1 Huỳnh Công Thủ — Modules/TV1_HuynhCongThu ở cả client và server. Hệ thống, độc giả, BC-01 và tích hợp.
+- TV2 Võ Ngọc Bình — Modules/TV2_VoNgocBinh ở cả client và server. Tài liệu, DDC23/MARC21, kho và BC-02.
+- TV3 Trần Mỹ Nhung — Modules/TV3_TranMyNhung ở cả client và server. Mượn/trả, vi phạm/thu tiền, phòng đọc/phản hồi và BC-03.
 - Chỉ một người sửa MainForm hoặc một Form cụ thể tại một thời điểm.
 - Commit đủ bộ `.cs`, `.Designer.cs`, `.resx` khi Designer tạo/sửa form.
 - Đổi tên model, chữ ký dịch vụ, bảng/cột hoặc package dùng chung cần báo cả nhóm trước khi ghép.
@@ -39,7 +39,7 @@ Mỗi máy phát triển có thể chạy cả hai chương trình với CSDL th
 Khi demo nhiều máy, các client dùng cùng IP/cổng server và dữ liệu demo thống nhất.
 Cấu hình MySQL được đặt ở máy server. Dùng tài khoản DB giới hạn quyền.
 Địa chỉ và cổng server phải khớp cấu hình client. Bổ sung tài khoản GitHub
-của TV2 và TV3 vào README khi hai bạn cung cấp để giảng viên đối chiếu đóng góp.
+của TV1 và TV3 vào README khi hai bạn cung cấp để giảng viên đối chiếu đóng góp.
 
 ## Khi gặp conflict
 

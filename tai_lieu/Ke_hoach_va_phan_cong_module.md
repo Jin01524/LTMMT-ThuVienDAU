@@ -9,7 +9,7 @@ Ngày lập: 19/11/2026. Nền tảng dự kiến: C# WinForms, .NET, MySQL 8.0.
 
 ## 1. Phân công tổng thể
 
-TV1 là Võ Ngọc Bình (2351220274), trưởng nhóm; TV2 là Trần Mỹ Nhung (2351220273); TV3 là Huỳnh Công Thủ (2351220232), lớp 23CT3. Theo dõi tại [bảng Excel hiện hành](../outputs/phan_cong_nhom_3/Theo_doi_cong_viec_den_29_11_2026.xlsx). Mỗi bạn làm giao diện, xử lý nghiệp vụ, truy cập dữ liệu, tự kiểm và viết báo cáo phần mình. Người rà soát hỗ trợ và kiểm phần kết nối, không nhận thay trách nhiệm chính.
+TV1 là Huỳnh Công Thủ (2351220232); TV2 là Võ Ngọc Bình (2351220274), trưởng nhóm; TV3 là Trần Mỹ Nhung (2351220273), lớp 23CT3. Theo dõi tại [bảng Excel hiện hành](../outputs/phan_cong_nhom_3/Theo_doi_cong_viec_den_29_11_2026.xlsx). Mỗi bạn làm giao diện, xử lý nghiệp vụ, truy cập dữ liệu, tự kiểm và viết báo cáo phần mình. Người rà soát hỗ trợ và kiểm phần kết nối, không nhận thay trách nhiệm chính.
 
 | Thành viên | Phụ trách | Module | Điểm dự kiến |
 |---|---|---:|---:|
@@ -127,39 +127,39 @@ Các mốc dưới đây là dự kiến. Chưa cập nhật ngày thực hiện
 
 | Mã | Công việc | Người đảm nhiệm | Bắt đầu | Hạn xong | Trạng thái |
 |---|---|---|---|---|---|
-| HT-01 | Khung ứng dụng và kết nối MySQL | Võ Ngọc Bình | 19/11/2026 | 19/11/2026 | Chưa cập nhật |
-| HT-02 | Đăng nhập, phiên và vai trò | Võ Ngọc Bình | 20/11/2026 | 20/11/2026 | Chưa cập nhật |
-| HT-03 | Cấu hình và nhật ký | Võ Ngọc Bình | 20/11/2026 | 20/11/2026 | Chưa cập nhật |
-| HT-04 | Sao lưu và phục hồi | Võ Ngọc Bình | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
-| DG-01 | Khoa, ngành và nhập hồ sơ | Võ Ngọc Bình | 21/11/2026 | 21/11/2026 | Chưa cập nhật |
-| DG-02 | Tra cứu và định danh thẻ trường | Võ Ngọc Bình | 22/11/2026 | 22/11/2026 | Chưa cập nhật |
-| DG-03 | Khóa và mở quyền mượn | Võ Ngọc Bình | 23/11/2026 | 23/11/2026 | Chưa cập nhật |
-| BC-01 | Thống kê độc giả và nhật ký truy cập | Võ Ngọc Bình | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
-| TC-01 | Tích hợp giao diện và bản cài | Võ Ngọc Bình | 20/11/2026 | 27/11/2026 | Chưa cập nhật |
-| TC-02 | Kiểm thử toàn hệ thống và demo | Võ Ngọc Bình | 28/11/2026 | 29/11/2026 | Chưa cập nhật |
-| TL-01 | Danh mục DDC23 và xác nhận phân loại | Trần Mỹ Nhung | 20/11/2026 | 20/11/2026 | Chưa cập nhật |
-| TL-02 | Hồ sơ đầu tài liệu | Trần Mỹ Nhung | 21/11/2026 | 21/11/2026 | Chưa cập nhật |
-| TL-03 | Biên mục MARC21 | Trần Mỹ Nhung | 22/11/2026 | 23/11/2026 | Chưa cập nhật |
-| TL-04 | Bản sách và dãy kệ/ngăn | Trần Mỹ Nhung | 22/11/2026 | 22/11/2026 | Chưa cập nhật |
-| TL-05 | Đồ án, luận văn và tệp đính kèm | Trần Mỹ Nhung | 24/11/2026 | 24/11/2026 | Chưa cập nhật |
-| TL-07 | In barcode và nhãn gáy | Trần Mỹ Nhung | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
-| KK-01 | Kiểm kê kho | Trần Mỹ Nhung | 25/11/2026 | 25/11/2026 | Chưa cập nhật |
-| KK-02 | Đề nghị và xử lý thanh lý | Trần Mỹ Nhung | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
-| BC-02 | Thống kê tài liệu và kho | Trần Mỹ Nhung | 26/11/2026 | 27/11/2026 | Chưa cập nhật |
-| LT-01 | Mượn sách tại quầy | Huỳnh Công Thủ | 23/11/2026 | 24/11/2026 | Chưa cập nhật |
-| LT-02 | Trả sách và tình trạng bản sách | Huỳnh Công Thủ | 25/11/2026 | 25/11/2026 | Chưa cập nhật |
-| LT-03 | Gia hạn tại quầy | Huỳnh Công Thủ | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
-| VP-01 | Quá hạn và bồi thường | Huỳnh Công Thủ | 25/11/2026 | 26/11/2026 | Chưa cập nhật |
-| VP-02 | Thu tiền và biên lai | Huỳnh Công Thủ | 26/11/2026 | 27/11/2026 | Chưa cập nhật |
-| VP-03 | Hủy hiệu lực phiếu phạt | Huỳnh Công Thủ | 27/11/2026 | 27/11/2026 | Chưa cập nhật |
-| PD-01 | Lượt vào và ra phòng đọc | Huỳnh Công Thủ | 23/11/2026 | 23/11/2026 | Chưa cập nhật |
-| PH-01 | Góp ý, đánh giá và đề xuất sách | Huỳnh Công Thủ | 24/11/2026 | 24/11/2026 | Chưa cập nhật |
-| BC-03 | Thống kê lưu thông, quá hạn và thu tiền | Huỳnh Công Thủ | 27/11/2026 | 27/11/2026 | Chưa cập nhật |
-| LT-04 | In phiếu mượn và biên lai | Huỳnh Công Thủ | 27/11/2026 | 27/11/2026 | Chưa cập nhật |
+| HT-01 | Khung ứng dụng và kết nối MySQL | Huỳnh Công Thủ | 19/11/2026 | 19/11/2026 | Chưa cập nhật |
+| HT-02 | Đăng nhập, phiên và vai trò | Huỳnh Công Thủ | 20/11/2026 | 20/11/2026 | Chưa cập nhật |
+| HT-03 | Cấu hình và nhật ký | Huỳnh Công Thủ | 20/11/2026 | 20/11/2026 | Chưa cập nhật |
+| HT-04 | Sao lưu và phục hồi | Huỳnh Công Thủ | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
+| DG-01 | Khoa, ngành và nhập hồ sơ | Huỳnh Công Thủ | 21/11/2026 | 21/11/2026 | Chưa cập nhật |
+| DG-02 | Tra cứu và định danh thẻ trường | Huỳnh Công Thủ | 22/11/2026 | 22/11/2026 | Chưa cập nhật |
+| DG-03 | Khóa và mở quyền mượn | Huỳnh Công Thủ | 23/11/2026 | 23/11/2026 | Chưa cập nhật |
+| BC-01 | Thống kê độc giả và nhật ký truy cập | Huỳnh Công Thủ | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
+| TC-01 | Tích hợp giao diện và bản cài | Huỳnh Công Thủ | 20/11/2026 | 27/11/2026 | Chưa cập nhật |
+| TC-02 | Kiểm thử toàn hệ thống và demo | Huỳnh Công Thủ | 28/11/2026 | 29/11/2026 | Chưa cập nhật |
+| TL-01 | Danh mục DDC23 và xác nhận phân loại | Võ Ngọc Bình | 20/11/2026 | 20/11/2026 | Chưa cập nhật |
+| TL-02 | Hồ sơ đầu tài liệu | Võ Ngọc Bình | 21/11/2026 | 21/11/2026 | Chưa cập nhật |
+| TL-03 | Biên mục MARC21 | Võ Ngọc Bình | 22/11/2026 | 23/11/2026 | Chưa cập nhật |
+| TL-04 | Bản sách và dãy kệ/ngăn | Võ Ngọc Bình | 22/11/2026 | 22/11/2026 | Chưa cập nhật |
+| TL-05 | Đồ án, luận văn và tệp đính kèm | Võ Ngọc Bình | 24/11/2026 | 24/11/2026 | Chưa cập nhật |
+| TL-07 | In barcode và nhãn gáy | Võ Ngọc Bình | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
+| KK-01 | Kiểm kê kho | Võ Ngọc Bình | 25/11/2026 | 25/11/2026 | Chưa cập nhật |
+| KK-02 | Đề nghị và xử lý thanh lý | Võ Ngọc Bình | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
+| BC-02 | Thống kê tài liệu và kho | Võ Ngọc Bình | 26/11/2026 | 27/11/2026 | Chưa cập nhật |
+| LT-01 | Mượn sách tại quầy | Trần Mỹ Nhung | 23/11/2026 | 24/11/2026 | Chưa cập nhật |
+| LT-02 | Trả sách và tình trạng bản sách | Trần Mỹ Nhung | 25/11/2026 | 25/11/2026 | Chưa cập nhật |
+| LT-03 | Gia hạn tại quầy | Trần Mỹ Nhung | 26/11/2026 | 26/11/2026 | Chưa cập nhật |
+| VP-01 | Quá hạn và bồi thường | Trần Mỹ Nhung | 25/11/2026 | 26/11/2026 | Chưa cập nhật |
+| VP-02 | Thu tiền và biên lai | Trần Mỹ Nhung | 26/11/2026 | 27/11/2026 | Chưa cập nhật |
+| VP-03 | Hủy hiệu lực phiếu phạt | Trần Mỹ Nhung | 27/11/2026 | 27/11/2026 | Chưa cập nhật |
+| PD-01 | Lượt vào và ra phòng đọc | Trần Mỹ Nhung | 23/11/2026 | 23/11/2026 | Chưa cập nhật |
+| PH-01 | Góp ý, đánh giá và đề xuất sách | Trần Mỹ Nhung | 24/11/2026 | 24/11/2026 | Chưa cập nhật |
+| BC-03 | Thống kê lưu thông, quá hạn và thu tiền | Trần Mỹ Nhung | 27/11/2026 | 27/11/2026 | Chưa cập nhật |
+| LT-04 | In phiếu mượn và biên lai | Trần Mỹ Nhung | 27/11/2026 | 27/11/2026 | Chưa cập nhật |
 
 ## Quyền khóa tài khoản và quyền mượn
 
 - **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
 - **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
-- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+- Quản trị, Nhung thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
 - HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.

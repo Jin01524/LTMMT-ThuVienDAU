@@ -163,7 +163,7 @@ HTTT QUẢN LÝ THƯ VIỆN ĐẠI HỌC KIẾN TRÚC ĐÀ NẴNG
 
 ## 3. Quyền truy cập dùng chung
 
-Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU hoặc DOC_GIA. Biên mục phụ trách tài liệu và khóa/mở tài khoản đăng nhập của độc giả; Thủ thư phụ trách lưu thông; chỉ Quản lý thư viện được khóa/mở quyền mượn và hủy hiệu lực phiếu phạt. Hồ sơ nhân sự nhập từ danh sách trường, không có phân hệ quản lý nhân viên riêng. Không tạo nhóm quyền động; code kiểm tra quyền theo vai trò.
+Mỗi tài khoản có một vai trò cố định: QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU hoặc DOC_GIA. Biên mục phụ trách tài liệu và khóa/mở tài khoản đăng nhập của độc giả; Nhung thư phụ trách lưu thông; chỉ Quản lý thư viện được khóa/mở quyền mượn và hủy hiệu lực phiếu phạt. Hồ sơ nhân sự nhập từ danh sách trường, không có phân hệ quản lý nhân viên riêng. Không tạo nhóm quyền động; code kiểm tra quyền theo vai trò.
 
 ## 4. Quy trình và quy định thư viện đã cung cấp
 
@@ -189,5 +189,5 @@ Cây này mô tả chức năng thiết kế theo tài liệu tiến độ và p
 
 - **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
 - **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
-- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+- Quản trị, Nhung thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
 - HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.

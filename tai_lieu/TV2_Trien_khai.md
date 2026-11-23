@@ -47,7 +47,7 @@ TV1 cung cấp resolver ánh xạ phiên đã xác thực thành ID tài khoản
 server đã để điểm đăng ký riêng. Khi chưa ghép HT-02, chỉ dùng chế độ thử loopback trên dữ liệu giả.
 MainForm chỉ thêm một mục menu TV2, không thay nghiệp vụ TV1/TV3.
 
-Code dùng chung hai module đặt trong Modules/TV2_TranMyNhung/Shared:
+Code dùng chung hai module đặt trong Modules/TV2_VoNgocBinh/Shared:
 client có View, Controller gọi TcpCommandClient; server có Controller, CatalogService và CatalogStore.
 Hai form riêng đặt trong TL-01/Views và TL-02/Views; DTO liên kết từ server/Contracts/CatalogContracts.cs.
 

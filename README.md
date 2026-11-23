@@ -17,9 +17,9 @@ Các mô đun được bố trí đối xứng trong client/Modules và server/M
 
 | Thành viên | Thư mục trong Modules | Số mô đun | Tài khoản GitHub |
 |---|---|---:|---|
-| Võ Ngọc Bình | [TV1_VoNgocBinh](client/Modules/TV1_VoNgocBinh) | 10 | [Jin01524](https://github.com/Jin01524) |
-| Trần Mỹ Nhung | [TV2_TranMyNhung](client/Modules/TV2_TranMyNhung) | 9 | Chưa cung cấp |
-| Huỳnh Công Thủ | [TV3_HuynhCongThu](client/Modules/TV3_HuynhCongThu) | 10 | Chưa cung cấp |
+| Huỳnh Công Thủ | [TV1_HuynhCongThu](client/Modules/TV1_HuynhCongThu) | 10 | Chưa cung cấp |
+| Võ Ngọc Bình (trưởng nhóm) | [TV2_VoNgocBinh](client/Modules/TV2_VoNgocBinh) | 9 | [Jin01524](https://github.com/Jin01524) |
+| Trần Mỹ Nhung | [TV3_TranMyNhung](client/Modules/TV3_TranMyNhung) | 10 | Chưa cung cấp |
 
 Mỗi thư mục mô đun có README ghi người làm, người rà soát, phụ thuộc,
 trách nhiệm ở mỗi phía và điều kiện nghiệm thu. Phân công đầy đủ nằm tại
