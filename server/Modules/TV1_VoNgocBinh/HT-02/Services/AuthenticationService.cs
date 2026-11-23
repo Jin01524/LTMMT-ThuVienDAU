@@ -17,31 +17,6 @@ public sealed class AuthenticationService
         connectionFactory = new MySqlConnectionFactory(options);
     }
 
-    public async Task EnsureDemoAccountsAsync(CancellationToken cancellationToken)
-    {
-        var accounts = new[]
-        {
-            (Username: "quantri", Role: "QUAN_TRI"),
-            (Username: "quanly", Role: "QUAN_LY_THU_VIEN"),
-            (Username: "bienmuc", Role: "BIEN_MUC"),
-            (Username: "thuthu", Role: "THU_THU"),
-        };
-
-        await using var connection = await connectionFactory.OpenAsync(cancellationToken);
-        foreach (var account in accounts)
-        {
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-                INSERT INTO TaiKhoan(TenDangNhap, MatKhauDaBam, VaiTro, DangHoatDong)
-                SELECT @username, @password, @role, 1
-                WHERE NOT EXISTS (SELECT 1 FROM TaiKhoan WHERE TenDangNhap = @username)";
-            command.Parameters.AddWithValue("@username", account.Username);
-            command.Parameters.AddWithValue("@password", HashPassword("demo123"));
-            command.Parameters.AddWithValue("@role", account.Role);
-            await command.ExecuteNonQueryAsync(cancellationToken);
-        }
-    }
-
     public async Task<SessionInfo> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
         await using var connection = await connectionFactory.OpenAsync(cancellationToken);

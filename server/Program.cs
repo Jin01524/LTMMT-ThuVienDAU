@@ -14,7 +14,6 @@ var authenticationService = new AuthenticationService(DatabaseOptions.Load());
 builder.Services.AddSingleton(authenticationService);
 
 var app = builder.Build();
-await authenticationService.EnsureDemoAccountsAsync(CancellationToken.None);
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok", application = "ThuVienDAU.Server" }));
 app.MapControllers();
 app.Run();

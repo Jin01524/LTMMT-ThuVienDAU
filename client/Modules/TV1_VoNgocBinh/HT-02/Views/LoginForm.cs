@@ -79,7 +79,11 @@ public sealed class LoginForm : Form
             DialogResult = DialogResult.OK;
             Close();
         }
-        catch (Exception exception) when (exception is UnauthorizedAccessException or HttpRequestException or InvalidOperationException)
+        catch (HttpRequestException)
+        {
+            statusLabel.Text = "Không kết nối được server. Hãy chạy server ASP.NET trên cổng 5080.";
+        }
+        catch (Exception exception) when (exception is UnauthorizedAccessException or InvalidOperationException)
         {
             statusLabel.Text = exception.Message;
         }
