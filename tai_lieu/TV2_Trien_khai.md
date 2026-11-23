@@ -1,6 +1,6 @@
 # Triển khai TV2 đợt đầu
 
-Ngày 22/11/2026. Nhánh codex/tv2-catalog dựa trên khung TCP ea87c4e.
+Ngày 22/11/2026. Nhánh feature/TV2-TL01-TL02 dựa trên khung TCP ea87c4e.
 Đợt đầu triển khai TL-01 và TL-02 để cung cấp dữ liệu nền cho các module phụ thuộc.
 Chưa đánh dấu hoàn tất nghiệm thu cả 9 module TV2 hoặc hoàn tất HT-02.
 

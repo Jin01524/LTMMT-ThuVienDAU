@@ -40,7 +40,7 @@ git pull --ff-only origin main
 git switch -c feature/TV2-TL-04-ban-sach
 ```
 
-Một nhánh dành cho một đầu việc đủ rõ để rà soát; không cần tạo sẵn nhánh cho toàn bộ module. Khi việc cũ đã ghép, lấy `main` mới và tạo nhánh cho việc tiếp theo. Các nhánh `codex/...` là nhánh triển khai do trợ lý tạo; vẫn cần đọc phạm vi và rà soát trước khi ghép.
+Một nhánh dành cho một đầu việc đủ rõ để rà soát; không cần tạo sẵn nhánh cho toàn bộ module. Khi việc cũ đã ghép, lấy `main` mới và tạo nhánh cho việc tiếp theo. Dùng tên theo công việc như `feature/TV2-TL04-ban-sach`, `fix/TV2-TL01-kiem-tra-ddc` hoặc `docs/huong-dan-chay`; không dùng tên công cụ trong tên nhánh.
 
 ## 3. Lập trình và lưu commit
 
