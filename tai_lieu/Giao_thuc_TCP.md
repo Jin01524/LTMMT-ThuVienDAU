@@ -2,8 +2,7 @@
 
 Ngày 21/11/2026: theo yêu cầu giảng viên, client và server dùng TCP Socket trực tiếp.
 WinForms MVC → TcpClient → TcpListener → Controller → Service → MySQL.
-Giữ nguyên 29 module, 20 bảng và phân quyền nghiệp vụ đã chốt. HT-01 hiện có hai lệnh;
-HT-02 và các lệnh nghiệp vụ chưa triển khai.
+Giữ nguyên 29 module, 20 bảng và phân quyền nghiệp vụ đã chốt. HT-01 có PING/DATABASE_HEALTH. TL-01/TL-02/TL-04 đã có lệnh TV2 qua Payload/SessionToken tùy chọn; HT-02/phiên thật còn chờ triển khai.
 
 ## Định dạng bản tin
 
@@ -42,3 +41,7 @@ Báo cáo Word/Excel và patch HTTP cũ là các mốc trước lần chuyển g
 [TcpListener.AcceptTcpClientAsync](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcplistener.accepttcpclientasync?view=net-10.0)
 nhận kết nối bất đồng bộ có hủy; [Stream.ReadExactlyAsync](https://learn.microsoft.com/en-us/dotnet/api/system.io.stream.readexactlyasync?view=net-10.0)
 đọc đủ số byte hoặc báo EOF/hủy. Quy ước header, JSON và tên lệnh là thiết kế riêng của đồ án.
+
+## Lệnh TV2
+
+TL-01/TL-02 dùng TV2_DDC_LIST/SAVE và TV2_TITLE_LIST/SAVE. TL-04 dùng TV2_LOCATION_LIST/SAVE, TV2_COPY_LIST/SAVE và TV2_COPY_LOOKUP. Envelope giữ Version, RequestId, Command, thêm Payload và SessionToken tùy chọn. Xem [bàn giao TV2](TV2_Trien_khai.md) và [hợp đồng TL-04](TV2_TL04_Ban_sach.md) để biết quyền, payload và cách kiểm lại dữ liệu trước khi ghi mượn.

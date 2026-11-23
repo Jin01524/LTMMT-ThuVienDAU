@@ -1,7 +1,7 @@
-# Triển khai TV2 đợt đầu
+# Triển khai TV2
 
 Ngày 22/11/2026. Nhánh feature/TV2-TL01-TL02 dựa trên khung TCP ea87c4e.
-Đợt đầu triển khai TL-01 và TL-02 để cung cấp dữ liệu nền cho các module phụ thuộc.
+Đợt đầu ngày 22/11 triển khai TL-01 và TL-02. Ngày 23/11 đã bổ sung TL-04: [bản sách/vị trí và bàn giao TV3](TV2_TL04_Ban_sach.md).
 Chưa đánh dấu hoàn tất nghiệm thu cả 9 module TV2 hoặc hoàn tất HT-02.
 
 ## Những gì đã có
@@ -30,7 +30,7 @@ Chưa đánh dấu hoàn tất nghiệm thu cả 9 module TV2 hoặc hoàn tất
 
        dotnet run --project client
 
-5. Chọn menu TV2 · Biên mục, nhập token thử và mở TL-01 hoặc TL-02.
+5. Chọn menu TV2 · Biên mục, nhập token thử và mở TL-01, TL-02 hoặc TL-04.
    Token chỉ tồn tại đến khi server dừng; không ghi vào cấu hình client hoặc log kiểm thử.
 
 Chế độ thử không được bind LAN. Khi chạy bình thường, các lệnh TV2 bị từ chối cho tới khi
@@ -47,15 +47,15 @@ TV1 cung cấp resolver ánh xạ phiên đã xác thực thành ID tài khoản
 server đã để điểm đăng ký riêng. Khi chưa ghép HT-02, chỉ dùng chế độ thử loopback trên dữ liệu giả.
 MainForm chỉ thêm một mục menu TV2, không thay nghiệp vụ TV1/TV3.
 
-Code dùng chung hai module đặt trong Modules/TV2_VoNgocBinh/Shared:
+Code dùng chung các module đặt trong Modules/TV2_VoNgocBinh/Shared:
 client có View, Controller gọi TcpCommandClient; server có Controller, CatalogService và CatalogStore.
-Hai form riêng đặt trong TL-01/Views và TL-02/Views; DTO liên kết từ server/Contracts/CatalogContracts.cs.
+Các form riêng đặt trong TL-01/Views, TL-02/Views và TL-04/Views; DTO liên kết từ server/Contracts/CatalogContracts.cs.
 
 ## Kiểm tra và giới hạn
 
 Build Release không lỗi/cảnh báo. Bộ cong_cu/kiem_tra_tcp đạt 19 ca, gồm payload/phiên tùy chọn.
 Bộ cong_cu/kiem_tra_tv2/integration.py chạy server và MySQL riêng với dữ liệu tổng hợp,
-kiểm quyền, DDC, phân loại, sửa đồng thời và nhật ký; kết quả ghi ở kiem_tra/TV2_TL01_TL02.txt.
+kiểm quyền, DDC, phân loại, sửa đồng thời và nhật ký; kết quả mới nhất 62 ca ghi ở kiem_tra/TV2_TL01_TL02_TL04.txt.
 Form được dựng và kiểm tra bố cục bằng dữ liệu giả; chưa kiểm thao tác người dùng đầy đủ hoặc nhiều máy LAN.
 Không tự cập nhật phần trăm hoàn tất trong Excel khi chưa được rà soát và chưa ghép HT-02.
 
@@ -63,7 +63,6 @@ Không tự cập nhật phần trăm hoàn tất trong Excel khi chưa được
 
 | Module | Việc tiếp theo |
 |---|---|
-| TL-04 | Bản sách, ĐKCB/barcode duy nhất, dãy kệ/ngăn; bàn giao cho TV3 lưu thông |
 | TL-03 | Editor MARC thân thiện, profile/chỉ thị/lặp/082; giao dịch đồng bộ hồ sơ thư mục |
 | TL-05 | Ngành/khóa, thành viên đề tài, tệp đính kèm và quyền truy cập |
 | TL-07 | In barcode, nhãn gáy, xem trước và kiểm thiết bị |

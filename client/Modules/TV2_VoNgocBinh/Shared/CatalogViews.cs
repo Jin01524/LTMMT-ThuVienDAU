@@ -5,16 +5,16 @@ public sealed class CatalogWorkspaceForm : Form
 {
     public CatalogWorkspaceForm()
     {
-        Text="TV2 · Biên mục thư viện"; Size=new Size(710,330); StartPosition=FormStartPosition.CenterParent;
+        Text="TV2 · Biên mục thư viện"; Size=new Size(710,430); StartPosition=FormStartPosition.CenterParent;
         var layout=new FlowLayoutPanel { Dock=DockStyle.Fill,Padding=new Padding(24),FlowDirection=FlowDirection.TopDown,WrapContents=false };
         var token=new TextBox { Width=620,UseSystemPasswordChar=true,PlaceholderText="Phiên Biên mục do server cấp (token demo chỉ dùng trên loopback)" };
         layout.Controls.Add(new Label { Text="Tài liệu · DDC23 tiếng Việt rút gọn",AutoSize=true,Font=new Font("Segoe UI",16,FontStyle.Bold) });
         layout.Controls.Add(new Label { Text="HT-02 chưa có. Phiên thử: Biên mục hoặc Quản lý đang hoạt động (chỉ loopback).",AutoSize=true });
         layout.Controls.Add(token);
-        foreach(var name in new[]{"TL-01 · Danh mục DDC23","TL-02 · Hồ sơ đầu tài liệu"})
+        foreach(var name in new[]{"TL-01 · Danh mục DDC23","TL-02 · Hồ sơ đầu tài liệu","TL-04 · Bản sách","TL-04 · Dãy kệ/ngăn"})
         {
             var button=new Button { Text=name,Width=620,Height=44 };
-            button.Click+=(_,_)=> { if(string.IsNullOrWhiteSpace(token.Text)) { MessageBox.Show(this,"Nhập phiên Biên mục trước.");return; } using Form form=name.StartsWith("TL-01") ? new DdcForm(token.Text.Trim()) : new TitleForm(token.Text.Trim()); form.ShowDialog(this); };
+            button.Click+=(_,_)=> { if(string.IsNullOrWhiteSpace(token.Text)) { MessageBox.Show(this,"Nhập phiên Biên mục trước.");return; } using Form form=name.StartsWith("TL-01") ? new DdcForm(token.Text.Trim()) : name.StartsWith("TL-02") ? new TitleForm(token.Text.Trim()) : name.EndsWith("Bản sách") ? new CopyForm(token.Text.Trim()) : new LocationForm(token.Text.Trim()); form.ShowDialog(this); };
             layout.Controls.Add(button);
         }
         Controls.Add(layout);
@@ -45,7 +45,7 @@ public abstract class CatalogListForm<T> : Form where T : class
         Body.Controls.Add(Grid);Controls.Add(Body);Controls.Add(toolbar);Controls.Add(new Panel { Dock=DockStyle.Bottom,Height=36,Controls={status} });
         Grid.DataBindingComplete+=(_,_)=>
         {
-            var labels=new Dictionary<string,string> { ["MaDDC"]="Mã DDC",["MaCha"]="Mã cha",["TenMuc"]="Tên mục",["NguonThamKhao"]="Nguồn tham khảo",["DaDoiChieu"]="Đã đối chiếu",["ViTriTraBanIn"]="Tập/trang bản in",["CachGhepSo"]="Căn cứ ghép số",["IdNguoiDoiChieu"]="Mã người đối chiếu",["ThoiDiemDoiChieu"]="Thời điểm đối chiếu",["IdDauTaiLieu"]="Mã đầu tài liệu",["NhanDe"]="Nhan đề",["LoaiTaiLieu"]="Loại tài liệu",["TrangThaiPhanLoai"]="Phân loại",["ViTriTraDDC"]="Vị trí tra DDC",["DangHienThi"]="Hiển thị nội bộ" };
+            var labels=new Dictionary<string,string> { ["MaDDC"]="Mã DDC",["MaCha"]="Mã cha",["TenMuc"]="Tên mục",["NguonThamKhao"]="Nguồn tham khảo",["DaDoiChieu"]="Đã đối chiếu",["ViTriTraBanIn"]="Tập/trang bản in",["CachGhepSo"]="Căn cứ ghép số",["IdNguoiDoiChieu"]="Mã người đối chiếu",["ThoiDiemDoiChieu"]="Thời điểm đối chiếu",["IdDauTaiLieu"]="Mã đầu tài liệu",["NhanDe"]="Nhan đề",["LoaiTaiLieu"]="Loại tài liệu",["TrangThaiPhanLoai"]="Phân loại",["ViTriTraDDC"]="Vị trí tra DDC",["DangHienThi"]="Hiển thị nội bộ",["IdBanTaiLieu"]="Mã bản sách",["SoDangKyCaBiet"]="Số ĐKCB",["MaVach"]="Barcode",["IdViTri"]="Mã vị trí",["DayKe"]="Dãy kệ",["Ngan"]="Ngăn",["KyHieuXepGia"]="Ký hiệu xếp giá",["TrangThai"]="Trạng thái",["TinhTrang"]="Tình trạng",["GiaBia"]="Giá bìa (đồng)",["NgayNhap"]="Ngày nhập" };
             foreach(DataGridViewColumn col in Grid.Columns) { if(labels.TryGetValue(col.DataPropertyName,out var label))col.HeaderText=label;if(col.DataPropertyName is "Revision" or "PhienBan")col.Visible=false; }
         };
         Shown+=async(_,_)=>await LoadRows();
@@ -81,6 +81,25 @@ public sealed class CatalogEditor : Form
         var buttons=new FlowLayoutPanel { Dock=DockStyle.Bottom,Height=55,FlowDirection=FlowDirection.RightToLeft,Padding=new Padding(8) };
         var save=new Button { Text="Lưu",DialogResult=DialogResult.OK,Width=100,Height=34 };var cancel=new Button { Text="Hủy",DialogResult=DialogResult.Cancel,Width=100,Height=34 };buttons.Controls.AddRange(new Control[]{cancel,save});AcceptButton=save;CancelButton=cancel;Controls.Add(fields);Controls.Add(buttons);
     }
+    public void ValidateOnSave(Func<string?> validate)
+    {
+        FormClosing+=(_,e)=> { if(DialogResult!=DialogResult.OK)return;var error=validate();if(error is not null){e.Cancel=true;DialogResult=DialogResult.None;MessageBox.Show(this,error,"Kiểm tra dữ liệu",MessageBoxButtons.OK,MessageBoxIcon.Warning);} };
+    }
+    public TextBox Picker(string label,string text,Action<TextBox> choose,Action<TextBox>? clear=null)
+    {
+        var box=new TextBox { Text=text,ReadOnly=true,Width=250 };var button=new Button { Text="Chọn",Width=65,Height=29 };
+        var panel=new FlowLayoutPanel { Dock=DockStyle.Fill,AutoSize=true,WrapContents=true };panel.Controls.AddRange(new Control[]{box,button});button.Click+=(_,_)=>choose(box);
+        if(clear is not null){var reset=new Button { Text="Bỏ",Width=50,Height=29 };reset.Click+=(_,_)=>clear(box);panel.Controls.Add(reset);}
+        Add(label,panel);return box;
+    }
+    public ComboBox LabeledChoice(string label,string value,Dictionary<string,string> values)
+    {
+        var choices=values.Select(x=>new CatalogChoice(x.Key,x.Value)).ToArray();var input=new ComboBox { Dock=DockStyle.Fill,DropDownStyle=ComboBoxStyle.DropDownList };input.Items.AddRange(choices);input.SelectedItem=choices.First(x=>x.Code==value);Add(label,input);return input;
+    }
+    public DateTimePicker DateField(string label,DateOnly? value)
+    {
+        var input=new DateTimePicker { Format=DateTimePickerFormat.Custom,CustomFormat="dd/MM/yyyy",ShowCheckBox=true,Value=value?.ToDateTime(TimeOnly.MinValue)??DateTime.Today,Checked=value.HasValue,Dock=DockStyle.Fill };Add(label,input);return input;
+    }
     public TextBox TextField(string label,string? value,int max,bool readOnly=false)
     { var input=new TextBox { Text=value??"",MaxLength=max,ReadOnly=readOnly,Dock=DockStyle.Fill };Add(label,input);return input; }
     public ComboBox Choice(string label,string value,params string[] values)
@@ -90,3 +109,5 @@ public sealed class CatalogEditor : Form
     private void Add(string label,Control input)
     { var row=fields.RowCount++;fields.RowStyles.Add(new RowStyle(SizeType.AutoSize));fields.Controls.Add(new Label { Text=label,AutoSize=true,Padding=new Padding(0,5,0,10) },0,row);input.Margin=new Padding(3,5,3,10);fields.Controls.Add(input,1,row); }
 }
+
+public sealed record CatalogChoice(string Code,string Label) { public override string ToString()=>Label; }

@@ -29,4 +29,18 @@ internal sealed class CatalogStore(MySqlConnection connection, MySqlTransaction 
         return item with { Revision=Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(item,TcpProtocol.Json))) };
     }
     public static TitleItem Title(Dictionary<string,object?> r) => new(Convert.ToInt32(r["IdDauTaiLieu"]),(string)r["NhanDe"]!,(string)r["LoaiTaiLieu"]!,r["MaDDC"] as string,(string)r["TrangThaiPhanLoai"]!,r["ViTriTraDDC"] as string,Convert.ToBoolean(r["DangHienThi"]),Convert.ToUInt64(r["PhienBan"]));
+
+    public static string Revision<T>(T item) => Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(item,TcpProtocol.Json)));
+    public static StorageLocationItem Location(Dictionary<string,object?> r)
+    {
+        var item=new StorageLocationItem(Convert.ToInt32(r["IdViTri"]),(string)r["DayKe"]!,(string)r["Ngan"]!);
+        return item with { Revision=Revision(item) };
+    }
+    public static CopyItem Copy(Dictionary<string,object?> r)
+    {
+        var item=new CopyItem(Convert.ToInt32(r["IdBanTaiLieu"]),Convert.ToInt32(r["IdDauTaiLieu"]),(string)r["SoDangKyCaBiet"]!,(string)r["MaVach"]!,
+            r["IdViTri"] is null?null:Convert.ToInt32(r["IdViTri"]),r["KyHieuXepGia"] as string,(string)r["TrangThai"]!,(string)r["TinhTrang"]!,
+            r["GiaBia"] is null?null:Convert.ToDecimal(r["GiaBia"]),r["NgayNhap"] is DateTime date?DateOnly.FromDateTime(date):null);
+        return item with { Revision=Revision(item),NhanDe=r.GetValueOrDefault("NhanDe") as string??"",DayKe=r.GetValueOrDefault("DayKe") as string,Ngan=r.GetValueOrDefault("Ngan") as string };
+    }
 }

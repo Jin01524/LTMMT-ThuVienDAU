@@ -12,3 +12,5 @@ Program.cs nối các thành phần. Không có MySql.Data hoặc mật khẩu M
 Contract JSON và mã đóng khung liên kết từ server/Contracts để hai bên dùng cùng quy ước.
 Mỗi lệnh mở một kết nối TCP, gửi yêu cầu, nhận phản hồi khớp RequestId, rồi đóng kết nối.
 Chi tiết: [giao thức TCP](../tai_lieu/Giao_thuc_TCP.md).
+
+Menu TV2 · Biên mục có TL-01, TL-02, TL-04 Bản sách và Dãy kệ/ngăn. Chế độ thử cần token loopback do server cấp; xem tai_lieu/TV2_TL04_Ban_sach.md.

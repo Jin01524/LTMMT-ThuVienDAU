@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import datetime,timedelta,timezone
 import subprocess,socket,json,struct,time,shutil,os,sys
+from concurrent.futures import ThreadPoolExecutor
 r=Path(__file__).resolve().parents[2];work=r/'.tooling'/('tv2-fixture-'+str(time.time_ns()));work.mkdir(parents=True);data=work/'mysql-data';data.mkdir();bindir=work/'server-fixture';shutil.copytree(r/'server/bin/Release/net10.0',bindir,ignore=shutil.ignore_patterns('appsettings.local.json'))
 mysqlbin=Path(sys.argv[1]) if len(sys.argv)>1 else Path('C:/Program Files/MySQL/MySQL Server 8.0/bin'); flags=subprocess.CREATE_NO_WINDOW
 logs=[]
@@ -72,11 +73,51 @@ try:
  check(sql("USE ThuVienDAU;SELECT JSON_UNQUOTE(JSON_EXTRACT(ChiTiet,'$.after.idNguoiDoiChieu')) FROM NhatKy WHERE HanhDong='TV2_DDC_SAVE' ORDER BY IdNhatKy DESC LIMIT 1;")==str(account),'DDC audit stores server identity rather than client metadata')
  sql(f"USE ThuVienDAU;UPDATE TaiKhoan SET DangHoatDong=1 WHERE IdTaiKhoan={account};")
  check(request('TV2_TITLE_LIST',{'text':'Da cap nhat','offset':0},token)['data'][0]['idDauTaiLieu']==title['idDauTaiLieu'],'staff title search returns saved data')
+ # TL-04: physical copies, storage locations and handoff to circulation.
+ check(request('TV2_LOCATION_LIST',{},token)['data']==[],'TL04 empty location list')
+ check(not request('TV2_LOCATION_SAVE',{'idViTri':0,'dayKe':'  ','ngan':'A'},token)['success'],'TL04 blank location rejected')
+ a=request('TV2_LOCATION_SAVE',{'idViTri':0,'dayKe':'KE-A','ngan':'01'},token);check(a['success'],'TL04 create shelf compartment');loc=a['data']
+ check(not request('TV2_LOCATION_SAVE',{'idViTri':0,'dayKe':' KE-A ','ngan':'01'},token)['success'],'TL04 duplicate trimmed shelf compartment rejected')
+ a=request('TV2_LOCATION_SAVE',loc|{'ngan':'02'},token);check(a['success'],'TL04 rename location with stable identity');loc2=a['data']
+ check(not request('TV2_LOCATION_SAVE',loc|{'ngan':'03'},token)['success'],'TL04 stale location edit rejected')
+ check(request('TV2_LOCATION_LIST',{'text':'KE-A','offset':0},token)['data'][0]['idViTri']==loc2['idViTri'],'TL04 search location')
+ item={'idBanTaiLieu':0,'idDauTaiLieu':title['idDauTaiLieu'],'soDangKyCaBiet':'TV2-DK01','maVach':'TV2-BC01','idViTri':None,'kyHieuXepGia':None,'trangThai':'DANG_XU_LY','tinhTrang':'TOT','giaBia':None,'ngayNhap':None,'revision':''}
+ a=request('TV2_COPY_SAVE',item,token);check(a['success'],'TL04 create processing copy with unknown price and date');copy=a['data']
+ check(copy['nhanDe']=='Da cap nhat' and copy['giaBia'] is None and copy['ngayNhap'] is None,'TL04 enriched copy uses server metadata and preserves NULL')
+ check(not request('TV2_COPY_SAVE',item|{'maVach':'TV2-BC02'},token)['success'],'TL04 duplicate accession number rejected')
+ check(not request('TV2_COPY_SAVE',item|{'soDangKyCaBiet':'TV2-DK02'},token)['success'],'TL04 duplicate barcode rejected')
+ for override,label in [({'idDauTaiLieu':9999999},'unknown title'),({'idViTri':9999999},'unknown location'),({'giaBia':-1},'negative price'),({'giaBia':1.5},'fractional price'),({'giaBia':1000000000000},'price overflow'),({'trangThai':'DANG_MUON'},'loan status'),({'trangThai':'THANH_LY'},'disposal status'),({'trangThai':'SAN_SANG'},'ready without position'),({'trangThai':'HU_HONG'},'damaged state without damaged condition')]:
+  check(not request('TV2_COPY_SAVE',copy|override,token)['success'],'TL04 rejects '+label)
+ a=request('TV2_COPY_SAVE',copy|{'idViTri':loc2['idViTri'],'kyHieuXepGia':'004.1 TV2','trangThai':'SAN_SANG','giaBia':120000,'ngayNhap':'2026-11-23'},token);check(a['success'],'TL04 make copy ready with location call number price and date');ready=a['data']
+ check(ready['dayKe']=='KE-A' and ready['ngan']=='02' and ready['ngayNhap']=='2026-11-23','TL04 joins shelf and roundtrips date')
+ check(not request('TV2_COPY_SAVE',copy|{'giaBia':130000},token)['success'],'TL04 stale copy edit rejected')
+ with ThreadPoolExecutor(max_workers=2) as pool:
+  outcomes=list(pool.map(lambda suffix:request('TV2_COPY_SAVE',ready|{'kyHieuXepGia':'004.1 '+suffix},token),['A','B']))
+ check(sum(x['success'] for x in outcomes)==1,'TL04 concurrent copy edits commit exactly one winner')
+ ready=next(x['data'] for x in outcomes if x['success'])
+ check(not request('TV2_COPY_SAVE',ready|{'tinhTrang':'HU_HONG'},token)['success'],'TL04 damaged copy cannot remain ready')
+ a=request('TV2_TITLE_SAVE',base|{'nhanDe':'Dau tai lieu khac','maDDC':None,'trangThaiPhanLoai':'CHUA_PHAN_LOAI','viTriTraDDC':None},token);check(a['success'],'TL04 fixture second title');other=a['data']
+ check(not request('TV2_COPY_SAVE',ready|{'idDauTaiLieu':other['idDauTaiLieu']},token)['success'],'TL04 cannot reassign existing copy to another title')
+ result=request('TV2_COPY_LOOKUP',{'maVach':'TV2-BC01'},token);check(result['success'] and not result['data']['dangCoKhoanMuonMo'] and result['data']['banSach']['idBanTaiLieu']==ready['idBanTaiLieu'],'TL04 exact barcode handoff without open loan')
+ check(not request('TV2_COPY_LOOKUP',{'maVach':'TV2-BC'},token)['success'],'TL04 barcode handoff is exact not prefix')
+ check(request('TV2_COPY_LIST',{'text':"' OR 1=1 --",'offset':0},token)['data']==[],'TL04 copy search is parameterized')
+ check(request('TV2_COPY_LIST',{'text':'TV2-BC01','offset':0},token)['data'][0]['idBanTaiLieu']==ready['idBanTaiLieu'],'TL04 staff copy search')
+ sql(f"USE ThuVienDAU;INSERT INTO DocGia(MaDinhDanhTruong,HoTen,LoaiDocGia) VALUES('TV2_FIX_DG','Doc gia thu','SINH_VIEN');SET @dg=LAST_INSERT_ID();INSERT INTO PhieuMuon(IdDocGia,IdThuThu) VALUES(@dg,{account});INSERT INTO ChiTietPhieuMuon(IdPhieuMuon,IdDocGia,IdBanTaiLieu,IdDauTaiLieu,HanTra) VALUES(LAST_INSERT_ID(),@dg,{ready['idBanTaiLieu']},{title['idDauTaiLieu']},'2030-01-01');")
+ check(not request('TV2_COPY_SAVE',ready|{'giaBia':130000},token)['success'],'TL04 open loan blocks edits even if stock status is inconsistent')
+ check(request('TV2_COPY_LOOKUP',{'maVach':'TV2-BC01'},token)['data']['dangCoKhoanMuonMo'],'TL04 handoff exposes open loan for circulation recheck')
+ sql(f"USE ThuVienDAU;UPDATE TaiKhoan SET VaiTro='THU_THU' WHERE IdTaiKhoan={account};")
+ check(request('TV2_COPY_LOOKUP',{'maVach':'TV2-BC01'},token)['success'],'TL04 librarian may read exact barcode for circulation')
+ check(not request('TV2_COPY_SAVE',ready,token)['success'] and not request('TV2_LOCATION_LIST',{},token)['success'],'TL04 librarian cannot write or browse catalog locations')
+ sql(f"USE ThuVienDAU;UPDATE TaiKhoan SET VaiTro='BIEN_MUC' WHERE IdTaiKhoan={account};UPDATE ChiTietPhieuMuon SET TrangThai='DA_TRA',ThoiDiemTra=NOW(),IdNguoiNhanTra={account};UPDATE BanTaiLieu SET TrangThai='THANH_LY' WHERE IdBanTaiLieu={ready['idBanTaiLieu']};")
+ rows=request('TV2_COPY_LIST',{'text':'TV2-BC01'},token)['data'];disposed=rows[0]
+ check(not request('TV2_COPY_SAVE',disposed|{'trangThai':'SAN_SANG'},token)['success'],'TL04 cannot reactivate a disposed copy')
+ check(int(sql("USE ThuVienDAU;SELECT COUNT(*) FROM NhatKy WHERE HanhDong IN ('TV2_COPY_SAVE','TV2_LOCATION_SAVE');"))==5,'TL04 only committed location/copy writes are audited')
+ check(sql("USE ThuVienDAU;SELECT GiaBia FROM BanTaiLieu WHERE MaVach='TV2-BC01';")=='120000','TL04 failed operations leave persisted price intact')
  # Development mode must never bind LAN.
  denied=run(['dotnet',bindir/'ThuVienDAU.Server.dll','--host','0.0.0.0','--tv2-demo-account',str(account)])
  check(denied.returncode!=0,'development identity forbidden on LAN')
  print('PASS all TV2 DB/TCP integration cases',flush=True)
- (r/'kiem_tra/TV2_TL01_TL02.txt').write_text(f'{datetime.now(timezone(timedelta(hours=7))):%d/%m/%Y} - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.\n'+'\n'.join(logs)+'\n','utf8')
+ (r/'kiem_tra/TV2_TL01_TL02_TL04.txt').write_text(f'{datetime.now(timezone(timedelta(hours=7))):%d/%m/%Y} - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.\n'+'\n'.join(logs)+'\n','utf8')
 finally:
  if server:server.kill();server.wait(timeout=10)
  if dbproc:

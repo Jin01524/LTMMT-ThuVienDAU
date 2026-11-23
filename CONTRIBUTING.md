@@ -75,7 +75,7 @@ dotnet build ThuVienDAU.sln -c Release --no-restore
 dotnet run --project cong_cu/kiem_tra_tcp -- .
 ```
 
-Với thay đổi nghiệp vụ TL-01/TL-02, có đủ môi trường MySQL/Python thì chạy thêm:
+Với thay đổi nghiệp vụ TL-01/TL-02/TL-04, có đủ môi trường MySQL/Python thì chạy thêm:
 
 ```powershell
 python cong_cu/kiem_tra_tv2/integration.py

@@ -20,5 +20,5 @@ timeout 15 giây và giới hạn bản tin 1 MiB. Lỗi một client không d�
 
 Modules chia theo TV1/TV2/TV3. Controller nhận lệnh TCP, Service xử lý nghiệp vụ,
 Data truy cập MySQL. View WinForms ở client. DTO và mã đóng khung dùng chung nằm trong Contracts.
-HT-02 và các nghiệp vụ vẫn cần lập trình; xác thực, kiểm quyền và giao dịch phải đặt ở server.
+TL-01/TL-02/TL-04 đã có bản đầu; HT-02 và các nghiệp vụ còn lại vẫn cần lập trình; xác thực, kiểm quyền và giao dịch phải đặt ở server.
 Khung hiện tại chưa có xác thực phiên hoặc mã hóa kênh TCP; chỉ dùng demo nội bộ.

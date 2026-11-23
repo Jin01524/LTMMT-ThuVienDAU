@@ -1,0 +1,63 @@
+23/11/2026 - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.
+PASS unauthenticated catalog denied
+PASS forged session denied
+PASS 40 seeded DDC loaded without altering pending status
+PASS seed DDC not auto approved
+PASS parameterized search and literal matching
+PASS pagination end
+PASS create pending DDC with leading zeros
+PASS cannot confirm title using unverified DDC
+PASS confirmation requires print location
+PASS DDC confirmation stores server actor/time
+PASS server owns approval metadata
+PASS stale DDC edit rejected
+PASS create classified title via TCP and real MySQL
+PASS title update increments version
+PASS stale title edit rejected
+PASS verified DDC used by title cannot be unapproved
+PASS self-parent DDC rejected
+PASS role checked in DB each command
+PASS inactive account rejected even with live token
+PASS rejected commands do not change persisted title
+PASS successful writes audited; failed transactions rolled back
+PASS DDC audit stores server identity rather than client metadata
+PASS staff title search returns saved data
+PASS TL04 empty location list
+PASS TL04 blank location rejected
+PASS TL04 create shelf compartment
+PASS TL04 duplicate trimmed shelf compartment rejected
+PASS TL04 rename location with stable identity
+PASS TL04 stale location edit rejected
+PASS TL04 search location
+PASS TL04 create processing copy with unknown price and date
+PASS TL04 enriched copy uses server metadata and preserves NULL
+PASS TL04 duplicate accession number rejected
+PASS TL04 duplicate barcode rejected
+PASS TL04 rejects unknown title
+PASS TL04 rejects unknown location
+PASS TL04 rejects negative price
+PASS TL04 rejects fractional price
+PASS TL04 rejects price overflow
+PASS TL04 rejects loan status
+PASS TL04 rejects disposal status
+PASS TL04 rejects ready without position
+PASS TL04 rejects damaged state without damaged condition
+PASS TL04 make copy ready with location call number price and date
+PASS TL04 joins shelf and roundtrips date
+PASS TL04 stale copy edit rejected
+PASS TL04 concurrent copy edits commit exactly one winner
+PASS TL04 damaged copy cannot remain ready
+PASS TL04 fixture second title
+PASS TL04 cannot reassign existing copy to another title
+PASS TL04 exact barcode handoff without open loan
+PASS TL04 barcode handoff is exact not prefix
+PASS TL04 copy search is parameterized
+PASS TL04 staff copy search
+PASS TL04 open loan blocks edits even if stock status is inconsistent
+PASS TL04 handoff exposes open loan for circulation recheck
+PASS TL04 librarian may read exact barcode for circulation
+PASS TL04 librarian cannot write or browse catalog locations
+PASS TL04 cannot reactivate a disposed copy
+PASS TL04 only committed location/copy writes are audited
+PASS TL04 failed operations leave persisted price intact
+PASS development identity forbidden on LAN

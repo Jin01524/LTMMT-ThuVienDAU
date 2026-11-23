@@ -20,7 +20,7 @@ public sealed class CatalogService(ICatalogSessionResolver? sessions)
             var store = new CatalogStore(db, tx);
             // Lock actor until transaction completes; client cannot supply/override this identity.
             var account = await store.Rows("SELECT VaiTro FROM TaiKhoan WHERE IdTaiKhoan=@id AND DangHoatDong=1 FOR UPDATE", ct, ("id",actor));
-            if (account.Count != 1 || !new[]{"BIEN_MUC","QUAN_LY_THU_VIEN"}.Contains(account[0]["VaiTro"]?.ToString()))
+            if (account.Count != 1 || !(new[]{"BIEN_MUC","QUAN_LY_THU_VIEN"}.Contains(account[0]["VaiTro"]?.ToString()) || request.Command=="TV2_COPY_LOOKUP" && account[0]["VaiTro"]?.ToString()=="THU_THU"))
                 throw new UnauthorizedAccessException("Tài khoản đã khóa hoặc không có quyền Biên mục/Quản lý.");
             object result;
             if (request.Command.EndsWith("_LIST",StringComparison.Ordinal))
@@ -29,6 +29,8 @@ public sealed class CatalogService(ICatalogSessionResolver? sessions)
                 var term = "%" + q.Text.Replace("!","!!").Replace("%","!%").Replace("_","!_") + "%";
                 if (request.Command == "TV2_DDC_LIST") result = (await store.Rows("SELECT * FROM MucPhanLoaiDDC WHERE MaDDC LIKE @q ESCAPE '!' OR TenMuc LIKE @q ESCAPE '!' ORDER BY MaDDC LIMIT 100 OFFSET @off",ct,("q",term),("off",q.Offset))).Select(CatalogStore.Ddc).ToArray();
                 else if (request.Command == "TV2_TITLE_LIST") result = (await store.Rows("SELECT * FROM DauTaiLieu WHERE NhanDe LIKE @q ESCAPE '!' OR CAST(IdDauTaiLieu AS CHAR)=@exact ORDER BY IdDauTaiLieu DESC LIMIT 100 OFFSET @off",ct,("q",term),("exact",q.Text),("off",q.Offset))).Select(CatalogStore.Title).ToArray();
+                else if(request.Command=="TV2_LOCATION_LIST") result=(await store.Rows("SELECT * FROM ViTriLuuTru WHERE DayKe LIKE @q ESCAPE '!' OR Ngan LIKE @q ESCAPE '!' ORDER BY DayKe,Ngan,IdViTri LIMIT 100 OFFSET @off",ct,("q",term),("off",q.Offset))).Select(CatalogStore.Location).ToArray();
+                else if(request.Command=="TV2_COPY_LIST") result=(await store.Rows(InventoryService.CopySelect+" WHERE b.SoDangKyCaBiet LIKE @q ESCAPE '!' OR b.MaVach LIKE @q ESCAPE '!' OR d.NhanDe LIKE @q ESCAPE '!' ORDER BY b.IdBanTaiLieu DESC LIMIT 100 OFFSET @off",ct,("q",term),("off",q.Offset))).Select(CatalogStore.Copy).ToArray();
                 else throw new InvalidOperationException("Lệnh danh mục không hợp lệ.");
             }
             else if (request.Command == "TV2_DDC_SAVE")
@@ -63,6 +65,18 @@ public sealed class CatalogService(ICatalogSessionResolver? sessions)
                 var id = await store.Execute(sql,ct,values); if(item.IdDauTaiLieu > 0) id = item.IdDauTaiLieu;
                 result = CatalogStore.Title((await store.Rows("SELECT * FROM DauTaiLieu WHERE IdDauTaiLieu=@id",ct,("id",id)))[0]);
                 await store.Audit(actor,"TV2_TITLE_SAVE","DauTaiLieu",id.ToString(),old.Count == 0 ? null : CatalogStore.Title(old[0]),result,ct);
+            }
+            else if(request.Command=="TV2_LOCATION_SAVE") result=await InventoryService.SaveLocation(store,Payload<StorageLocationItem>(request),actor,ct);
+            else if(request.Command=="TV2_COPY_SAVE") result=await InventoryService.SaveCopy(store,Payload<CopyItem>(request),actor,ct);
+            else if(request.Command=="TV2_COPY_LOOKUP")
+            {
+                var query=Payload<BarcodeQuery>(request);Need(query.MaVach,100,"Barcode");
+                var rows=await store.Rows("SELECT * FROM BanTaiLieu WHERE MaVach=@barcode FOR UPDATE",ct,("barcode",query.MaVach.Trim()));
+                if(rows.Count==0)throw new InvalidOperationException("Không tìm thấy bản sách theo barcode.");
+                var id=Convert.ToInt32(rows[0]["IdBanTaiLieu"]);
+                var copy=CatalogStore.Copy((await store.Rows(InventoryService.CopySelect+" WHERE b.IdBanTaiLieu=@id",ct,("id",id)))[0]);
+                var active=(await store.Rows("SELECT IdChiTietMuon FROM ChiTietPhieuMuon WHERE IdBanTaiLieu=@id AND TrangThai='DANG_MUON'",ct,("id",id))).Count>0;
+                result=new CopyLookup(copy,active);
             }
             else throw new InvalidOperationException("Lệnh TV2 chưa được triển khai.");
             await tx.CommitAsync(ct);

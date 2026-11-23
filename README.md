@@ -12,10 +12,11 @@ Cập nhật: **23/11/2026**. Hạn nộp: **29/11/2026**.
 | HT-01 — kết nối | Client yêu cầu server kiểm tra MySQL và hiển thị kết quả |
 | TL-01 — DDC23 | Đã có bản đầu tra cây/danh mục, tìm, thêm/sửa và đối chiếu bản in |
 | TL-02 — đầu tài liệu | Đã có bản đầu tìm, thêm/sửa và quản lý trạng thái phân loại |
+| TL-04 — bản sách/vị trí | Đã có bản đầu ĐKCB/barcode, giá/ngày, tình trạng và dãy kệ/ngăn |
 | HT-02 — đăng nhập/phiên | Chưa triển khai đầy đủ; TV2 hiện dùng chế độ thử riêng trên loopback |
 | Các module khác | Đã phân công; đang chờ triển khai theo kế hoạch |
 
-TL-01/TL-02 đã có giao dịch, kiểm quyền phía server, nhật ký và kiểm tra phiên bản khi sửa. Bản đầu vẫn cần ghép phiên HT-02 và nghiệm thu thao tác thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất.
+TL-01/TL-02/TL-04 đã có giao dịch, kiểm quyền phía server, nhật ký và kiểm tra phiên bản khi sửa. Bản đầu vẫn cần ghép phiên HT-02 và nghiệm thu thao tác thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất.
 
 ## Thành viên và phạm vi
 
@@ -137,7 +138,7 @@ Khung TCP hiện chưa có mã hóa hoặc phiên đăng nhập hoàn chỉnh. C
 
 Chi tiết đóng khung bản tin và tên lệnh: [Giao_thuc_TCP.md](tai_lieu/Giao_thuc_TCP.md).
 
-## Chạy thử TL-01 và TL-02
+## Chạy thử TL-01, TL-02 và TL-04
 
 Chuẩn bị CSDL thử và tài khoản đã được nhập/gán vai trò **BIEN_MUC** hoặc **QUAN_LY_THU_VIEN**, có `DangHoatDong = 1`. Không tự tạo nhân viên hoặc thẻ thư viện để thay quy trình đã chốt. Nếu chưa có tài khoản phù hợp, cần phối hợp với TV1; kiểm tra kết nối MySQL vẫn chạy độc lập.
 
@@ -148,7 +149,7 @@ $catalogAccountId = [int](Read-Host 'Nhap IdTaiKhoan thu co quyen Bien muc/Quan 
 dotnet run --project server/ThuVienDAU.Server.csproj -- --host 127.0.0.1 --port 5080 --tv2-demo-account $catalogAccountId
 ```
 
-Server in token thử khi khởi động. Trong client, mở **TV2 · Biên mục**, nhập token và chọn TL-01 hoặc TL-02. Token chỉ dùng trong lần chạy server đó; không lưu token vào repo.
+Server in token thử khi khởi động. Trong client, mở **TV2 · Biên mục**, nhập token và chọn TL-01, TL-02 hoặc các màn hình TL-04. Token chỉ dùng trong lần chạy server đó; không lưu token vào repo.
 
 Khi server chạy bình thường, các lệnh TV2 bị từ chối cho tới khi ghép phiên HT-02. Hướng dẫn và hợp đồng bàn giao: [TV2_Trien_khai.md](tai_lieu/TV2_Trien_khai.md).
 
@@ -183,7 +184,7 @@ Sau khi build Release, kiểm tra khung TCP:
 dotnet run --project cong_cu/kiem_tra_tcp -- .
 ```
 
-Kiểm tra TL-01/TL-02 cần thêm Python 3 và bộ MySQL Server có `mysqld`, `mysql`, `mysqladmin`:
+Kiểm tra TL-01/TL-02/TL-04 cần thêm Python 3 và bộ MySQL Server có `mysqld`, `mysql`, `mysqladmin`:
 
 ```powershell
 python cong_cu/kiem_tra_tv2/integration.py
@@ -191,7 +192,7 @@ python cong_cu/kiem_tra_tv2/integration.py
 
 Bộ TV2 tạo MySQL và server thử riêng, dùng dữ liệu giả; không sửa CSDL hoặc cấu hình đang dùng. Xem [hướng dẫn fixture](cong_cu/kiem_tra_tv2/README.md) nếu MySQL không cài ở đường dẫn mặc định.
 
-Lần rà soát ngày 23/11/2026: build 0 lỗi/0 cảnh báo, **19 ca TCP và 24 ca TV2 đạt**. Chưa thay thế kiểm thử giao diện đầy đủ hoặc nhiều máy LAN. GitHub Actions chạy build và bộ TCP khi có PR hoặc cập nhật `main`; bộ MySQL TV2 được chạy riêng.
+Lần rà soát ngày 23/11/2026: build 0 lỗi/0 cảnh báo, **19 ca TCP và 62 ca TV2 đạt**. Chưa thay thế kiểm thử giao diện đầy đủ hoặc nhiều máy LAN. GitHub Actions chạy build và bộ TCP khi có PR hoặc cập nhật `main`; bộ MySQL TV2 được chạy riêng.
 
 ## Khi gặp lỗi kết nối
 
@@ -210,6 +211,8 @@ Lần rà soát ngày 23/11/2026: build 0 lỗi/0 cảnh báo, **19 ca TCP và 2
 - [Cây chức năng](tai_lieu/Cay_module_chuc_nang.md), [workflow](tai_lieu/Workflow.md).
 - [Thiết kế CSDL](tai_lieu/Thiet_ke_CSDL.md), [từ điển CSDL](tai_lieu/Tu_dien_CSDL.md), [sơ đồ CSDL](so_do/So_do_CSDL.png).
 - [Báo cáo Word](tai_lieu/Bao_cao_Quan_ly_Thu_vien_DAU.docx), [slide database](slides/Database_Thu_vien_DAU.pptx).
-- [Kết quả rà soát gần nhất](kiem_tra/Ra_soat_2026-11-23.md), [kết quả TL-01/TL-02](kiem_tra/TV2_TL01_TL02.txt).
+- [Kết quả rà soát gần nhất](kiem_tra/Ra_soat_2026-11-23.md), [kết quả TL-01/TL-02/TL-04](kiem_tra/TV2_TL01_TL02_TL04.txt).
 
 Báo cáo Word/Excel còn lưu một số mốc thiết kế trước khi tách TCP server/client. Khi đối chiếu mã đang chạy, đọc README này cùng [giao thức TCP](tai_lieu/Giao_thuc_TCP.md) và [bản triển khai TV2](tai_lieu/TV2_Trien_khai.md). Việc đồng bộ báo cáo không thay thế nghiệm thu chức năng.
+
+Bản TL-04 và hợp đồng tra barcode cho TV3: [TV2_TL04_Ban_sach.md](tai_lieu/TV2_TL04_Ban_sach.md).
