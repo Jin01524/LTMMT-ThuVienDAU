@@ -10,8 +10,10 @@ Tìm theo mã thẻ trường, xem nhóm/trạng thái/hạn mức; không cấp
 
 ## Trách nhiệm client
 
-Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
-dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
-Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
+`Views/ReaderDirectoryForm` tra cứu mã thẻ/họ tên và hiển thị nhóm, khoa/ngành,
+trạng thái hồ sơ, quyền mượn, số khoản mượn đang mở và vi phạm chưa xử lý.
+Tra cứu yêu cầu ít nhất 2 ký tự; kết quả tối đa 100 hồ sơ. Tài khoản DOC_GIA
+không được mở công cụ nhân viên.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Chưa có pipeline nhập Excel DG-01; dữ liệu hiện có thể được tra cứu nhưng chưa
+được nhập/cập nhật từ danh sách trường qua ứng dụng.

@@ -58,6 +58,7 @@ public sealed class DatabaseOptions
             Database = Database,
             UserID = User,
             Password = Password,
+            ConnectionProtocol = MySqlConnectionProtocol.Tcp,
             SslMode = Enum.Parse<MySqlSslMode>(SslMode, true),
             ConnectionTimeout = 5,
             DefaultCommandTimeout = 10,

@@ -10,8 +10,8 @@ Thống kê độc giả theo đối tượng/khoa/ngành; lọc kỳ; xuất da
 
 ## Trách nhiệm client
 
-Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
-dữ liệu trình bày đặt trong `Models/`. Gọi HTTP API qua dịch vụ client.
-Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
+Mục **Công cụ → BC-01 Báo cáo độc giả** hiển thị tổng số và phân nhóm theo loại,
+khoa/ngành; lọc danh sách theo loại và tên khoa/ngành; xuất danh sách lọc thành
+CSV UTF-8. Khoảng ngày lọc nhật ký thay đổi hồ sơ, không lọc tổng số hồ sơ hiện tại.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Danh sách xuất bị giới hạn 5.000 dòng; giao diện chặn xuất nếu bộ lọc vượt giới hạn.

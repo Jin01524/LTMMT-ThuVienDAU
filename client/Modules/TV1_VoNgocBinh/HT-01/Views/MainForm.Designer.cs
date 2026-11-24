@@ -10,6 +10,9 @@ partial class MainForm
     private ToolStripMenuItem checkConnectionMenuItem = null!;
     private ToolStripMenuItem readerAccountsMenuItem = null!;
     private ToolStripMenuItem accountProvisionMenuItem = null!;
+    private ToolStripMenuItem readerDirectoryMenuItem = null!;
+    private ToolStripMenuItem systemAdministrationMenuItem = null!;
+    private ToolStripMenuItem readerReportMenuItem = null!;
     private StatusStrip statusStrip = null!;
     private ToolStripStatusLabel statusLabel = null!;
     private TableLayoutPanel contentPanel = null!;
@@ -34,6 +37,9 @@ partial class MainForm
         checkConnectionMenuItem = new ToolStripMenuItem();
         readerAccountsMenuItem = new ToolStripMenuItem();
         accountProvisionMenuItem = new ToolStripMenuItem();
+        readerDirectoryMenuItem = new ToolStripMenuItem();
+        systemAdministrationMenuItem = new ToolStripMenuItem();
+        readerReportMenuItem = new ToolStripMenuItem();
         statusStrip = new StatusStrip();
         statusLabel = new ToolStripStatusLabel();
         contentPanel = new TableLayoutPanel();
@@ -49,7 +55,16 @@ partial class MainForm
         menuStrip.Items.AddRange(new ToolStripItem[] { toolsMenuItem });
         toolsMenuItem.Name = "toolsMenuItem";
         toolsMenuItem.Text = "Công cụ";
-        toolsMenuItem.DropDownItems.AddRange(new ToolStripItem[] { checkConnectionMenuItem, accountProvisionMenuItem, readerAccountsMenuItem });
+        toolsMenuItem.DropDownItems.AddRange(new ToolStripItem[] { checkConnectionMenuItem, readerDirectoryMenuItem, systemAdministrationMenuItem, readerReportMenuItem, accountProvisionMenuItem, readerAccountsMenuItem });
+        readerDirectoryMenuItem.Name = "readerDirectoryMenuItem";
+        readerDirectoryMenuItem.Text = "Tra cứu độc giả / quyền mượn";
+        readerDirectoryMenuItem.Click += ReaderDirectoryMenuItem_Click;
+        systemAdministrationMenuItem.Name = "systemAdministrationMenuItem";
+        systemAdministrationMenuItem.Text = "Cấu hình và nhật ký";
+        systemAdministrationMenuItem.Click += SystemAdministrationMenuItem_Click;
+        readerReportMenuItem.Name = "readerReportMenuItem";
+        readerReportMenuItem.Text = "BC-01 Báo cáo độc giả";
+        readerReportMenuItem.Click += ReaderReportMenuItem_Click;
         accountProvisionMenuItem.Name = "accountProvisionMenuItem";
         accountProvisionMenuItem.Text = "Cấp tài khoản";
         accountProvisionMenuItem.Click += AccountProvisionMenuItem_Click;
@@ -91,7 +106,7 @@ partial class MainForm
         schoolLabel.Dock = DockStyle.Fill;
         schoolLabel.TextAlign = ContentAlignment.MiddleLeft;
         welcomeLabel.Name = "welcomeLabel";
-        welcomeLabel.Text = "Chào mừng đến với hệ thống quản lý thư viện.\n\nCác phân hệ độc giả, tài liệu, mượn–trả, kiểm kê và báo cáo\nsẽ được bổ sung theo kế hoạch thực hiện của nhóm.";
+        welcomeLabel.Text = "Chào mừng đến với hệ thống quản lý thư viện.\n\nDùng Công cụ → Tra cứu độc giả để tìm hồ sơ theo mã thẻ hoặc họ tên.\nCác phân hệ khác sẽ được triển khai theo kế hoạch của nhóm.";
         welcomeLabel.Font = new Font("Segoe UI", 12);
         welcomeLabel.Dock = DockStyle.Fill;
         welcomeLabel.TextAlign = ContentAlignment.MiddleLeft;
