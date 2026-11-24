@@ -20,7 +20,11 @@ internal static class Program
         {
             return;
         }
-        using var mainForm = new MainForm(authenticationService, sessionContext);
+        var readerDirectoryService = new ReaderDirectoryService(httpClient);
+        var systemAdministrationService = new SystemAdministrationClientService(httpClient);
+        var readerReportService = new ReaderReportClientService(httpClient);
+        using var mainForm = new MainForm(authenticationService, sessionContext, readerDirectoryService,
+            systemAdministrationService, readerReportService);
         mainForm.ShowLogin(sessionContext.Current);
         _ = new MainController(mainForm, new DatabaseHealthService(httpClient));
         Application.Run(mainForm);

@@ -6,12 +6,21 @@ namespace ThuVienDAU.Forms;
 public partial class MainForm : Form, IMainView
 {
     private readonly AuthenticationService? authenticationService;
+    private readonly ReaderDirectoryService? readerDirectoryService;
+    private readonly SystemAdministrationClientService? systemAdministrationService;
+    private readonly ReaderReportClientService? readerReportService;
     private readonly SessionContext? sessionContext;
 
-    public MainForm(AuthenticationService? authenticationService = null, SessionContext? sessionContext = null)
+    public MainForm(AuthenticationService? authenticationService = null, SessionContext? sessionContext = null,
+        ReaderDirectoryService? readerDirectoryService = null,
+        SystemAdministrationClientService? systemAdministrationService = null,
+        ReaderReportClientService? readerReportService = null)
     {
         this.authenticationService = authenticationService;
         this.sessionContext = sessionContext;
+        this.readerDirectoryService = readerDirectoryService;
+        this.systemAdministrationService = systemAdministrationService;
+        this.readerReportService = readerReportService;
         InitializeComponent();
     }
 
@@ -20,6 +29,39 @@ public partial class MainForm : Form, IMainView
     private void CheckConnectionMenuItem_Click(object? sender, EventArgs e)
     {
         ConnectionCheckRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ReaderDirectoryMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (readerDirectoryService is null || sessionContext?.Current is null)
+        {
+            MessageBox.Show(this, "Chưa đăng nhập.", "Tra cứu độc giả", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        using var form = new ReaderDirectoryForm(readerDirectoryService, sessionContext);
+        form.ShowDialog(this);
+    }
+
+    private void SystemAdministrationMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (systemAdministrationService is null || sessionContext?.Current is null)
+        {
+            MessageBox.Show(this, "Chưa đăng nhập.", "Cấu hình hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        using var form = new SystemAdministrationForm(systemAdministrationService, sessionContext);
+        form.ShowDialog(this);
+    }
+
+    private void ReaderReportMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (readerReportService is null || sessionContext?.Current is null)
+        {
+            MessageBox.Show(this, "Chưa đăng nhập.", "Báo cáo độc giả", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        using var form = new ReaderReportForm(readerReportService, sessionContext);
+        form.ShowDialog(this);
     }
 
     private void AccountProvisionMenuItem_Click(object? sender, EventArgs e)
@@ -59,6 +101,11 @@ public partial class MainForm : Form, IMainView
         if (!IsDisposed)
         {
             statusLabel.Text = $"Đã đăng nhập: {session.DisplayName} ({session.Role})";
+            readerDirectoryMenuItem.Visible = session.Role is "QUAN_TRI" or "QUAN_LY_THU_VIEN" or "BIEN_MUC" or "THU_THU";
+            systemAdministrationMenuItem.Visible = session.Role is "QUAN_TRI" or "QUAN_LY_THU_VIEN";
+            readerReportMenuItem.Visible = session.Role is "QUAN_TRI" or "QUAN_LY_THU_VIEN";
+            accountProvisionMenuItem.Visible = session.Role == "QUAN_TRI";
+            readerAccountsMenuItem.Visible = session.Role == "BIEN_MUC";
         }
     }
 

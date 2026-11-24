@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 using MySql.Data.MySqlClient;
@@ -10,7 +11,7 @@ namespace ThuVienDAU.Server.Services;
 public sealed class AuthenticationService
 {
     private readonly MySqlConnectionFactory connectionFactory;
-    private readonly Dictionary<string, SessionInfo> sessions = new();
+    private readonly ConcurrentDictionary<string, SessionInfo> sessions = new();
 
     public AuthenticationService(DatabaseOptions options)
     {
@@ -23,7 +24,7 @@ public sealed class AuthenticationService
         using var command = connection.CreateCommand();
         command.CommandText = @"
             SELECT t.IdTaiKhoan, t.IdDocGia, t.TenDangNhap, t.VaiTro,
-                   t.MatKhauDaBam, d.MaDocGia, d.HoTen
+                   t.MatKhauDaBam, d.MaDinhDanhTruong, d.HoTen
             FROM TaiKhoan t
             LEFT JOIN DocGia d ON d.IdDocGia = t.IdDocGia
             WHERE t.TenDangNhap = @username AND t.DangHoatDong = 1";
@@ -56,13 +57,18 @@ public sealed class AuthenticationService
 
     public bool TryGetSession(string? sessionId, out SessionInfo session)
     {
+        if (!string.IsNullOrWhiteSpace(sessionId) && sessions.TryGetValue(sessionId, out var current))
+        {
+            session = current;
+            return true;
+        }
         session = null!;
-        return !string.IsNullOrWhiteSpace(sessionId) && sessions.TryGetValue(sessionId, out session);
+        return false;
     }
 
     public void Logout(string sessionId)
     {
-        sessions.Remove(sessionId);
+        sessions.TryRemove(sessionId, out _);
     }
 
     public async Task<int> ProvisionAccountAsync(ProvisionAccountRequest request, CancellationToken cancellationToken)
@@ -169,10 +175,10 @@ public sealed class AuthenticationService
         await using var connection = await connectionFactory.OpenAsync(cancellationToken);
         using var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT t.IdTaiKhoan, d.IdDocGia, d.MaDocGia, d.HoTen, t.TenDangNhap, t.DangHoatDong
+            SELECT t.IdTaiKhoan, d.IdDocGia, d.MaDinhDanhTruong, d.HoTen, t.TenDangNhap, t.DangHoatDong
             FROM TaiKhoan t JOIN DocGia d ON d.IdDocGia = t.IdDocGia
             WHERE t.VaiTro = 'DOC_GIA'
-            ORDER BY d.MaDocGia";
+            ORDER BY d.MaDinhDanhTruong";
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         var items = new List<ReaderAccountItem>();

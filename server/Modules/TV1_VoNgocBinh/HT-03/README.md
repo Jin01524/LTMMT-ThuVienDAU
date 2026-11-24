@@ -13,6 +13,10 @@ Dịch vụ ghi/tra cứu nhật ký; đọc cấu hình; giờ đóng cửa, l�
 Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
 Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
 
-Các bảng hoặc dữ liệu liên quan theo kế hoạch **NhatKy; JSON cấu hình**.
+`GET /api/system/configuration` đọc file cấu hình chuẩn được đóng gói cùng server
+và trả các điểm chưa chốt. `GET /api/system/audit` lọc `NhatKy` theo thời gian,
+phân quyền Quản trị/Quản lý, tối đa 500 bản ghi. Các lệnh cấp tài khoản và thay đổi
+quyền mượn hiện ghi nhật ký bằng service/trigger tương ứng.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Chưa ghi nhật ký đăng nhập; quyết định về giờ mở/đóng cửa, lịch miễn phạt và gia hạn
+vẫn được hiển thị là chưa xác nhận, không tự đặt giá trị.

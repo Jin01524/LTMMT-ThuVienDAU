@@ -6,12 +6,14 @@ Phụ thuộc trước khi hoàn tất Không.
 
 ## Nghiệm thu
 
-Chạy server API và client WinForms riêng; client gọi HTTP/JSON, server đọc cấu hình và truy vấn MySQL; hiển thị được lỗi kết nối.
+Chạy server API và client WinForms riêng. Client gọi API HTTP/JSON qua TCP;
+server kết nối MySQL bằng giao thức MySQL qua TCP, đọc cấu hình và hiển thị lỗi kết nối.
 
 ## Trách nhiệm server
 
 Controller API nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
 Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
+Kết nối server tới MySQL được cấu hình rõ dùng TCP, mặc định cổng 3306.
 
 Các bảng hoặc dữ liệu liên quan theo kế hoạch **Dùng chung**.
 

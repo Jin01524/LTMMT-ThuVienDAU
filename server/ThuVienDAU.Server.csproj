@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="MySql.Data" Version="26.10.0" />
     <None Update="appsettings.example.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\csdl\Cau_hinh_du_an.json" Link="Cau_hinh_du_an.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Update="appsettings.local.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
