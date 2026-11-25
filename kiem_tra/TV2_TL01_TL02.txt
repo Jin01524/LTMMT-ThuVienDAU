@@ -1,0 +1,25 @@
+23/11/2026 - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.
+PASS unauthenticated catalog denied
+PASS forged session denied
+PASS 40 seeded DDC loaded without altering pending status
+PASS seed DDC not auto approved
+PASS parameterized search and literal matching
+PASS pagination end
+PASS create pending DDC with leading zeros
+PASS cannot confirm title using unverified DDC
+PASS confirmation requires print location
+PASS DDC confirmation stores server actor/time
+PASS server owns approval metadata
+PASS stale DDC edit rejected
+PASS create classified title via TCP and real MySQL
+PASS title update increments version
+PASS stale title edit rejected
+PASS verified DDC used by title cannot be unapproved
+PASS self-parent DDC rejected
+PASS role checked in DB each command
+PASS inactive account rejected even with live token
+PASS rejected commands do not change persisted title
+PASS successful writes audited; failed transactions rolled back
+PASS DDC audit stores server identity rather than client metadata
+PASS staff title search returns saved data
+PASS development identity forbidden on LAN
