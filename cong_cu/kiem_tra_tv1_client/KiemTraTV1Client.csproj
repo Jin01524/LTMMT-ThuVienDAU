@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+ <ItemGroup>
+  <Compile Include="../../server/Contracts/*.cs" Link="Contracts/%(Filename)%(Extension)" />
+  <Compile Include="../../client/Configuration/ServerOptions.cs" Link="ServerOptions.cs" />
+  <Compile Include="../../client/Services/TcpCommandClient.cs" Link="TcpCommandClient.cs" />
+  <Compile Include="../../client/Modules/TV1_HuynhCongThu/HT-01/Services/FeatureCommandClient.cs" Link="FeatureCommandClient.cs" />
+  <Compile Include="../../client/Modules/TV1_HuynhCongThu/HT-02/Services/AuthenticationService.cs" Link="AuthenticationService.cs" />
+  <Compile Include="../../client/Modules/TV1_HuynhCongThu/DG-02/Services/ReaderDirectoryService.cs" Link="ReaderDirectoryService.cs" />
+  <Compile Include="../../client/Modules/TV1_HuynhCongThu/HT-03/Services/SystemAdministrationClientService.cs" Link="SystemAdministrationClientService.cs" />
+  <Compile Include="../../client/Modules/TV1_HuynhCongThu/BC-01/Services/ReaderReportClientService.cs" Link="ReaderReportClientService.cs" />
+  <Compile Include="../../client/Modules/TV2_VoNgocBinh/Shared/CatalogClientController.cs" Link="CatalogClientController.cs" />
+ </ItemGroup>
+</Project>

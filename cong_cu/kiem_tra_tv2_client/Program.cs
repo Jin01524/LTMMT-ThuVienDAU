@@ -20,7 +20,7 @@ internal static class Program
             Check(found?.Text==code,"printed barcode decodes exactly: "+code);bitmap.Save(Path.Combine(output,"label-"+logs.Count+".png"));
         }
         foreach(var invalid in new[]{"",new string('A',41),"Sách-01"})try{LabelRenderer.Encode(invalid);throw new Exception("Expected invalid barcode");}catch(InvalidOperationException){Check(true,"unsupported barcode rejected before print");}
-        var forms=new Form[]{new CatalogWorkspaceForm(),new MarcForm("test-token"),new ProjectForm("test-token"),new StocktakeForm("test-token"),new DisposalForm("test-token"),new StockReportForm("test-token"),new LabelForm("test-token")};
+        var forms=new Form[]{new CatalogWorkspaceForm(),new CatalogWorkspaceForm(new ThuVienDAU.Models.SessionInfo("REAL-SESSION-TEST",1,null,"fixture","BIEN_MUC","Bien muc fixture")),new MarcForm("test-token"),new ProjectForm("test-token"),new StocktakeForm("test-token"),new DisposalForm("test-token"),new StockReportForm("test-token"),new LabelForm("test-token")};
         foreach(var form in forms)
         {
             using(form)
@@ -31,6 +31,17 @@ internal static class Program
                 foreach(var field in typeof(Form).GetFields(System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic).Where(f=>f.Name.Contains("shown",StringComparison.OrdinalIgnoreCase)))
                 {var key=field.GetValue(null);if(key is not null&&events[key] is Delegate handler)events.RemoveHandler(key,handler);}
                 form.StartPosition=FormStartPosition.Manual;form.Location=new Point(-20000,-20000);form.Show();Application.DoEvents();form.PerformLayout();
+                if(form is CatalogWorkspaceForm)
+                {
+                    var panel=form.Controls.OfType<FlowLayoutPanel>().Single();
+                    var token=panel.Controls.OfType<TextBox>().Single();
+                    if(token.Text=="REAL-SESSION-TEST")
+                    {
+                        Check(!token.Visible,"authenticated TV2 workspace hides manual demo token field");
+                        Check(panel.Controls.OfType<Label>().Any(x=>x.Text.Contains("BIEN_MUC")),"authenticated TV2 workspace shows current login identity");
+                        Check(panel.Controls.OfType<Button>().Count()==10,"authenticated workspace retains all 10 screens for 9 TV2 modules");
+                    }
+                }
                 using var bitmap=new Bitmap(form.Width,form.Height);form.DrawToBitmap(bitmap,new Rectangle(0,0,form.Width,form.Height));bitmap.Save(Path.Combine(output,form.GetType().Name+".png"));form.Hide();Check(form.Controls.Count>0,"construct and render "+form.GetType().Name);
             }
         }

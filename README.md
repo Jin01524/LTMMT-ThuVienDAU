@@ -19,10 +19,10 @@ Cập nhật: **25/11/2026**. Hạn nộp: **29/11/2026**.
 | KK-01 — kiểm kê | Danh sách dự kiến, quét/đối chiếu, chốt và xuất CSV |
 | KK-02 — thanh lý | Biên mục đề nghị, Quản lý duyệt/chốt/từ chối, kiểm khoản mượn mở |
 | BC-02 — tài liệu/kho | Thống kê theo DDC/loại/ngày nhập, không nhân số đầu do nhiều bản, xuất CSV |
-| HT-02 — đăng nhập/phiên | Chưa triển khai đầy đủ; TV2 hiện dùng chế độ thử riêng trên loopback |
+| HT-02 — đăng nhập/phiên | Đã ghép đăng nhập 5 vai trò qua TCP, phiên hết hạn/đăng xuất và quyền tài khoản độc giả |
 | Các module khác | Đã phân công; đang chờ triển khai theo kế hoạch |
 
-Các module TV2 đã có giao dịch, kiểm quyền phía server và nhật ký; biên mục/đồ án có kiểm phiên bản khi sửa. Cần ghép phiên HT-02 và nghiệm thu thao tác thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất. Xem [bàn giao sáu module TV2 còn lại](tai_lieu/TV2_Hoan_thien.md).
+Các module TV2 đã có giao dịch, kiểm quyền phía server và nhật ký; biên mục/đồ án có kiểm phiên bản khi sửa. Đã ghép phiên HT-02; còn cần nghiệm thu thao tác UI/LAN thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất. Xem [bàn giao sáu module TV2 còn lại](tai_lieu/TV2_Hoan_thien.md).
 
 ## Thành viên và phạm vi
 
@@ -110,7 +110,7 @@ Trong terminal thứ hai, tại gốc repo:
 dotnet run --project client/ThuVienDAU.WinForms.csproj
 ```
 
-Chọn **Công cụ → Kiểm tra kết nối MySQL**. Client kết nối TCP tới server, sau đó server mới kiểm tra MySQL.
+Đăng nhập bằng tài khoản đã cấp, rồi chọn **Công cụ → Kiểm tra kết nối MySQL**. Client kết nối TCP tới server, sau đó server mới kiểm tra MySQL.
 
 Trong Visual Studio, mở `ThuVienDAU.sln` và cấu hình hai Startup Projects: **ThuVienDAU.Server** và **ThuVienDAU.WinForms** cùng ở trạng thái **Start**. Nếu client báo chưa kết nối được server lúc vừa khởi động, đợi server sẵn sàng rồi thử lại.
 
@@ -140,24 +140,17 @@ dotnet run --project server/ThuVienDAU.Server.csproj -- --host 0.0.0.0 --port 50
 
 Trên máy client, đặt `Host` là IP thật của máy server, chẳng hạn `192.168.1.10`; cho phép cổng TCP đã chọn trong mạng demo. Cổng **5080** là kết nối client–server; cổng **3306** là kết nối server–MySQL.
 
-Khung TCP hiện chưa có mã hóa hoặc phiên đăng nhập hoàn chỉnh. Chế độ thử TV2 dưới đây chỉ dùng trên loopback, không dùng khi chạy LAN.
+Khung TCP hiện có phiên đăng nhập, chưa có mã hóa đường truyền. Chế độ thử TV2 chỉ dùng cho fixture loopback, không dùng khi chạy LAN.
 
 Chi tiết đóng khung bản tin và tên lệnh: [Giao_thuc_TCP.md](tai_lieu/Giao_thuc_TCP.md).
 
-## Chạy thử các module TV2
+## Chạy các module TV2 sau đăng nhập
 
-Chuẩn bị CSDL thử và tài khoản đã được nhập/gán vai trò **BIEN_MUC** hoặc **QUAN_LY_THU_VIEN**, có `DangHoatDong = 1`. Không tự tạo nhân viên hoặc thẻ thư viện để thay quy trình đã chốt. Nếu chưa có tài khoản phù hợp, cần phối hợp với TV1; kiểm tra kết nối MySQL vẫn chạy độc lập.
+Chạy server, mở client và đăng nhập tài khoản BIEN_MUC hoặc QUAN_LY_THU_VIEN đã được cấp. Chọn **TV2 · Biên mục**; phiên được chuyển tự động vào toàn bộ 9 module, không cần nhập token bằng tay. Đọc [bản ghép TV1](tai_lieu/TV1_Ghep_TCP.md) về đăng nhập/quyền và [bàn giao TV2](tai_lieu/TV2_Hoan_thien.md) để biết thao tác từng module.
 
-Dừng server thông thường, rồi chạy chế độ thử:
+Biên mục lập đề nghị thanh lý; Quản lý thư viện duyệt/chốt hoặc từ chối. Cả hai được biên mục, quản lý đề tài/tệp, kiểm kê và báo cáo. Thủ thư chỉ lookup bản sách và đọc thông tin thư mục chính xác theo ID cho TV3 dùng.
 
-```powershell
-$catalogAccountId = [int](Read-Host 'Nhap IdTaiKhoan thu co quyen Bien muc/Quan ly')
-dotnet run --project server/ThuVienDAU.Server.csproj -- --host 127.0.0.1 --port 5080 --tv2-demo-account $catalogAccountId
-```
-
-Server in token thử khi khởi động. Trong client, mở **TV2 · Biên mục**, nhập token rồi chọn màn hình. Token chỉ dùng trong lần chạy server đó; không lưu token vào repo. Tài khoản **BIEN_MUC** lập đề nghị thanh lý; **QUAN_LY_THU_VIEN** duyệt/chốt. Cả hai được biên mục, quản lý đề tài/tệp và kiểm kê/báo cáo. Thủ thư chỉ được lookup bản sách và đọc thông tin thư mục chính xác theo ID để TV3 dùng.
-
-Khi server chạy bình thường, các lệnh TV2 bị từ chối cho tới khi ghép phiên HT-02. Hướng dẫn và hợp đồng bàn giao: [TV2_Trien_khai.md](tai_lieu/TV2_Trien_khai.md).
+Chế độ `--tv2-demo-account` vẫn giữ cho fixture và lệnh TCP thử trên loopback, không thay đăng nhập thật của giao diện. Không tự tạo hồ sơ nhân viên/thẻ thư viện thay quy trình đã chốt. Một số tài liệu thiết kế cũ ghi cách nhập token trước khi có HT-02; cách mở giao diện hiện hành theo đoạn này.
 
 ## Cấu trúc repo
 
@@ -223,3 +216,5 @@ Kết quả ngày 25/11/2026 ghi tại [bản rà soát TV2](kiem_tra/Ra_soat_TV
 Báo cáo Word/Excel còn lưu một số mốc thiết kế trước khi tách TCP server/client. Khi đối chiếu mã đang chạy, đọc README này cùng [giao thức TCP](tai_lieu/Giao_thuc_TCP.md) và [bản triển khai TV2](tai_lieu/TV2_Trien_khai.md). Việc đồng bộ báo cáo không thay thế nghiệm thu chức năng.
 
 Bản TL-04 và hợp đồng tra barcode cho TV3: [TV2_TL04_Ban_sach.md](tai_lieu/TV2_TL04_Ban_sach.md).
+
+Bản ghép TV1 và kết quả tự kiểm: [TV1_Ghep_TCP.md](tai_lieu/TV1_Ghep_TCP.md).

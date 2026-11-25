@@ -3,16 +3,16 @@
 Võ Ngọc Bình (TV2): TL-03, TL-05, TL-07, KK-01, KK-02, BC-02. Triển khai trên
 nhánh `feature/TV2-hoan-thien-module`, nối tiếp TL-01/TL-02/TL-04 trên main.
 Giữ nguyên 20 bảng, không cần migration hoặc chạy lại SQL tạo CSDL.
-Các module đã có client/server và tự kiểm; còn cần các bạn rà soát, ghép HT-02
-và nghiệm thu trên máy/thiết bị của nhóm trước khi chốt toàn hệ thống.
+Các module đã có client/server và tự kiểm; ngày 25/11 đã cập nhật theo main có HT-02.
+Còn cần các bạn rà soát và nghiệm thu trên máy/thiết bị trước khi chốt toàn hệ thống.
 
 ## Cách sử dụng
 
-Build/chạy theo README gốc. Trong khi main chưa có HT-02, dùng phiên thử được
-cấp bởi server **chỉ trên loopback**, trên DB thử. Mở **TV2 · Biên mục**, nhập
-token, chọn module. Giao diện không tự tạo hồ sơ SV/GV hoặc tài khoản.
-Đổi vai trò trên DB chỉ dành cho fixture kiểm thử; khi ghép HT-02 phải đăng nhập
-bằng tài khoản đúng vai trò. Các lệnh nghiệp vụ kiểm lại vai trò/trạng thái từ DB.
+Build/chạy theo README gốc. Đăng nhập tài khoản Biên mục/Quản lý, mở **TV2 · Biên mục**
+và chọn module. Phiên HT-02 được dùng tự động; ô nhập token được ẩn. Giao diện
+không tự tạo hồ sơ SV/GV hoặc tài khoản. Phiên thử thủ công chỉ dành cho fixture
+loopback. Đổi vai trò trên DB chỉ dùng trong fixture; người dùng thật phải đăng
+nhập đúng vai trò. Server kiểm lại vai trò/trạng thái từ DB cho từng thao tác.
 
 | Module | Luồng thực hiện |
 | --- | --- |
@@ -130,8 +130,8 @@ client liên kết build, không cần định nghĩa lại.
 | TV2_REPORT | ReportFilter → TableResult |
 
 Bibliography trả tên/tác giả/ISBN/NXB/năm xuất bản và trạng thái đối chiếu; TV3
-không cần tự parse JSON. HT-02 của TV1 tiếp tục ghép vào `ICatalogSessionResolver`;
-nhánh này không ghép/đẩy phần login của TV1 thay người phụ trách.
+không cần tự parse JSON. HT-02 của TV1 đã cung cấp `ICatalogSessionResolver` trên main; nhánh TV2 đã cập nhật
+theo main và dùng chung phiên. Lịch sử login TV1 được giữ qua merge thông thường.
 
 ## Kiểm thử và giới hạn nghiệm thu
 
@@ -148,4 +148,4 @@ Fixture MySQL/TCP tạo dữ liệu giả riêng; không đổi cấu hình/DB �
 Kiểm client gồm roundtrip MARC, giải mã ảnh nhãn đã vẽ và dựng/render 7 form.
 Ảnh QA ở `.tooling/tv2-client-review/`, Git bỏ qua. Render không được tính là đã
 bấm thử đầy đủ các thao tác giao diện. Còn cần nhóm thử LAN, máy in/máy quét và
-luồng người dùng thật sau khi ghép đăng nhập.
+luồng người dùng thật với đăng nhập đã tích hợp.

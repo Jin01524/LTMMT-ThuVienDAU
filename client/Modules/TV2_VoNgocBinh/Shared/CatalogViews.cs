@@ -3,14 +3,17 @@ using System.Text.Json;
 namespace ThuVienDAU.Catalog;
 public sealed class CatalogWorkspaceForm : Form
 {
-    public CatalogWorkspaceForm()
+    public CatalogWorkspaceForm(ThuVienDAU.Models.SessionInfo? session=null)
     {
         Text="TV2 · Biên mục thư viện"; Size=new Size(740,780); StartPosition=FormStartPosition.CenterParent;
-        var layout=new FlowLayoutPanel { Dock=DockStyle.Fill,Padding=new Padding(24),FlowDirection=FlowDirection.TopDown,WrapContents=false };
+        var layout=new FlowLayoutPanel { Dock=DockStyle.Fill,Padding=new Padding(24),FlowDirection=FlowDirection.TopDown,WrapContents=false,AutoScroll=true };
         var token=new TextBox { Width=620,UseSystemPasswordChar=true,PlaceholderText="Phiên Biên mục do server cấp (token demo chỉ dùng trên loopback)" };
         layout.Controls.Add(new Label { Text="Tài liệu · DDC23 tiếng Việt rút gọn",AutoSize=true,Font=new Font("Segoe UI",16,FontStyle.Bold) });
-        layout.Controls.Add(new Label { Text="HT-02 chưa có. Phiên thử: Biên mục hoặc Quản lý đang hoạt động (chỉ loopback).",AutoSize=true });
+        layout.Controls.Add(new Label { Text="Chế độ thử loopback: nhập token do server cấp; chạy thông thường dùng phiên đăng nhập.",AutoSize=true });
         layout.Controls.Add(token);
+        if(session is not null){token.Text=session.SessionId;token.Visible=false;}
+        var sessionLabel=layout.Controls.OfType<Label>().Last();
+        if(session is not null)sessionLabel.Text=$"Đã đăng nhập: {session.DisplayName} ({session.Role})";
         var modules=new (string Name,Func<string,Form> Create)[]{("TL-01 · Danh mục DDC23",s=>new DdcForm(s)),("TL-02 · Hồ sơ đầu tài liệu",s=>new TitleForm(s)),("TL-03 · Biên mục MARC21",s=>new MarcForm(s)),("TL-04 · Bản sách",s=>new CopyForm(s)),("TL-04 · Dãy kệ/ngăn",s=>new LocationForm(s)),("TL-05 · Đồ án, luận văn và PDF",s=>new ProjectForm(s)),("TL-07 · In barcode và nhãn gáy",s=>new LabelForm(s)),("KK-01 · Kiểm kê kho",s=>new StocktakeForm(s)),("KK-02 · Thanh lý",s=>new DisposalForm(s)),("BC-02 · Thống kê tài liệu và kho",s=>new StockReportForm(s))};
         foreach(var (name,create) in modules)
         {

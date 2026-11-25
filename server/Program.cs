@@ -25,7 +25,10 @@ if(catalogDemoAccount is not null && (!IPAddress.IsLoopback(address) || catalogD
     throw new ArgumentException("Chế độ thử TV2 chỉ cho phép loopback và ID tài khoản hợp lệ.");
 var catalogSession = catalogDemoAccount is int demoId ? new DevelopmentCatalogSession(demoId) : null;
 if(catalogSession is not null) Console.WriteLine("TV2 DEMO TOKEN (chỉ dùng DB thử): " + catalogSession.Token);
-var catalog = new CatalogController(catalogSession);
+var authenticationService=new ThuVienDAU.Server.Services.AuthenticationService();
+var authentication=new AuthenticationController(authenticationService);
+var tv1=new TV1Controller(authenticationService);
+var catalog = new CatalogController(catalogSession is null ? authenticationService : new CombinedCatalogSession(authenticationService,catalogSession));
 using var shutdown = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; shutdown.Cancel(); };
 var listener = new TcpListener(address, port);
@@ -67,7 +70,9 @@ async Task HandleAsync(TcpClient client)
             var controller = new DatabaseHealthController(new DatabaseHealthService());
             var response = request.Command?.StartsWith("TV2_",StringComparison.Ordinal) == true
                 ? await catalog.HandleAsync(request,timeout.Token)
-                : await controller.HandleAsync(request, timeout.Token);
+                : request.Command?.StartsWith("AUTH_",StringComparison.Ordinal)==true
+                    ? await authentication.HandleAsync(request,timeout.Token)
+                    : request.Command?.StartsWith("TV1_",StringComparison.Ordinal)==true ? await tv1.HandleAsync(request,timeout.Token) : await controller.HandleAsync(request, timeout.Token);
             await TcpProtocol.WriteAsync(stream, response, timeout.Token);
         }
         catch (Exception exception) when (exception is IOException or SocketException or JsonException or OperationCanceledException)

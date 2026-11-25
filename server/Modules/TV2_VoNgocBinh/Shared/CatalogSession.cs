@@ -12,3 +12,5 @@ public sealed class DevelopmentCatalogSession(int accountId) : ICatalogSessionRe
         return CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(sessionToken), Encoding.UTF8.GetBytes(Token)) ? accountId : null;
     }
 }
+
+public sealed class CombinedCatalogSession(ICatalogSessionResolver real,ICatalogSessionResolver demo):ICatalogSessionResolver { public int? Resolve(string? token)=>real.Resolve(token)??demo.Resolve(token); }

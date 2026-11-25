@@ -1,0 +1,39 @@
+25/11/2026 - TV1 merge with main; isolated synthetic MySQL/TCP only
+PASS all five login roles work over TCP
+PASS reader search retained after merge
+PASS reader search needs authenticated frame token
+PASS reader cannot browse staff directory
+PASS short reader query rejected
+PASS reader search parameterized
+PASS injection term does not return all readers
+PASS system configuration JSON copied beside console server
+PASS reader cannot read system configuration
+PASS audit API retained over TCP
+PASS cataloger cannot browse system audit
+PASS invalid audit date interval rejected
+PASS reader report retained over TCP
+PASS report totals match fixture rows
+PASS reader report filter works
+PASS report student filter count
+PASS librarian cannot access reader report
+PASS cataloger cannot lock borrowing
+PASS admin cannot lock borrowing
+PASS librarian cannot lock borrowing
+PASS manager locks borrowing
+PASS borrow lock leaves reader login active
+PASS manager unlocks borrowing
+PASS payload cannot impersonate manager frame token
+PASS cataloger locks reader login
+PASS locked reader cannot log in
+PASS login lock does not change borrowing
+PASS cataloger unlocks reader login
+PASS manager cannot lock reader login
+PASS real login session opens merged TV2 DDC
+PASS reader cannot open TV2 catalog
+PASS disabled existing session denied by current DB account state
+PASS existing session rechecks changed DB role
+PASS logout command works
+PASS logged out session cannot use TV1
+PASS logged out session cannot use TV2
+PASS oversized audit returns bounded actionable TCP error
+PASS actual client service suite passes against same isolated server
