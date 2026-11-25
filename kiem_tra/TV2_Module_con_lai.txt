@@ -1,0 +1,124 @@
+25/11/2026 - remaining TV2 modules, isolated synthetic MySQL/TCP only
+PASS create MARC fixture
+PASS new MARC draft metadata
+PASS MARC invalid leader rejected
+PASS MARC malformed fields rejected
+PASS MARC stores ordered repeated fields
+PASS MARC roundtrip order and subfields
+PASS MARC stale draft rejected
+PASS MARC check synchronizes title atomically
+PASS MARC 245 synchronized to title
+PASS MARC checked version snapshot
+PASS shared bibliography DTO
+PASS bibliography extracts common MARC once
+PASS editing checked MARC returns to draft
+PASS MARC edit clears approval metadata
+PASS MARC structural draft may be incomplete
+PASS MARC duplicate NR field cannot be checked
+PASS failed MARC check rolls title update back
+PASS MARC classified title fixture
+PASS MARC full edition indicator may be saved as draft
+PASS MARC check rejects full edition for abridged DDC
+PASS MARC abridged 082 saved
+PASS MARC abridged matching DDC checked
+PASS create Do an fixture
+PASS major picker
+PASS all 18 school majors available
+PASS reader picker
+PASS reader references share imported school IDs
+PASS book cannot use project module
+PASS load empty project
+PASS project saves major course and SV/GV roles
+PASS project stale version rejected
+PASS student cannot be a supervisor
+PASS duplicate project member rejected
+PASS unknown major transaction rolled back
+PASS reload project after failed save
+PASS failed save preserves project members
+PASS upload path traversal rejected
+PASS non-PDF upload rejected
+PASS oversize upload rejected
+PASS begin chunked PDF upload
+PASS wrong upload offset rejected
+PASS incomplete PDF cannot attach
+PASS upload chunk 0
+PASS upload chunk 196608
+PASS finish attaches opaque server file identifier
+PASS attachment metadata stored in existing JSON
+PASS download chunk
+PASS download chunk
+PASS PDF roundtrip byte for byte over multiple TCP frames
+PASS download path traversal rejected
+PASS file cannot be downloaded via another title
+PASS begin invalid PDF fixture
+PASS upload invalid signature fixture
+PASS non-PDF signature cannot attach
+PASS stock shelf fixture
+PASS stock wrong shelf fixture
+PASS copy fixture KK-0
+PASS copy fixture KK-1
+PASS copy fixture KK-2
+PASS copy fixture KK-3
+PASS copy fixture KK-4
+PASS snapshot stock expected list excluding open loans
+PASS open loan excluded from expected stock
+PASS cannot scan planned stock before starting
+PASS start stocktake
+PASS scan KK-0
+PASS stock match
+PASS scan KK-1
+PASS stock wrong location
+PASS scan KK-2
+PASS stock damaged
+PASS scan UNKNOWN-EXTRA
+PASS stock unknown extra barcode
+PASS duplicate scan rejected
+PASS new open loan blocks stock finish
+PASS finish stock marks remaining expected copy missing
+PASS stock export detail
+PASS stock detail contains four expected plus unknown extra
+PASS exactly one missing at finish
+PASS stock shortage does not change copy to lost/disposed
+PASS completed stock cannot be scanned
+PASS stock list counts
+PASS disposal request rejects open loan
+PASS cataloger proposes disposal from completed stock
+PASS duplicate active disposal rejected
+PASS cataloger cannot approve disposal
+PASS manager does not assume cataloger proposal role
+PASS disposal needs decision basis
+PASS manager approves and disposes atomically
+PASS approved disposal persists book status
+PASS processed disposal cannot be processed twice
+PASS disposal list includes processing actors
+PASS second disposal proposal
+PASS manager rejects disposal
+PASS rejected disposal does not change book status
+PASS proposal before a new loan
+PASS loan after proposal blocks approval transaction
+PASS failed approval leaves proposal pending
+PASS stock grouped report with no filters
+PASS report copy totals equal base table, no MARC join inflation
+PASS report distinct titles include zero-copy titles
+PASS report inclusive copy accession date range
+PASS date report excludes unknown/outside accession dates
+PASS report reversed date range rejected
+PASS report validates type filter
+PASS librarian receives shared bibliography for LT04 printing
+PASS librarian denied TV2_MARC_GET
+PASS librarian denied TV2_PROJECT_GET
+PASS librarian denied TV2_FILE_READ
+PASS librarian denied TV2_STOCK_LIST
+PASS librarian denied TV2_DISPOSAL_LIST
+PASS librarian denied TV2_REPORT
+PASS concurrent scan stock fixture
+PASS start concurrent scan fixture
+PASS concurrent scans persist exactly one observation
+PASS cancel stock without changing book status
+PASS QUAN_TRI does not inherit catalog privileges
+PASS DOC_GIA does not inherit catalog privileges
+PASS MARC title-version conflict fixture
+PASS MARC draft cannot overwrite a concurrently changed title context
+PASS MARC check rejects stale title version before synchronizing 245
+PASS MARC conflict preserves the other editor title
+PASS disposal decision audit preserves basis and actor

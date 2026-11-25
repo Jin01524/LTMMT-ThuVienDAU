@@ -13,10 +13,16 @@ Cập nhật: **25/11/2026**. Hạn nộp: **29/11/2026**.
 | TL-01 — DDC23 | Đã có bản đầu tra cây/danh mục, tìm, thêm/sửa và đối chiếu bản in |
 | TL-02 — đầu tài liệu | Đã có bản đầu tìm, thêm/sửa và quản lý trạng thái phân loại |
 | TL-04 — bản sách/vị trí | Đã có bản đầu ĐKCB/barcode, giá/ngày, tình trạng và dãy kệ/ngăn |
+| TL-03 — MARC21 | Editor trường/trường con, nháp/kiểm tra, đồng bộ 245$a và kiểm 082 theo DDC |
+| TL-05 — đồ án/luận văn | Ngành/khóa, thành viên từ hồ sơ trường, upload/download PDF theo khối TCP |
+| TL-07 — in nhãn | Xem trước/in barcode Code 128 và nhãn gáy A4 |
+| KK-01 — kiểm kê | Danh sách dự kiến, quét/đối chiếu, chốt và xuất CSV |
+| KK-02 — thanh lý | Biên mục đề nghị, Quản lý duyệt/chốt/từ chối, kiểm khoản mượn mở |
+| BC-02 — tài liệu/kho | Thống kê theo DDC/loại/ngày nhập, không nhân số đầu do nhiều bản, xuất CSV |
 | HT-02 — đăng nhập/phiên | Đã ghép đăng nhập 5 vai trò qua TCP, phiên hết hạn/đăng xuất và quyền tài khoản độc giả |
 | Các module khác | Đã phân công; đang chờ triển khai theo kế hoạch |
 
-TL-01/TL-02/TL-04 đã có giao dịch, kiểm quyền phía server, nhật ký và kiểm tra phiên bản khi sửa. Đã ghép phiên HT-02; còn cần nghiệm thu thao tác UI/LAN thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất.
+Các module TV2 đã có giao dịch, kiểm quyền phía server và nhật ký; biên mục/đồ án có kiểm phiên bản khi sửa. Đã ghép phiên HT-02; còn cần nghiệm thu thao tác UI/LAN thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất. Xem [bàn giao sáu module TV2 còn lại](tai_lieu/TV2_Hoan_thien.md).
 
 ## Thành viên và phạm vi
 
@@ -134,15 +140,17 @@ dotnet run --project server/ThuVienDAU.Server.csproj -- --host 0.0.0.0 --port 50
 
 Trên máy client, đặt `Host` là IP thật của máy server, chẳng hạn `192.168.1.10`; cho phép cổng TCP đã chọn trong mạng demo. Cổng **5080** là kết nối client–server; cổng **3306** là kết nối server–MySQL.
 
-Khung TCP hiện có phiên đăng nhập, chưa có mã hóa đường truyền. Chế độ thử TV2 dưới đây chỉ dùng trên loopback, không dùng khi chạy LAN.
+Khung TCP hiện có phiên đăng nhập, chưa có mã hóa đường truyền. Chế độ thử TV2 chỉ dùng cho fixture loopback, không dùng khi chạy LAN.
 
 Chi tiết đóng khung bản tin và tên lệnh: [Giao_thuc_TCP.md](tai_lieu/Giao_thuc_TCP.md).
 
-## Chạy TL-01, TL-02 và TL-04 sau đăng nhập
+## Chạy các module TV2 sau đăng nhập
 
-Chạy server, mở client và đăng nhập tài khoản BIEN_MUC hoặc QUAN_LY_THU_VIEN đã được cấp. Chọn **TV2 · Biên mục**; phiên được chuyển tự động, không cần nhập token bằng tay. Đọc [bản ghép TV1](tai_lieu/TV1_Ghep_TCP.md) để biết phần đăng nhập, quyền mượn, cấu hình/nhật ký và báo cáo.
+Chạy server, mở client và đăng nhập tài khoản BIEN_MUC hoặc QUAN_LY_THU_VIEN đã được cấp. Chọn **TV2 · Biên mục**; phiên được chuyển tự động vào toàn bộ 9 module, không cần nhập token bằng tay. Đọc [bản ghép TV1](tai_lieu/TV1_Ghep_TCP.md) về đăng nhập/quyền và [bàn giao TV2](tai_lieu/TV2_Hoan_thien.md) để biết thao tác từng module.
 
-Chế độ `--tv2-demo-account` vẫn giữ cho fixture tự động và lệnh TCP thử trên loopback, không thay đăng nhập thật của giao diện. Không tự tạo hồ sơ nhân viên/thẻ thư viện thay quy trình đã chốt. Hướng dẫn DDC/bản sách trong [TV2_Trien_khai.md](tai_lieu/TV2_Trien_khai.md) có mốc trước khi ghép login; cách mở UI hiện hành theo đoạn này.
+Biên mục lập đề nghị thanh lý; Quản lý thư viện duyệt/chốt hoặc từ chối. Cả hai được biên mục, quản lý đề tài/tệp, kiểm kê và báo cáo. Thủ thư chỉ lookup bản sách và đọc thông tin thư mục chính xác theo ID cho TV3 dùng.
+
+Chế độ `--tv2-demo-account` vẫn giữ cho fixture và lệnh TCP thử trên loopback, không thay đăng nhập thật của giao diện. Không tự tạo hồ sơ nhân viên/thẻ thư viện thay quy trình đã chốt. Một số tài liệu thiết kế cũ ghi cách nhập token trước khi có HT-02; cách mở giao diện hiện hành theo đoạn này.
 
 ## Cấu trúc repo
 
@@ -163,7 +171,7 @@ Ví dụ phần TV2: [client](client/Modules/TV2_VoNgocBinh), [server](server/Mo
 
 ## Phạm vi nghiệp vụ đã chốt
 
-CSDL hiện có **20 bảng**. DDC23 dùng bộ **bản in tiếng Việt rút gọn**; dữ liệu DDC tham khảo chỉ là gợi ý, cán bộ phải đối chiếu bản in trước khi xác nhận. MARC21 áp dụng profile cục bộ, lưu trường/trường con theo thứ tự trong JSON; giao diện biên mục MARC thuộc TL-03, chưa hoàn tất trong bản này.
+CSDL hiện có **20 bảng**. DDC23 dùng bộ **bản in tiếng Việt rút gọn**; dữ liệu DDC tham khảo chỉ là gợi ý, cán bộ phải đối chiếu bản in trước khi xác nhận. MARC21 áp dụng profile cục bộ, lưu trường/trường con theo thứ tự trong JSON; TL-03 đã có editor và kiểm tra theo profile đó. Không cần chạy lại SQL hoặc migration cho đợt TV2 này. PDF lưu ở `data/tep-do-an/` cạnh server; sao lưu cả thư mục này cùng DB.
 
 Hệ thống dùng thẻ trường để định danh; không cấp thẻ thư viện, không có OPAC hoặc đặt trước. Hồ sơ độc giả lấy từ danh sách trường; vị trí kho chỉ gồm dãy kệ/ngăn. Quyền khóa/mở **đăng nhập độc giả** thuộc Biên mục; quyền khóa/mở **mượn** và hủy hiệu lực phiếu phạt thuộc Quản lý thư viện. Đây là các quyền độc lập, cần giữ khi triển khai HT-02 và nghiệp vụ tiếp theo.
 
@@ -179,11 +187,12 @@ Kiểm tra TL-01/TL-02/TL-04 cần thêm Python 3 và bộ MySQL Server có `mys
 
 ```powershell
 python cong_cu/kiem_tra_tv2/integration.py
+dotnet run --project cong_cu/kiem_tra_tv2_client --configuration Release
 ```
 
 Bộ TV2 tạo MySQL và server thử riêng, dùng dữ liệu giả; không sửa CSDL hoặc cấu hình đang dùng. Xem [hướng dẫn fixture](cong_cu/kiem_tra_tv2/README.md) nếu MySQL không cài ở đường dẫn mặc định.
 
-Lần rà soát ngày 23/11/2026: build 0 lỗi/0 cảnh báo, **19 ca TCP và 62 ca TV2 đạt**. Chưa thay thế kiểm thử giao diện đầy đủ hoặc nhiều máy LAN. GitHub Actions chạy build và bộ TCP khi có PR hoặc cập nhật `main`; bộ MySQL TV2 được chạy riêng.
+Kết quả ngày 25/11/2026 ghi tại [bản rà soát TV2](kiem_tra/Ra_soat_TV2_2026-11-25.md). Bộ MySQL kiểm cả 9 module TV2; bộ client kiểm codec MARC, giải mã ảnh barcode và render form. Chưa thay thế kiểm thử giao diện đầy đủ, thiết bị in/quét hoặc nhiều máy LAN. GitHub Actions chạy build, TCP và bộ client khi có PR hoặc cập nhật `main`; bộ MySQL TV2 được chạy riêng.
 
 ## Khi gặp lỗi kết nối
 
