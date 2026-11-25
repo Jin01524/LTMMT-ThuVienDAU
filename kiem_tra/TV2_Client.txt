@@ -9,6 +9,10 @@ PASS unsupported barcode rejected before print
 PASS unsupported barcode rejected before print
 PASS unsupported barcode rejected before print
 PASS construct and render CatalogWorkspaceForm
+PASS authenticated TV2 workspace hides manual demo token field
+PASS authenticated TV2 workspace shows current login identity
+PASS authenticated workspace retains all 10 screens for 9 TV2 modules
+PASS construct and render CatalogWorkspaceForm
 PASS construct and render MarcForm
 PASS construct and render ProjectForm
 PASS construct and render StocktakeForm

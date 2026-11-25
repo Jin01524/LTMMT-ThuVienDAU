@@ -10,8 +10,12 @@ Chỉ Quản lý thư viện thao tác; ghi lý do/thời gian; chỉ mở khi �
 
 ## Trách nhiệm client
 
-Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
-dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
-Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
+Trong cửa sổ tra cứu độc giả, chỉ vai trò QUAN_LY_THU_VIEN thấy thao tác khóa/mở.
+Mọi thay đổi yêu cầu lý do và xác nhận; server kiểm vai trò lại, ghi thay đổi trong
+giao dịch và dùng trigger hiện có để ghi NhatKy. Mở quyền bị từ chối nếu còn bản
+đang mượn hoặc vi phạm CHUA_XU_LY.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Quy tắc đình chỉ riêng chưa có trường/bảng hoặc chính sách được chốt trong schema;
+hiện không tự suy diễn thêm điều kiện đó.
+
+Đã ghép theo giao thức TCP; xem `tai_lieu/TV1_Ghep_TCP.md` để biết lệnh và cách chạy.

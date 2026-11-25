@@ -10,8 +10,8 @@ Dịch vụ ghi/tra cứu nhật ký; đọc cấu hình; giờ đóng cửa, l�
 
 ## Trách nhiệm client
 
-Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
-dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
-Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
+Mục **Công cụ → Cấu hình và nhật ký** cho Quản trị/Quản lý xem JSON cấu hình,
+các quyết định còn bỏ ngỏ và truy vấn tối đa 500 dòng nhật ký theo khoảng ngày.
+Nhật ký tạo bởi các nghiệp vụ có ghi audit hiện có; chưa tự ghi sự kiện đăng nhập.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Đã ghép theo giao thức TCP; xem `tai_lieu/TV1_Ghep_TCP.md` để biết lệnh và cách chạy.
