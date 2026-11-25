@@ -20,10 +20,11 @@ public sealed class CatalogService(ICatalogSessionResolver? sessions)
             var store = new CatalogStore(db, tx);
             // Lock actor until transaction completes; client cannot supply/override this identity.
             var account = await store.Rows("SELECT VaiTro FROM TaiKhoan WHERE IdTaiKhoan=@id AND DangHoatDong=1 FOR UPDATE", ct, ("id",actor));
-            if (account.Count != 1 || !(new[]{"BIEN_MUC","QUAN_LY_THU_VIEN"}.Contains(account[0]["VaiTro"]?.ToString()) || request.Command=="TV2_COPY_LOOKUP" && account[0]["VaiTro"]?.ToString()=="THU_THU"))
+            if (account.Count != 1 || !(new[]{"BIEN_MUC","QUAN_LY_THU_VIEN"}.Contains(account[0]["VaiTro"]?.ToString()) || (request.Command is "TV2_COPY_LOOKUP" or "TV2_BIBLIO_GET") && account[0]["VaiTro"]?.ToString()=="THU_THU"))
                 throw new UnauthorizedAccessException("Tài khoản đã khóa hoặc không có quyền Biên mục/Quản lý.");
             object result;
-            if (request.Command.EndsWith("_LIST",StringComparison.Ordinal))
+            if(WorkDispatcher.Handles(request.Command)) result=await WorkDispatcher.Run(store,request,actor,account[0]["VaiTro"]!.ToString()!,ct);
+            else if (request.Command.EndsWith("_LIST",StringComparison.Ordinal))
             {
                 var q = Payload<CatalogQuery>(request); if (q.Text is null || q.Text.Length > 100 || q.Offset < 0 || q.Offset > 1000000) throw new InvalidOperationException("Bộ lọc không hợp lệ.");
                 var term = "%" + q.Text.Replace("!","!!").Replace("%","!%").Replace("_","!_") + "%";
@@ -86,9 +87,10 @@ public sealed class CatalogService(ICatalogSessionResolver? sessions)
         catch(Exception ex) when(ex is InvalidOperationException or ArgumentException or JsonException) { return new(1,request.RequestId,false,Error:ex.Message); }
         catch(MySqlException ex)
         {
-            var message = ex.Number switch { 1062 => "Mã đã tồn tại; tải lại danh sách.", 1452 => "Mã cha DDC hoặc dữ liệu tham chiếu không tồn tại.", 1644 => "CSDL từ chối: " + ex.Message, 3819 => "Dữ liệu vi phạm ràng buộc CSDL.", 1213 or 1205 => "Dữ liệu đang được người khác xử lý; thử tải lại.", _ => "Không thao tác được CSDL. Kiểm tra cấu hình server." };
+            var message = ex.Number switch { 1062 => "Mã đã tồn tại hoặc thao tác đã được ghi nhận; tải lại danh sách.", 1452 => "Dữ liệu tham chiếu không tồn tại. Tải lại danh mục liên quan.", 1644 => "CSDL từ chối: " + ex.Message, 3819 => "Dữ liệu vi phạm ràng buộc CSDL.", 1213 or 1205 => "Dữ liệu đang được người khác xử lý; thử tải lại.", _ => "Không thao tác được CSDL. Kiểm tra cấu hình server." };
             return new(1,request.RequestId,false,Error:message,ErrorNumber:ex.Number);
         }
+        catch(IOException) { return new(1,request.RequestId,false,Error:"Không đọc/ghi được tệp trên server. Kiểm tra nơi lưu và thử tải lại."); }
     }
     private static T Payload<T>(TcpRequest r) where T : class => r.Payload?.Deserialize<T>(TcpProtocol.Json) ?? throw new InvalidOperationException("Thiếu dữ liệu yêu cầu.");
     private static void Need(string? value,int max,string label) { if(string.IsNullOrWhiteSpace(value) || value.Length > max) throw new InvalidOperationException(label + " bị thiếu hoặc quá dài."); }

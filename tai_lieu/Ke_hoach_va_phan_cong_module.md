@@ -105,7 +105,7 @@ Chốt chữ ký các dịch vụ này ở GĐ1 trước khi tách việc. Luồ
 - Chỉ Quản lý thư viện được khóa/mở mượn và hủy hiệu lực phiếu phạt. Quản trị không tự được thừa hưởng hai quyền này. Hủy phải giữ dữ liệu và lịch sử; không xóa chứng từ đã thu.
 - DDC23 dùng bản in tiếng Việt rút gọn. TV2 phải lưu căn cứ tra cứu; 40 mục và 49 định hướng ngành đang chờ đối chiếu không được tự đánh dấu đã duyệt. Năm/ISBN/số ấn bản trên trang tên còn thiếu.
 - MARC21 là profile cục bộ hiện có: một BieuGhiMARC chứa mảng Truong JSON; không xây lại ba bảng hoặc tự thêm nhập/xuất MARCXML/ISO2709 trong đợt này. Kiểm 082 và trạng thái nháp/đã kiểm theo quy tắc hiện hành.
-- TV1 thu thập giờ mở/đóng cửa, lịch lễ/Tết và quy tắc cấp đăng nhập. TV3 làm rõ ngày bắt đầu/kết thúc tính phạt, số lần/thời gian gia hạn, xử lý khóa quyền khi còn bồi thường và thẩm quyền định giá/đình chỉ. TV2 làm rõ người duyệt thanh lý, cách xử lý sách đang mượn khi kiểm kê. Trước khi chốt, cấu hình thiếu phải được thông báo; không tự gán quy định.
+- TV1 thu thập giờ mở/đóng cửa, lịch lễ/Tết và quy tắc cấp đăng nhập. TV3 làm rõ ngày bắt đầu/kết thúc tính phạt, số lần/thời gian gia hạn, xử lý khóa quyền khi còn bồi thường và thẩm quyền định giá/đình chỉ. Ngày 25/11/2026 đã chốt: Biên mục đề nghị, Quản lý duyệt/chốt thanh lý; kiểm kê loại sách đang mượn, chặn chốt nếu bản chưa kiểm phát sinh khoản mượn. Trước khi chốt, cấu hình thiếu phải được thông báo; không tự gán quy định.
 - Vị trí chỉ dãy kệ/ngăn. Kiểm kê dùng KiemKe/ChiTietKiemKe; người kiểm lưu trên chi tiết. Không tự ghi nhận mất sách do kiểm kê thiếu rồi thanh lý luôn.
 
 ## 6. Nghiệm thu xuyên module và demo

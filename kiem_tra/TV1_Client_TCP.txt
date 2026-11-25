@@ -6,5 +6,11 @@ PASS actual client audit over TCP
 PASS actual client locks borrow permission as manager
 PASS actual client unlocks borrow permission as manager
 PASS real login session opens TV2 without manual demo token
+PASS real login creates TV2 title through shared actor/session
+PASS real login opens new MARC21 module
+PASS real login opens new project/PDF metadata module
+PASS real login opens new stocktake module
+PASS real login opens new disposal module
+PASS real login opens new stock report module
 PASS actual client cataloger login lock/unlock remains separate from borrowing
 PASS logout revokes actual client directory access
