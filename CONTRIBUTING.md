@@ -79,6 +79,7 @@ Với thay đổi nghiệp vụ TL-01/TL-02/TL-04, có đủ môi trường MySQ
 
 ```powershell
 python cong_cu/kiem_tra_tv2/integration.py
+dotnet run --project cong_cu/kiem_tra_tv2_client --configuration Release
 ```
 
 Ngoài bộ tự động, chạy luồng giao diện liên quan: nhập dữ liệu, lưu/tải lại, thử dữ liệu sai và lỗi kết nối. Kiểm tra kết nối được không đồng nghĩa nghiệp vụ đã đúng. Nếu chỉ sửa tài liệu, kiểm tra đường dẫn, tên người, mã module và lệnh hướng dẫn; không cần chạy lại CSDL chỉ vì đổi câu chữ.

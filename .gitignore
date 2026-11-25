@@ -11,8 +11,11 @@ artifacts/
 
 # Local tools and caches
 .tooling/
+**/data/tep-do-an/
 .nuget/
 node_modules/
+__pycache__/
+*.pyc
 .DS_Store
 Thumbs.db
 

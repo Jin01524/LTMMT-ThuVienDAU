@@ -45,3 +45,9 @@ nhận kết nối bất đồng bộ có hủy; [Stream.ReadExactlyAsync](https
 ## Lệnh TV2
 
 TL-01/TL-02 dùng TV2_DDC_LIST/SAVE và TV2_TITLE_LIST/SAVE. TL-04 dùng TV2_LOCATION_LIST/SAVE, TV2_COPY_LIST/SAVE và TV2_COPY_LOOKUP. Envelope giữ Version, RequestId, Command, thêm Payload và SessionToken tùy chọn. Xem [bàn giao TV2](TV2_Trien_khai.md) và [hợp đồng TL-04](TV2_TL04_Ban_sach.md) để biết quyền, payload và cách kiểm lại dữ liệu trước khi ghi mượn.
+
+Ngày 25/11/2026 bổ sung nhóm TV2_MARC_*, TV2_PROJECT_*, TV2_FILE_*, TV2_STOCK_*,
+TV2_DISPOSAL_*, TV2_REPORT và các lookup. Hợp đồng đầy đủ tại
+[TV2_Hoan_thien.md](TV2_Hoan_thien.md). Tệp PDF truyền khối Base64 tối đa 192 KiB,
+không tăng giới hạn frame 1 MiB. Đọc thông tin thư mục TV2_BIBLIO_GET cho Thủ thư
+trả Bibliography, không cho phép đọc JSON MARC hoặc danh sách tệp đề tài.

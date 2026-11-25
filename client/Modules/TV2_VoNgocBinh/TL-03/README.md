@@ -14,4 +14,6 @@ Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đ�
 dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
 Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Đã triển khai client/server ngày 25/11/2026; có kiểm thử dữ liệu giả riêng. Chờ rà soát nhóm, ghép HT-02 và nghiệm thu trên thiết bị thực tế.
+
+Hướng dẫn và hợp đồng hiện hành: [bàn giao TV2](../../../../tai_lieu/TV2_Hoan_thien.md).

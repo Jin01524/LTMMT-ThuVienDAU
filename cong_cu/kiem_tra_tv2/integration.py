@@ -116,8 +116,11 @@ try:
  # Development mode must never bind LAN.
  denied=run(['dotnet',bindir/'ThuVienDAU.Server.dll','--host','0.0.0.0','--tv2-demo-account',str(account)])
  check(denied.returncode!=0,'development identity forbidden on LAN')
+ core_logs=list(logs)
+ import remaining
+ remaining.run(globals())
  print('PASS all TV2 DB/TCP integration cases',flush=True)
- (r/'kiem_tra/TV2_TL01_TL02_TL04.txt').write_text(f'{datetime.now(timezone(timedelta(hours=7))):%d/%m/%Y} - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.\n'+'\n'.join(logs)+'\n','utf8')
+ (r/'kiem_tra/TV2_TL01_TL02_TL04.txt').write_text(f'{datetime.now(timezone(timedelta(hours=7))):%d/%m/%Y} - isolated temporary MySQL and copied server build; synthetic data only. No production config/data modified.\n'+'\n'.join(core_logs)+'\n','utf8')
 finally:
  if server:server.kill();server.wait(timeout=10)
  if dbproc:

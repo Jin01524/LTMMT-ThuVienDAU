@@ -1,0 +1,17 @@
+25/11/2026 - model roundtrip, real barcode image decode, form construction/render only; no manual UI or hardware claim
+PASS MARC editor preserves field/subfield order, repeats, blank indicators and fixed spaces
+PASS MARC editor rejects ambiguous noncontiguous groups
+PASS printed barcode decodes exactly: TV2-BC01
+PASS printed barcode decodes exactly: abc-0123456789
+PASS printed barcode decodes exactly: CODE !@$%
+PASS printed barcode decodes exactly: 1234567890123456789012345678901234567890
+PASS unsupported barcode rejected before print
+PASS unsupported barcode rejected before print
+PASS unsupported barcode rejected before print
+PASS construct and render CatalogWorkspaceForm
+PASS construct and render MarcForm
+PASS construct and render ProjectForm
+PASS construct and render StocktakeForm
+PASS construct and render DisposalForm
+PASS construct and render StockReportForm
+PASS construct and render LabelForm

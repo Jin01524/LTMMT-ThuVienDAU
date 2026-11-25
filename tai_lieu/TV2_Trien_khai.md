@@ -2,6 +2,7 @@
 
 Ngày 22/11/2026. Nhánh feature/TV2-TL01-TL02 dựa trên khung TCP ea87c4e.
 Đợt đầu ngày 22/11 triển khai TL-01 và TL-02. Ngày 23/11 đã bổ sung TL-04: [bản sách/vị trí và bàn giao TV3](TV2_TL04_Ban_sach.md).
+Ngày 25/11 đã triển khai sáu module còn lại: xem [bàn giao hiện hành](TV2_Hoan_thien.md).
 Chưa đánh dấu hoàn tất nghiệm thu cả 9 module TV2 hoặc hoàn tất HT-02.
 
 ## Những gì đã có
@@ -59,13 +60,13 @@ kiểm quyền, DDC, phân loại, sửa đồng thời và nhật ký; kết qu
 Form được dựng và kiểm tra bố cục bằng dữ liệu giả; chưa kiểm thao tác người dùng đầy đủ hoặc nhiều máy LAN.
 Không tự cập nhật phần trăm hoàn tất trong Excel khi chưa được rà soát và chưa ghép HT-02.
 
-## Thứ tự tiếp theo
+## Các phần đã bổ sung ngày 25/11/2026
 
 | Module | Việc tiếp theo |
 |---|---|
-| TL-03 | Editor MARC thân thiện, profile/chỉ thị/lặp/082; giao dịch đồng bộ hồ sơ thư mục |
-| TL-05 | Ngành/khóa, thành viên đề tài, tệp đính kèm và quyền truy cập |
-| TL-07 | In barcode, nhãn gáy, xem trước và kiểm thiết bị |
-| KK-01 | Danh sách dự kiến, quét thực tế, đối chiếu và báo cáo |
-| KK-02 | Đề nghị thanh lý; phải chốt người có quyền duyệt trước khi cho xử lý |
-| BC-02 | Số đầu/bản sách, phân loại, tồn kho và kiểm kê; đối chiếu phép đếm |
+| TL-03 | Đã có editor trường/trường con, profile/chỉ thị/lặp/082 và giao dịch đồng bộ 245$a |
+| TL-05 | Đã có ngành/khóa, SV/GV, upload/download PDF TCP và kiểm quyền |
+| TL-07 | Đã có barcode/nhãn gáy, xem trước; cần nghiệm thu máy in/quét thật |
+| KK-01 | Đã có danh sách dự kiến, quét, đối chiếu/chốt và xuất toàn bộ đợt |
+| KK-02 | Đã chốt và triển khai Biên mục đề nghị, Quản lý duyệt/chốt hoặc từ chối |
+| BC-02 | Đã có đếm đầu/bản theo phân loại/loại/ngày nhập và xuất CSV; báo cáo kiểm kê |
