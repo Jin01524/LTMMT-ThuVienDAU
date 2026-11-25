@@ -2,7 +2,7 @@
 
 Đồ án học phần **Lập trình mạng máy tính**, lớp **23CT3**. Hệ thống gồm client Windows Forms và server Console .NET 10, giao tiếp bằng **TCP Socket trực tiếp**. Server xử lý nghiệp vụ và truy cập MySQL; client hiển thị giao diện theo MVC.
 
-Cập nhật: **23/11/2026**. Hạn nộp: **29/11/2026**.
+Cập nhật: **25/11/2026**. Hạn nộp: **29/11/2026**.
 
 ## Trạng thái triển khai
 
@@ -13,10 +13,10 @@ Cập nhật: **23/11/2026**. Hạn nộp: **29/11/2026**.
 | TL-01 — DDC23 | Đã có bản đầu tra cây/danh mục, tìm, thêm/sửa và đối chiếu bản in |
 | TL-02 — đầu tài liệu | Đã có bản đầu tìm, thêm/sửa và quản lý trạng thái phân loại |
 | TL-04 — bản sách/vị trí | Đã có bản đầu ĐKCB/barcode, giá/ngày, tình trạng và dãy kệ/ngăn |
-| HT-02 — đăng nhập/phiên | Chưa triển khai đầy đủ; TV2 hiện dùng chế độ thử riêng trên loopback |
+| HT-02 — đăng nhập/phiên | Đã ghép đăng nhập 5 vai trò qua TCP, phiên hết hạn/đăng xuất và quyền tài khoản độc giả |
 | Các module khác | Đã phân công; đang chờ triển khai theo kế hoạch |
 
-TL-01/TL-02/TL-04 đã có giao dịch, kiểm quyền phía server, nhật ký và kiểm tra phiên bản khi sửa. Bản đầu vẫn cần ghép phiên HT-02 và nghiệm thu thao tác thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất.
+TL-01/TL-02/TL-04 đã có giao dịch, kiểm quyền phía server, nhật ký và kiểm tra phiên bản khi sửa. Đã ghép phiên HT-02; còn cần nghiệm thu thao tác UI/LAN thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất.
 
 ## Thành viên và phạm vi
 
@@ -104,7 +104,7 @@ Trong terminal thứ hai, tại gốc repo:
 dotnet run --project client/ThuVienDAU.WinForms.csproj
 ```
 
-Chọn **Công cụ → Kiểm tra kết nối MySQL**. Client kết nối TCP tới server, sau đó server mới kiểm tra MySQL.
+Đăng nhập bằng tài khoản đã cấp, rồi chọn **Công cụ → Kiểm tra kết nối MySQL**. Client kết nối TCP tới server, sau đó server mới kiểm tra MySQL.
 
 Trong Visual Studio, mở `ThuVienDAU.sln` và cấu hình hai Startup Projects: **ThuVienDAU.Server** và **ThuVienDAU.WinForms** cùng ở trạng thái **Start**. Nếu client báo chưa kết nối được server lúc vừa khởi động, đợi server sẵn sàng rồi thử lại.
 
@@ -134,24 +134,15 @@ dotnet run --project server/ThuVienDAU.Server.csproj -- --host 0.0.0.0 --port 50
 
 Trên máy client, đặt `Host` là IP thật của máy server, chẳng hạn `192.168.1.10`; cho phép cổng TCP đã chọn trong mạng demo. Cổng **5080** là kết nối client–server; cổng **3306** là kết nối server–MySQL.
 
-Khung TCP hiện chưa có mã hóa hoặc phiên đăng nhập hoàn chỉnh. Chế độ thử TV2 dưới đây chỉ dùng trên loopback, không dùng khi chạy LAN.
+Khung TCP hiện có phiên đăng nhập, chưa có mã hóa đường truyền. Chế độ thử TV2 dưới đây chỉ dùng trên loopback, không dùng khi chạy LAN.
 
 Chi tiết đóng khung bản tin và tên lệnh: [Giao_thuc_TCP.md](tai_lieu/Giao_thuc_TCP.md).
 
-## Chạy thử TL-01, TL-02 và TL-04
+## Chạy TL-01, TL-02 và TL-04 sau đăng nhập
 
-Chuẩn bị CSDL thử và tài khoản đã được nhập/gán vai trò **BIEN_MUC** hoặc **QUAN_LY_THU_VIEN**, có `DangHoatDong = 1`. Không tự tạo nhân viên hoặc thẻ thư viện để thay quy trình đã chốt. Nếu chưa có tài khoản phù hợp, cần phối hợp với TV1; kiểm tra kết nối MySQL vẫn chạy độc lập.
+Chạy server, mở client và đăng nhập tài khoản BIEN_MUC hoặc QUAN_LY_THU_VIEN đã được cấp. Chọn **TV2 · Biên mục**; phiên được chuyển tự động, không cần nhập token bằng tay. Đọc [bản ghép TV1](tai_lieu/TV1_Ghep_TCP.md) để biết phần đăng nhập, quyền mượn, cấu hình/nhật ký và báo cáo.
 
-Dừng server thông thường, rồi chạy chế độ thử:
-
-```powershell
-$catalogAccountId = [int](Read-Host 'Nhap IdTaiKhoan thu co quyen Bien muc/Quan ly')
-dotnet run --project server/ThuVienDAU.Server.csproj -- --host 127.0.0.1 --port 5080 --tv2-demo-account $catalogAccountId
-```
-
-Server in token thử khi khởi động. Trong client, mở **TV2 · Biên mục**, nhập token và chọn TL-01, TL-02 hoặc các màn hình TL-04. Token chỉ dùng trong lần chạy server đó; không lưu token vào repo.
-
-Khi server chạy bình thường, các lệnh TV2 bị từ chối cho tới khi ghép phiên HT-02. Hướng dẫn và hợp đồng bàn giao: [TV2_Trien_khai.md](tai_lieu/TV2_Trien_khai.md).
+Chế độ `--tv2-demo-account` vẫn giữ cho fixture tự động và lệnh TCP thử trên loopback, không thay đăng nhập thật của giao diện. Không tự tạo hồ sơ nhân viên/thẻ thư viện thay quy trình đã chốt. Hướng dẫn DDC/bản sách trong [TV2_Trien_khai.md](tai_lieu/TV2_Trien_khai.md) có mốc trước khi ghép login; cách mở UI hiện hành theo đoạn này.
 
 ## Cấu trúc repo
 
@@ -216,3 +207,5 @@ Lần rà soát ngày 23/11/2026: build 0 lỗi/0 cảnh báo, **19 ca TCP và 6
 Báo cáo Word/Excel còn lưu một số mốc thiết kế trước khi tách TCP server/client. Khi đối chiếu mã đang chạy, đọc README này cùng [giao thức TCP](tai_lieu/Giao_thuc_TCP.md) và [bản triển khai TV2](tai_lieu/TV2_Trien_khai.md). Việc đồng bộ báo cáo không thay thế nghiệm thu chức năng.
 
 Bản TL-04 và hợp đồng tra barcode cho TV3: [TV2_TL04_Ban_sach.md](tai_lieu/TV2_TL04_Ban_sach.md).
+
+Bản ghép TV1 và kết quả tự kiểm: [TV1_Ghep_TCP.md](tai_lieu/TV1_Ghep_TCP.md).

@@ -18,3 +18,14 @@ Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
 
 Mỗi người phát triển phần client của mô đun mình, tự kiểm và tạo PR.
 Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+
+## Tình trạng triển khai hiện tại
+
+HT-01 có kiểm tra MySQL qua server; HT-02 có đăng nhập và một số thao tác tài khoản.
+DG-02 có tra cứu; DG-03 có khóa/mở quyền mượn theo vai trò; HT-03 có đọc cấu hình,
+nhật ký; BC-01 có báo cáo và xuất CSV. Các phần này đã có luồng client/server,
+nhưng vẫn cần rà soát bởi TV2/TV3 và thử trên dữ liệu đủ.
+
+DG-01 nhập Excel và HT-04 sao lưu/phục hồi chưa triển khai. TC-01 mới tích hợp
+một phần menu, chưa đóng gói hai ứng dụng. TC-02 chưa thể nghiệm thu khi các module
+phụ thuộc do TV2/TV3 phụ trách còn thiếu.
