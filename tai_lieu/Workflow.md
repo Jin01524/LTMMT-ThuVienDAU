@@ -2,7 +2,7 @@
 
 Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
 [kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
-Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Giao diện MVC ở client gọi TCP Socket/JSON; server thực hiện xử lý và truy cập MySQL.
 Phân công mô đun áp dụng cho cả hai phía.
 
 ## 1. Phạm vi và căn cứ
@@ -14,14 +14,14 @@ Dự án đang ở giai đoạn đầu. Ngày 19/11/2026 đã tạo khung WinFor
 ### Tác nhân và nguồn dữ liệu
 
 - **Bạn đọc:** sinh viên; cán bộ, giảng viên, trợ giảng, CNV.
-- **Thủ thư:** xác minh hồ sơ, ghi nhận mượn/trả, gia hạn và xử lý vi phạm tại quầy.
+- **Nhung thư:** xác minh hồ sơ, ghi nhận mượn/trả, gia hạn và xử lý vi phạm tại quầy.
 - **Biên mục:** lập hồ sơ tài liệu, bản sách, mã ĐKCB và vị trí kho; duy nhất khóa/mở tài khoản đăng nhập độc giả.
 - **Quản trị hệ thống:** gán một trong năm vai trò cố định cho tài khoản; không tạo/sửa/xóa riêng tài khoản nhân viên.
 - **Nguồn sinh viên:** một quy trình tiếp nhận danh sách gồm mã số, họ tên, trạng thái học tập; ưu tiên Portal DAU nếu đủ trường dữ liệu và có phương thức kết nối, Excel Phòng Đào tạo là phương án nhập đầu/dự phòng. Không nạp lặp song song cùng một danh sách.
 - **Nguồn cán bộ/giảng viên:** Excel theo điều chỉnh đã thống nhất.
 - **Định danh:** dùng thẻ trường; thư viện không phát hành thẻ thư viện. Barcode dùng để nhận diện bản sách.
 
-Phạm vi hiện hành dùng 20 bảng. Kiểm kê dùng `KiemKe` và `ChiTietKiemKe`. Vị trí kho gồm dãy kệ và ngăn. Biên mục và Thủ thư là hai vai trò riêng, mỗi tài khoản có một vai trò cố định. Các quy trình giữ mã WF hiện có để khớp tài liệu nghiệp vụ.
+Phạm vi hiện hành dùng 20 bảng. Kiểm kê dùng `KiemKe` và `ChiTietKiemKe`. Vị trí kho gồm dãy kệ và ngăn. Biên mục và Nhung thư là hai vai trò riêng, mỗi tài khoản có một vai trò cố định. Các quy trình giữ mã WF hiện có để khớp tài liệu nghiệp vụ.
 
 ## 2. Danh mục workflow
 
@@ -44,7 +44,7 @@ Phạm vi hiện hành dùng 20 bảng. Kiểm kê dùng `KiemKe` và `ChiTietKi
 flowchart LR
     profiles["Hồ sơ độc giả được nạp/cập nhật"] --> ready["Dữ liệu phục vụ đã sẵn sàng"]
     catalog["Tài liệu được biên mục và có bản sách"] --> ready
-    ready --> search["Thủ thư hướng dẫn vị trí sách"]
+    ready --> search["Nhung thư hướng dẫn vị trí sách"]
     search --> choice{"Nhu cầu sử dụng?"}
     choice -->|"Đọc tại chỗ"| reading["WF-03 Phòng đọc mở"]
     reading --> reshelve["Xếp sách đúng vị trí, trả chìa khóa và nhận lại thẻ"]
@@ -110,7 +110,7 @@ Khi lưu biên mục, mảng `BieuGhiMARC.Truong` chứa các trường, chỉ t
 flowchart LR
     start(["Bạn đọc đến thư viện"]) --> locker["Gửi tư trang vào tủ, khóa tủ và giữ chìa"]
     locker --> card["Xuất trình thẻ Sinh viên tại quầy"]
-    card --> hold["Thủ thư giữ thẻ trong thời gian đọc"]
+    card --> hold["Nhung thư giữ thẻ trong thời gian đọc"]
     hold --> visit["Ghi nhận lượt vào phòng đọc"]
     visit --> search["Theo biển chỉ dẫn hoặc nhờ thủ thư hướng dẫn vị trí sách"]
     search --> take["Lấy tối đa 02 cuốn mỗi lượt"]
@@ -130,7 +130,7 @@ flowchart LR
     start(["Bạn đọc yêu cầu mượn"]) --> present["Xuất trình thẻ trường và tài liệu"]
     present --> timeCheck{"Còn hơn 15 phút trước giờ đóng cửa?"}
     timeCheck -->|"Không"| lateTime["Từ chối làm thủ tục"]
-    timeCheck -->|"Có"| profile["Thủ thư tra cứu hồ sơ và nhóm độc giả"]
+    timeCheck -->|"Có"| profile["Nhung thư tra cứu hồ sơ và nhóm độc giả"]
     profile --> eligible{"Đủ điều kiện mượn?"}
     eligible -->|"Không"| denied["Từ chối và thông báo lý do"]
     eligible -->|"Có"| scan["Quét barcode các bản sách"]
@@ -150,7 +150,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    start(["Bạn đọc trả tài liệu"]) --> scan["Thủ thư quét barcode bản sách"]
+    start(["Bạn đọc trả tài liệu"]) --> scan["Nhung thư quét barcode bản sách"]
     scan --> match["Đối chiếu phiếu mượn đang mở"]
     match --> record["Ghi nhận ngày trả và cập nhật trạng thái bản sách"]
     record --> overdue{"Có quá hạn?"}
@@ -176,7 +176,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    start(["Bạn đọc yêu cầu gia hạn tại quầy"]) --> check["Thủ thư xác minh khoản đang mượn và điều kiện thực tế"]
+    start(["Bạn đọc yêu cầu gia hạn tại quầy"]) --> check["Nhung thư xác minh khoản đang mượn và điều kiện thực tế"]
     check --> quota["Kiểm tra hạn mức sau gia hạn"]
     quota --> within{"Vẫn trong hạn mức?"}
     within -->|"Không"| reject["Từ chối và thông báo"]
@@ -192,7 +192,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    start(["Ghi nhận tài liệu mất hoặc hỏng"]) --> assess["Thủ thư ghi nhận tình trạng và đối chiếu bản sách"]
+    start(["Ghi nhận tài liệu mất hoặc hỏng"]) --> assess["Nhung thư ghi nhận tình trạng và đối chiếu bản sách"]
     assess --> caseType{"Tình trạng thiệt hại?"}
     caseType -->|"Mất hoặc đền tiền"| price{"Có giá bìa?"}
     price -->|"Có"| doublePrice["Tính 2 lần giá bìa"]
@@ -266,7 +266,7 @@ flowchart LR
 
 - **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
 - **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
-- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+- Quản trị, Nhung thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
 - HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.
 
 ### Luồng khóa/mở đăng nhập độc giả (HT-02)
@@ -274,5 +274,5 @@ flowchart LR
 1. Biên mục đăng nhập bằng tài khoản BIEN_MUC đang hoạt động.
 2. Chọn tài khoản DOC_GIA đã liên kết hồ sơ trường, chọn khóa hoặc mở và nhập lý do.
 3. Service lấy ID người xử lý từ phiên đã xác thực; kiểm quyền và gọi DoiTrangThaiDangNhapDocGia trong giao dịch.
-4. Thủ tục cập nhật TaiKhoan.DangHoatDong và ghi nhật ký; lỗi thì Service rollback toàn bộ.
+4. Nhung tục cập nhật TaiKhoan.DangHoatDong và ghi nhật ký; lỗi thì Service rollback toàn bộ.
 5. Đăng nhập/thao tác bảo vệ kiểm lại trạng thái tài khoản. Không cập nhật DocGia.DuocMuon; việc đình chỉ/mở quyền mượn theo quy trình của Quản lý thư viện.

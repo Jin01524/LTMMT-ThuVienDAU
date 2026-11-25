@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="../server/Contracts/*.cs" Link="Modules/TV1_VoNgocBinh/HT-01/Models/%(Filename)%(Extension)" />
+    <Compile Include="../server/Contracts/*.cs" Link="Modules/TV1_HuynhCongThu/HT-01/Models/%(Filename)%(Extension)" />
     <None Update="appsettings.example.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="appsettings.local.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

@@ -6,30 +6,30 @@ Cấu trúc này nối tiếp bản MVC tại commit 21856d8.
 
 ## Kiến trúc thực thi
 
-Client Windows Forms .NET 10 gọi server ASP.NET Core .NET 10 bằng HTTP/JSON.
-Server thực hiện truy cập MySQL. HTTP/JSON được chọn để triển khai khung mạng,
-yêu cầu giảng viên cung cấp chưa chỉ định giao thức truyền.
+Client Windows Forms .NET 10 gọi server TCP Socket .NET 10 bằng TCP Socket/JSON.
+Server thực hiện truy cập MySQL. TCP Socket/JSON được dùng để triển khai khung mạng;
+giảng viên yêu cầu giao thức TCP trực tiếp.
 
-View WinForms phát sự kiện tới Controller client. Dịch vụ HTTP nhận model JSON
-từ Controller API trên server. Service và Data server thực hiện đọc dữ liệu.
+View WinForms phát sự kiện tới Controller client. Dịch vụ TCP nhận model JSON
+từ Controller TCP trên server. Service và Data server thực hiện đọc dữ liệu.
 Program.cs ở mỗi phía là điểm khởi động riêng.
 Các DTO dùng chung đặt tại server/Contracts và liên kết vào client khi build.
 
 | Vị trí | Trách nhiệm |
 |---|---|
-| client/Modules/TV1_VoNgocBinh/HT-01/Views | MainForm, Designer và IMainView |
-| client/Modules/TV1_VoNgocBinh/HT-01/Controllers | MainController |
-| client/Modules/TV1_VoNgocBinh/HT-01/Models | Ngoại lệ kiểm tra và DTO Compile Link |
-| client/Modules/TV1_VoNgocBinh/HT-01/Services | DatabaseHealthService gọi API |
-| server/Modules/TV1_VoNgocBinh/HT-01/Controllers | DatabaseHealthController |
-| server/Modules/TV1_VoNgocBinh/HT-01/Services | DatabaseHealthService truy vấn MySQL |
+| client/Modules/TV1_HuynhCongThu/HT-01/Views | MainForm, Designer và IMainView |
+| client/Modules/TV1_HuynhCongThu/HT-01/Controllers | MainController |
+| client/Modules/TV1_HuynhCongThu/HT-01/Models | Ngoại lệ kiểm tra và DTO Compile Link |
+| client/Modules/TV1_HuynhCongThu/HT-01/Services | DatabaseHealthService gọi lệnh TCP |
+| server/Modules/TV1_HuynhCongThu/HT-01/Controllers | DatabaseHealthController |
+| server/Modules/TV1_HuynhCongThu/HT-01/Services | DatabaseHealthService truy vấn MySQL |
 | server/Data | MySqlConnectionFactory |
 | server/Configuration | DatabaseOptions |
 | server/Contracts | Dữ liệu thành công và lỗi qua mạng |
 
-Cấu hình client giữ Server.BaseUrl. Cấu hình server giữ MySql.
-Chạy server rồi client. Trên LAN, đặt URL server thực tế ở client;
---urls của server xác định giao diện mạng lắng nghe.
+Cấu hình client giữ Server.Host, Port, TimeoutSeconds. Cấu hình server giữ MySql.
+Chạy server rồi client. Trên LAN, đặt IP/cổng server thực tế ở client;
+--host và --port của server xác định địa chỉ TCP lắng nghe.
 
 ## Phân công đủ 29 mô đun
 
@@ -37,35 +37,35 @@ Mã mô đun, chủ trì và phạm vi theo kế hoạch nhóm và bảng Excel 
 
 | Mã | Mô đun | Người đảm nhiệm | Vị trí |
 |---|---|---|---|
-| HT-01 | Khung ứng dụng và kết nối MySQL | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-01) · [server](../server/Modules/TV1_VoNgocBinh/HT-01) |
-| HT-02 | Đăng nhập, phiên và vai trò | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-02) · [server](../server/Modules/TV1_VoNgocBinh/HT-02) |
-| HT-03 | Cấu hình và nhật ký | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-03) · [server](../server/Modules/TV1_VoNgocBinh/HT-03) |
-| HT-04 | Sao lưu và phục hồi | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/HT-04) · [server](../server/Modules/TV1_VoNgocBinh/HT-04) |
-| DG-01 | Khoa, ngành và nhập hồ sơ | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/DG-01) · [server](../server/Modules/TV1_VoNgocBinh/DG-01) |
-| DG-02 | Tra cứu và định danh thẻ trường | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/DG-02) · [server](../server/Modules/TV1_VoNgocBinh/DG-02) |
-| DG-03 | Khóa và mở quyền mượn | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/DG-03) · [server](../server/Modules/TV1_VoNgocBinh/DG-03) |
-| BC-01 | Thống kê độc giả và nhật ký truy cập | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/BC-01) · [server](../server/Modules/TV1_VoNgocBinh/BC-01) |
-| TC-01 | Tích hợp giao diện và bản cài | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/TC-01) · [server](../server/Modules/TV1_VoNgocBinh/TC-01) |
-| TC-02 | Kiểm thử toàn hệ thống và demo | Võ Ngọc Bình | [client](../client/Modules/TV1_VoNgocBinh/TC-02) · [server](../server/Modules/TV1_VoNgocBinh/TC-02) |
-| TL-01 | Danh mục DDC23 và xác nhận phân loại | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-01) · [server](../server/Modules/TV2_TranMyNhung/TL-01) |
-| TL-02 | Hồ sơ đầu tài liệu | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-02) · [server](../server/Modules/TV2_TranMyNhung/TL-02) |
-| TL-03 | Biên mục MARC21 | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-03) · [server](../server/Modules/TV2_TranMyNhung/TL-03) |
-| TL-04 | Bản sách và dãy kệ/ngăn | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-04) · [server](../server/Modules/TV2_TranMyNhung/TL-04) |
-| TL-05 | Đồ án, luận văn và tệp đính kèm | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-05) · [server](../server/Modules/TV2_TranMyNhung/TL-05) |
-| TL-07 | In barcode và nhãn gáy | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/TL-07) · [server](../server/Modules/TV2_TranMyNhung/TL-07) |
-| KK-01 | Kiểm kê kho | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/KK-01) · [server](../server/Modules/TV2_TranMyNhung/KK-01) |
-| KK-02 | Đề nghị và xử lý thanh lý | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/KK-02) · [server](../server/Modules/TV2_TranMyNhung/KK-02) |
-| BC-02 | Thống kê tài liệu và kho | Trần Mỹ Nhung | [client](../client/Modules/TV2_TranMyNhung/BC-02) · [server](../server/Modules/TV2_TranMyNhung/BC-02) |
-| LT-01 | Mượn sách tại quầy | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-01) · [server](../server/Modules/TV3_HuynhCongThu/LT-01) |
-| LT-02 | Trả sách và tình trạng bản sách | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-02) · [server](../server/Modules/TV3_HuynhCongThu/LT-02) |
-| LT-03 | Gia hạn tại quầy | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-03) · [server](../server/Modules/TV3_HuynhCongThu/LT-03) |
-| VP-01 | Quá hạn và bồi thường | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/VP-01) · [server](../server/Modules/TV3_HuynhCongThu/VP-01) |
-| VP-02 | Thu tiền và biên lai | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/VP-02) · [server](../server/Modules/TV3_HuynhCongThu/VP-02) |
-| VP-03 | Hủy hiệu lực phiếu phạt | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/VP-03) · [server](../server/Modules/TV3_HuynhCongThu/VP-03) |
-| PD-01 | Lượt vào và ra phòng đọc | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/PD-01) · [server](../server/Modules/TV3_HuynhCongThu/PD-01) |
-| PH-01 | Góp ý, đánh giá và đề xuất sách | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/PH-01) · [server](../server/Modules/TV3_HuynhCongThu/PH-01) |
-| BC-03 | Thống kê lưu thông, quá hạn và thu tiền | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/BC-03) · [server](../server/Modules/TV3_HuynhCongThu/BC-03) |
-| LT-04 | In phiếu mượn và biên lai | Huỳnh Công Thủ | [client](../client/Modules/TV3_HuynhCongThu/LT-04) · [server](../server/Modules/TV3_HuynhCongThu/LT-04) |
+| HT-01 | Khung ứng dụng và kết nối MySQL | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/HT-01) · [server](../server/Modules/TV1_HuynhCongThu/HT-01) |
+| HT-02 | Đăng nhập, phiên và vai trò | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/HT-02) · [server](../server/Modules/TV1_HuynhCongThu/HT-02) |
+| HT-03 | Cấu hình và nhật ký | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/HT-03) · [server](../server/Modules/TV1_HuynhCongThu/HT-03) |
+| HT-04 | Sao lưu và phục hồi | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/HT-04) · [server](../server/Modules/TV1_HuynhCongThu/HT-04) |
+| DG-01 | Khoa, ngành và nhập hồ sơ | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/DG-01) · [server](../server/Modules/TV1_HuynhCongThu/DG-01) |
+| DG-02 | Tra cứu và định danh thẻ trường | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/DG-02) · [server](../server/Modules/TV1_HuynhCongThu/DG-02) |
+| DG-03 | Khóa và mở quyền mượn | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/DG-03) · [server](../server/Modules/TV1_HuynhCongThu/DG-03) |
+| BC-01 | Thống kê độc giả và nhật ký truy cập | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/BC-01) · [server](../server/Modules/TV1_HuynhCongThu/BC-01) |
+| TC-01 | Tích hợp giao diện và bản cài | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/TC-01) · [server](../server/Modules/TV1_HuynhCongThu/TC-01) |
+| TC-02 | Kiểm thử toàn hệ thống và demo | Huỳnh Công Thủ | [client](../client/Modules/TV1_HuynhCongThu/TC-02) · [server](../server/Modules/TV1_HuynhCongThu/TC-02) |
+| TL-01 | Danh mục DDC23 và xác nhận phân loại | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/TL-01) · [server](../server/Modules/TV2_VoNgocBinh/TL-01) |
+| TL-02 | Hồ sơ đầu tài liệu | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/TL-02) · [server](../server/Modules/TV2_VoNgocBinh/TL-02) |
+| TL-03 | Biên mục MARC21 | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/TL-03) · [server](../server/Modules/TV2_VoNgocBinh/TL-03) |
+| TL-04 | Bản sách và dãy kệ/ngăn | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/TL-04) · [server](../server/Modules/TV2_VoNgocBinh/TL-04) |
+| TL-05 | Đồ án, luận văn và tệp đính kèm | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/TL-05) · [server](../server/Modules/TV2_VoNgocBinh/TL-05) |
+| TL-07 | In barcode và nhãn gáy | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/TL-07) · [server](../server/Modules/TV2_VoNgocBinh/TL-07) |
+| KK-01 | Kiểm kê kho | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/KK-01) · [server](../server/Modules/TV2_VoNgocBinh/KK-01) |
+| KK-02 | Đề nghị và xử lý thanh lý | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/KK-02) · [server](../server/Modules/TV2_VoNgocBinh/KK-02) |
+| BC-02 | Thống kê tài liệu và kho | Võ Ngọc Bình | [client](../client/Modules/TV2_VoNgocBinh/BC-02) · [server](../server/Modules/TV2_VoNgocBinh/BC-02) |
+| LT-01 | Mượn sách tại quầy | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/LT-01) · [server](../server/Modules/TV3_TranMyNhung/LT-01) |
+| LT-02 | Trả sách và tình trạng bản sách | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/LT-02) · [server](../server/Modules/TV3_TranMyNhung/LT-02) |
+| LT-03 | Gia hạn tại quầy | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/LT-03) · [server](../server/Modules/TV3_TranMyNhung/LT-03) |
+| VP-01 | Quá hạn và bồi thường | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/VP-01) · [server](../server/Modules/TV3_TranMyNhung/VP-01) |
+| VP-02 | Thu tiền và biên lai | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/VP-02) · [server](../server/Modules/TV3_TranMyNhung/VP-02) |
+| VP-03 | Hủy hiệu lực phiếu phạt | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/VP-03) · [server](../server/Modules/TV3_TranMyNhung/VP-03) |
+| PD-01 | Lượt vào và ra phòng đọc | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/PD-01) · [server](../server/Modules/TV3_TranMyNhung/PD-01) |
+| PH-01 | Góp ý, đánh giá và đề xuất sách | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/PH-01) · [server](../server/Modules/TV3_TranMyNhung/PH-01) |
+| BC-03 | Thống kê lưu thông, quá hạn và thu tiền | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/BC-03) · [server](../server/Modules/TV3_TranMyNhung/BC-03) |
+| LT-04 | In phiếu mượn và biên lai | Trần Mỹ Nhung | [client](../client/Modules/TV3_TranMyNhung/LT-04) · [server](../server/Modules/TV3_TranMyNhung/LT-04) |
 
 HT-01 có mã chạy thật cho kiểm tra kết nối.
 28 mô đun còn lại đã có thư mục và hợp đồng bàn giao, đang chờ lập trình nghiệp vụ.
@@ -76,9 +76,9 @@ Mỗi thành viên làm phần client và server của mô đun mình.
 
 | Thành viên | Tài khoản đã có căn cứ |
 |---|---|
-| Võ Ngọc Bình | [Jin01524](https://github.com/Jin01524) |
+| Huỳnh Công Thủ | [Jin01524](https://github.com/Jin01524) |
+| Võ Ngọc Bình | Chưa được cung cấp trong repo |
 | Trần Mỹ Nhung | Chưa được cung cấp trong repo |
-| Huỳnh Công Thủ | Chưa được cung cấp trong repo |
 
 Thành viên dùng tài khoản cá nhân để commit và tạo PR phần mình.
 Tên thư mục thể hiện người nhận việc. Lịch sử Git thể hiện người đã thực hiện commit.
@@ -103,3 +103,7 @@ Báo cáo Word và Excel đang lưu mốc thiết kế/phân công trước thay
 Khi thuyết trình cấu trúc đang chạy, dùng README gốc và tài liệu kiến trúc này.
 CSDL giữ 20 bảng và các quy tắc quyền, DDC23/MARC21 đã chốt.
 Kiểm quyền và giao dịch của mô đun tương lai cần triển khai ở server theo tiêu chí nghiệm thu.
+
+## Giao thức giảng viên yêu cầu
+
+Khung mới dùng TCP Socket trực tiếp (TcpListener/TcpClient), không dùng HTTP. Tham chiếu [giao thức TCP](Giao_thuc_TCP.md) và bộ kiểm thử `cong_cu/kiem_tra_tcp`. Kiểm tra Server_Client_MVC.md trước thay đổi là lịch sử HTTP, không mô tả giao thức hiện hành.

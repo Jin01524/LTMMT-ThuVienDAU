@@ -2,7 +2,7 @@
 
 Cập nhật tổ chức mã nguồn ngày **21/11/2026** theo
 [kiến trúc server, client và MVC](Kien_truc_Server_Client_MVC.md).
-Giao diện MVC ở client gọi HTTP/JSON; server thực hiện xử lý và truy cập MySQL.
+Giao diện MVC ở client gọi TCP Socket/JSON; server thực hiện xử lý và truy cập MySQL.
 Phân công mô đun áp dụng cho cả hai phía.
 
 Cập nhật ngày **20/11/2026**. CSDL gồm **20 bảng, 160 cột, 45 khóa ngoại, 10 view, 15 trigger và 10 procedure**. Phiên bản tối thiểu là MySQL **8.0.21**, mốc `JSON_TABLE` đọc giá trị JSON null thành SQL `NULL`. [Tài liệu MySQL](https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html)
@@ -196,7 +196,7 @@ Nguồn vẽ: cong_cu/csdl/ve_so_do.mjs, dùng cùng cau_truc.mjs với generato
 
 - **Biên mục (BIEN_MUC):** duy nhất được khóa/mở tài khoản đăng nhập của độc giả (`TaiKhoan.DangHoatDong`), chỉ áp dụng tài khoản có vai trò `DOC_GIA` và liên kết hồ sơ độc giả. Bắt buộc lý do và nhật ký.
 - **Quản lý thư viện (QUAN_LY_THU_VIEN):** khóa/mở quyền mượn (`DocGia.DuocMuon`, `KhoaDen`, `LyDoKhoa`) và hủy hiệu lực phiếu phạt.
-- Quản trị, Thủ thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
+- Quản trị, Nhung thư và Độc giả không có quyền khóa/mở đăng nhập độc giả. Mở đăng nhập không mở quyền mượn; mở quyền mượn không mở đăng nhập. Tại quầy vẫn kiểm quyền mượn riêng.
 - HT-02 do TV1 triển khai màn hình và kiểm quyền khóa/mở đăng nhập; người sử dụng nghiệp vụ là Biên mục. Vai trò cố định gồm QUAN_TRI, QUAN_LY_THU_VIEN, BIEN_MUC, THU_THU, DOC_GIA.
 
 `DoiTrangThaiDangNhapDocGia` được gọi trong giao dịch của Service (BEGIN → CALL → COMMIT; lỗi thì ROLLBACK). ID người thao tác lấy từ phiên đã xác thực. Tài khoản MySQL dùng chung không thay thế vai trò nghiệp vụ; cần giới hạn cập nhật trực tiếp cột DangHoatDong và kiểm quyền ở Service. Truy vấn đăng nhập phải kiểm DangHoatDong=1; trước thao tác bảo vệ cần kiểm lại trạng thái phiên để tài khoản vừa khóa không tiếp tục sử dụng phiên cũ. Quy tắc này là hợp đồng triển khai HT-02; khung WinForms hiện chưa có đăng nhập nghiệp vụ.

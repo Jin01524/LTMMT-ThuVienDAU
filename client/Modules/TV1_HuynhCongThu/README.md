@@ -1,0 +1,31 @@
+# Mô đun do Huỳnh Công Thủ phụ trách
+
+Mã thành viên **TV1**, mã sinh viên **2351220232**. Tài khoản GitHub **Chưa cung cấp**.
+Vai trò phụ trách giữ theo kế hoạch nhóm ngày 19/11/2026.
+
+| Mã | Mô đun | Rà soát |
+|---|---|---|
+| [HT-01](HT-01/README.md) | Khung ứng dụng và kết nối MySQL | TV2 |
+| [HT-02](HT-02/README.md) | Đăng nhập, phiên và vai trò | TV3 |
+| [HT-03](HT-03/README.md) | Cấu hình và nhật ký | TV3 |
+| [HT-04](HT-04/README.md) | Sao lưu và phục hồi | TV2 |
+| [DG-01](DG-01/README.md) | Khoa, ngành và nhập hồ sơ | TV2 |
+| [DG-02](DG-02/README.md) | Tra cứu và định danh thẻ trường | TV3 |
+| [DG-03](DG-03/README.md) | Khóa và mở quyền mượn | TV3 |
+| [BC-01](BC-01/README.md) | Thống kê độc giả và nhật ký truy cập | TV2 |
+| [TC-01](TC-01/README.md) | Tích hợp giao diện và bản cài | TV2, TV3 |
+| [TC-02](TC-02/README.md) | Kiểm thử toàn hệ thống và demo | TV2, TV3 |
+
+Mỗi người phát triển phần client của mô đun mình, tự kiểm và tạo PR.
+Tài khoản GitHub của từng người cần được ghi đúng sau khi thành viên cung cấp.
+
+## Tình trạng triển khai hiện tại
+
+HT-01 có kiểm tra MySQL qua server; HT-02 có đăng nhập và một số thao tác tài khoản.
+DG-02 có tra cứu; DG-03 có khóa/mở quyền mượn theo vai trò; HT-03 có đọc cấu hình,
+nhật ký; BC-01 có báo cáo và xuất CSV. Các phần này đã có luồng client/server,
+nhưng vẫn cần rà soát bởi TV2/TV3 và thử trên dữ liệu đủ.
+
+DG-01 nhập Excel và HT-04 sao lưu/phục hồi chưa triển khai. TC-01 mới tích hợp
+một phần menu, chưa đóng gói hai ứng dụng. TC-02 chưa thể nghiệm thu khi các module
+phụ thuộc do TV2/TV3 phụ trách còn thiếu.
