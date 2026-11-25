@@ -13,6 +13,8 @@ Thống kê độc giả theo đối tượng/khoa/ngành; lọc kỳ; xuất da
 Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
 Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
 
-Các bảng hoặc dữ liệu liên quan theo kế hoạch **DocGia, NhatKy**.
-
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+`GET /api/reports/readers` chỉ cho QUAN_TRI/QUAN_LY_THU_VIEN; truy vấn tổng,
+nhóm theo `LoaiDocGia`, khoa, ngành; nhận bộ lọc danh sách tham số hóa và khoảng
+thời gian cho nhật ký `NhatKy` của `DocGia`. Danh sách tối đa 5.000 hồ sơ, hoạt động
+nhật ký tối đa 500 dòng. Schema hiện không có ngày tạo hồ sơ; do đó khoảng ngày chỉ
+áp dụng cho nhật ký và không được diễn giải thành thống kê hồ sơ mới trong kỳ.

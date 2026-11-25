@@ -1,17 +1,18 @@
 using ThuVienDAU.Controllers;
 using ThuVienDAU.Forms;
+using ThuVienDAU.Models;
 using ThuVienDAU.Services;
-
 namespace ThuVienDAU;
-
 internal static class Program
 {
     [STAThread]
     private static void Main()
     {
         ApplicationConfiguration.Initialize();
-        using var mainForm = new MainForm();
-        _ = new MainController(mainForm, new DatabaseHealthService(new TcpCommandClient()));
-        Application.Run(mainForm);
+        var transport=new TcpCommandClient();var sessions=new SessionContext();var authentication=new AuthenticationService(transport);
+        using var login=new LoginForm(authentication,sessions);
+        if(login.ShowDialog()!=DialogResult.OK||sessions.Current is null)return;
+        using var main=new MainForm(authentication,sessions,new ReaderDirectoryService(transport),new SystemAdministrationClientService(transport),new ReaderReportClientService(transport));main.ShowLogin(sessions.Current);
+        _ = new MainController(main,new DatabaseHealthService(transport));Application.Run(main);
     }
 }

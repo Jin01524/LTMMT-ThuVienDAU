@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace ThuVienDAU.Catalog;
 public sealed class CatalogWorkspaceForm : Form
 {
-    public CatalogWorkspaceForm()
+    public CatalogWorkspaceForm(ThuVienDAU.Models.SessionInfo? session=null)
     {
         Text="TV2 · Biên mục thư viện"; Size=new Size(710,430); StartPosition=FormStartPosition.CenterParent;
         var layout=new FlowLayoutPanel { Dock=DockStyle.Fill,Padding=new Padding(24),FlowDirection=FlowDirection.TopDown,WrapContents=false };
@@ -11,6 +11,9 @@ public sealed class CatalogWorkspaceForm : Form
         layout.Controls.Add(new Label { Text="Tài liệu · DDC23 tiếng Việt rút gọn",AutoSize=true,Font=new Font("Segoe UI",16,FontStyle.Bold) });
         layout.Controls.Add(new Label { Text="HT-02 chưa có. Phiên thử: Biên mục hoặc Quản lý đang hoạt động (chỉ loopback).",AutoSize=true });
         layout.Controls.Add(token);
+        if(session is not null){token.Text=session.SessionId;token.Visible=false;}
+        var sessionLabel=layout.Controls.OfType<Label>().Last();
+        if(session is not null)sessionLabel.Text=$"Đã đăng nhập: {session.DisplayName} ({session.Role})";
         foreach(var name in new[]{"TL-01 · Danh mục DDC23","TL-02 · Hồ sơ đầu tài liệu","TL-04 · Bản sách","TL-04 · Dãy kệ/ngăn"})
         {
             var button=new Button { Text=name,Width=620,Height=44 };
