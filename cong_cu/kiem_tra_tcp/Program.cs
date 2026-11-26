@@ -11,8 +11,23 @@ var root = Path.GetFullPath(args.FirstOrDefault() ?? ".");
 var config = Path.Combine(AppContext.BaseDirectory, "appsettings.local.json");
 var previous = File.Exists(config) ? File.ReadAllBytes(config) : null;
 var port = FreePort();
+// Never inherit the developer's MySQL configuration when launching the server for transport checks.
+// Health may fail normally: this suite verifies its response, not a real/shared database.
+var isolatedServer = Path.Combine(root, ".tooling", "tcp-isolated-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(isolatedServer);
+var builtServer = Path.Combine(root, "server/bin/Release/net10.0");
+foreach (var file in Directory.EnumerateFiles(builtServer, "*", SearchOption.AllDirectories))
+{
+    if (Path.GetFileName(file).Equals("appsettings.local.json", StringComparison.OrdinalIgnoreCase)) continue;
+    var target = Path.Combine(isolatedServer, Path.GetRelativePath(builtServer, file));
+    Directory.CreateDirectory(Path.GetDirectoryName(target)!); File.Copy(file, target);
+}
+File.WriteAllText(Path.Combine(isolatedServer, "appsettings.local.json"), JsonSerializer.Serialize(new
+{
+    MySql = new { Server = "127.0.0.1", Port = FreePort(), Database = "TcpFixtureNoRealDatabase", User = "tcp_fixture_dummy", Password = "", SslMode = "Disabled" }
+}));
 var psi = new ProcessStartInfo("dotnet") { UseShellExecute = false, CreateNoWindow = true };
-psi.ArgumentList.Add(Path.Combine(root, "server/bin/Release/net10.0/ThuVienDAU.Server.dll"));
+psi.ArgumentList.Add(Path.Combine(isolatedServer, "ThuVienDAU.Server.dll"));
 psi.ArgumentList.Add("--port"); psi.ArgumentList.Add(port.ToString());
 using var process = Process.Start(psi) ?? throw new Exception("Start server failed");
 var count = 0;
@@ -28,6 +43,9 @@ try
     var health = await Send("DATABASE_HEALTH");
     Check(health.Success ? health.Data?.GetProperty("databaseName").GetString() is not null : !string.IsNullOrWhiteSpace(health.Error), "database health response");
     Check(!(await Send("UNKNOWN")).Success, "unknown command rejected");
+    var tv3 = await new TcpCommandClient().SendAsync("TV3_HISTORY", new { statusFilter = "TAT_CA" }, null);
+    Check(!tv3.Success && tv3.Error?.StartsWith("Cần đăng nhập", StringComparison.Ordinal) == true, "production dispatcher routes TV3 and rejects before opening DB without a session");
+    Check(!(await Send("FIXTURE_CLOCK")).Success && !(await Send("FIXTURE_CALENDAR")).Success, "production server exposes no test clock/calendar commands");
     using (var tcp = new TcpClient())
     {
         await tcp.ConnectAsync(IPAddress.Loopback, port);

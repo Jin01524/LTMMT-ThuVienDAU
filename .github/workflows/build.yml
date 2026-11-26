@@ -21,3 +21,4 @@ jobs:
       - run: dotnet build ThuVienDAU.sln --configuration Release --no-restore
       - run: dotnet run --project cong_cu/kiem_tra_tcp --configuration Release -- .
       - run: dotnet run --project cong_cu/kiem_tra_tv2_client --configuration Release
+      - run: dotnet run --project cong_cu/kiem_tra_tv3_client --configuration Release

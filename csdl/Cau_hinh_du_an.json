@@ -47,5 +47,28 @@
     "BIEN_MUC": "Biên mục tài liệu; độc quyền khóa/mở tài khoản đăng nhập độc giả",
     "THU_THU": "Mượn trả, thu tiền, phòng đọc, kiểm kê",
     "DOC_GIA": "Phản hồi và xem thông tin cá nhân"
+  },
+  "ThoiGianMoCua": {
+    "ThuHaiDenThuSau": [
+      [
+        "07:30",
+        "11:30"
+      ],
+      [
+        "13:30",
+        "17:00"
+      ]
+    ],
+    "ThuBay": [
+      [
+        "07:30",
+        "11:30"
+      ]
+    ],
+    "ChuNhat": []
+  },
+  "GiaHan": {
+    "ChonHanMoiTaiQuay": true,
+    "XacNhanKhongCoNguoiKhacDangKy": true
   }
 }

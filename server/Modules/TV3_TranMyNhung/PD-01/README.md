@@ -15,4 +15,4 @@ Repository/Data thực hiện truy vấn có tham số và dùng chung giao dị
 
 Các bảng hoặc dữ liệu liên quan theo kế hoạch **LuotVaoPhongDoc, DocGia**.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Đã tích hợp vào solution chung qua TCP. Xem [bản bàn giao TV3](../../../../tai_lieu/TV3_Tich_hop_TCP.md) và bộ kiểm thử `cong_cu/kiem_tra_tv3`.
