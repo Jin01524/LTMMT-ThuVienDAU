@@ -1,0 +1,26 @@
+TV3 integration review — 26/11/2026
+
+Build: ThuVienDAU.sln Release, locked restore; 0 warnings, 0 errors.
+TV3 authenticated TCP + isolated MySQL: 188 PASS.
+TV3 native WinForms control construction/render: 19 PASS.
+Shared TCP transport + production dispatcher without a session: 21 PASS.
+TV1 regression: 38 server checks and 15 actual client service checks PASS on isolated MySQL.
+TV2 regression: all existing DB/TCP integration cases PASS on isolated MySQL.
+
+Main corrections:
+- Shared .NET 10 solution, authenticated TCP, existing 20-table schema.
+- No hardcoded MySQL credentials or caller-supplied employee/manager identity in client.
+- Library timetable and the final 15-minute borrowing cutoff applied per session.
+- Atomic borrowing/partial returns/collection, copy and reader concurrency locks.
+- Manual renewal date with confirmation no other reader request; no reservation table.
+- Holiday-aware student fines, zero-amount staff notice, twice-cover-price loss compensation, replacement technical fee and assessed page repair.
+- Payment and void preserve manager borrowing suspension; collected receipts retained.
+- Shared MARC bibliography for loan printout, reprinting and paginated PrintDocument action.
+- School-card/key reading-room handover, private reader feedback and independent report aggregates.
+
+Scope limits:
+- Holiday calendar in deployed configuration remains unconfirmed; student late fines are blocked until the library confirms actual holiday dates.
+- UI render checks suppress initial API loading and do not represent full click-through testing.
+- Physical printing and two-computer LAN operation have not been tested.
+- Test clock/calendar overrides exist only in FixtureHost, not the production server.
+- Real/shared MySQL data and existing appsettings.local.json files were not modified.

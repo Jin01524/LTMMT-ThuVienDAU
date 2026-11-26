@@ -8,6 +8,11 @@ export const cauHinh = {
     CanBoGiangVien: {SoDauSachToiDa: 3, SoNgayMuon: 15, MucPhatNgay: 0},
     SoPhutNgungTruocDongCua: 15
   },
+  ThoiGianMoCua: {
+    ThuHaiDenThuSau: [['07:30','11:30'],['13:30','17:00']],
+    ThuBay: [['07:30','11:30']], ChuNhat: []
+  },
+  GiaHan: {ChonHanMoiTaiQuay: true, XacNhanKhongCoNguoiKhacDangKy: true},
   NgayLeTetMienPhat: [],
   DaXacNhanLichMienPhat: false,
   SoCuonDocTaiCho: 2,

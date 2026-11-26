@@ -82,6 +82,14 @@ python cong_cu/kiem_tra_tv2/integration.py
 dotnet run --project cong_cu/kiem_tra_tv2_client --configuration Release
 ```
 
+Với TV3, chạy thêm:
+
+```powershell
+dotnet build cong_cu/kiem_tra_tv3/FixtureHost -c Release
+python cong_cu/kiem_tra_tv3/integration.py
+dotnet run --project cong_cu/kiem_tra_tv3_client -c Release
+```
+
 Ngoài bộ tự động, chạy luồng giao diện liên quan: nhập dữ liệu, lưu/tải lại, thử dữ liệu sai và lỗi kết nối. Kiểm tra kết nối được không đồng nghĩa nghiệp vụ đã đúng. Nếu chỉ sửa tài liệu, kiểm tra đường dẫn, tên người, mã module và lệnh hướng dẫn; không cần chạy lại CSDL chỉ vì đổi câu chữ.
 
 Không đánh dấu hoàn thành khi còn lỗi build hoặc chưa đạt tiêu chí module. Nếu thiếu API, thiết bị, phiên HT-02 hoặc quy định nghiệp vụ, ghi rõ phần đang chờ.

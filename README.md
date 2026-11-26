@@ -218,3 +218,11 @@ Báo cáo Word/Excel còn lưu một số mốc thiết kế trước khi tách 
 Bản TL-04 và hợp đồng tra barcode cho TV3: [TV2_TL04_Ban_sach.md](tai_lieu/TV2_TL04_Ban_sach.md).
 
 Bản ghép TV1 và kết quả tự kiểm: [TV1_Ghep_TCP.md](tai_lieu/TV1_Ghep_TCP.md).
+
+## TV3 đã tích hợp TCP
+
+Đăng nhập bằng tài khoản **THU_THU** hoặc **QUAN_LY_THU_VIEN**, mở menu **TV3 · Lưu thông**. Độc giả chỉ có mục phản hồi của chính mình. Hủy phiếu phạt chỉ dành cho Quản lý thư viện.
+
+Lịch hoạt động: T2–T6 07:30–11:30, 13:30–17:00; T7 07:30–11:30; Chủ nhật nghỉ. Dừng nhận mượn từ 11:15 mỗi buổi sáng và 16:45 các buổi chiều T2–T6.
+
+Xem [bàn giao TV3](tai_lieu/TV3_Tich_hop_TCP.md), [kiểm thử nghiệp vụ](cong_cu/kiem_tra_tv3) và [kiểm thử giao diện](cong_cu/kiem_tra_tv3_client).
