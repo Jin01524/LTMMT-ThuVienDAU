@@ -26,6 +26,10 @@ public partial class MainForm : Form, IMainView
         catalogMenu.Click += (_, _) => { using var workspace = new ThuVienDAU.Catalog.CatalogWorkspaceForm(sessionContext?.Current); workspace.ShowDialog(this); };
         catalogMenu.Enabled=sessionContext?.Current?.Role is "BIEN_MUC" or "QUAN_LY_THU_VIEN";
         menuStrip.Items.Insert(0,catalogMenu);
+        var circulationMenu = new ToolStripMenuItem("TV3 · Lưu thông");
+        circulationMenu.Enabled = sessionContext?.Current?.Role is "THU_THU" or "QUAN_LY_THU_VIEN" or "DOC_GIA";
+        circulationMenu.Click += (_, _) => { if(sessionContext?.Current is null)return; using var workspace = new ThuVienDAU.Circulation.CirculationWorkspaceForm(sessionContext.Current); workspace.ShowDialog(this); };
+        menuStrip.Items.Insert(1,circulationMenu);
         var logoutMenu=new ToolStripMenuItem("Đăng xuất");
         logoutMenu.Click+=async(_,_)=> {logoutMenu.Enabled=false;try {if(authenticationService is not null && sessionContext?.Current is not null)await authenticationService.LogoutAsync(sessionContext.Current.SessionId);}catch(Exception ex) when(ex is IOException or System.Net.Sockets.SocketException or OperationCanceledException or UnauthorizedAccessException){}finally {sessionContext?.Clear();Close();}};
         menuStrip.Items.Add(logoutMenu);

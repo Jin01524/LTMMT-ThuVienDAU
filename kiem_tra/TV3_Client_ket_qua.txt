@@ -1,0 +1,19 @@
+PASS reader workspace exposes feedback only
+PASS librarian workspace hides manager-only void
+PASS construct native controls CirculationWorkspaceForm
+PASS manager has all 10 TV3 modules
+PASS construct native controls BorrowForm
+PASS construct native controls ReturnForm
+PASS construct native controls RenewForm
+PASS construct native controls LoanHistoryForm
+PASS LT04 supports reprinting
+PASS construct native controls ViolationCalcForm
+PASS construct native controls FineReceiptForm
+PASS construct native controls VoidViolationForm
+PASS void screen has no editable manager ID
+PASS construct native controls ReadingRoomForm
+PASS construct native controls FeedbackForm
+PASS construct native controls CirculationStatsForm
+PASS statistics uses logged-in viewer identity
+PASS construct native controls ReceiptPreviewForm
+PASS print preview preserves Vietnamese and exposes actual print action

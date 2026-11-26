@@ -28,6 +28,7 @@ if(catalogSession is not null) Console.WriteLine("TV2 DEMO TOKEN (chỉ dùng DB
 var authenticationService=new ThuVienDAU.Server.Services.AuthenticationService();
 var authentication=new AuthenticationController(authenticationService);
 var tv1=new TV1Controller(authenticationService);
+var circulation = new ThuVienDAU.Circulation.CirculationService(authenticationService);
 var catalog = new CatalogController(catalogSession is null ? authenticationService : new CombinedCatalogSession(authenticationService,catalogSession));
 using var shutdown = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; shutdown.Cancel(); };
@@ -72,7 +73,8 @@ async Task HandleAsync(TcpClient client)
                 ? await catalog.HandleAsync(request,timeout.Token)
                 : request.Command?.StartsWith("AUTH_",StringComparison.Ordinal)==true
                     ? await authentication.HandleAsync(request,timeout.Token)
-                    : request.Command?.StartsWith("TV1_",StringComparison.Ordinal)==true ? await tv1.HandleAsync(request,timeout.Token) : await controller.HandleAsync(request, timeout.Token);
+                    : request.Command?.StartsWith("TV1_",StringComparison.Ordinal)==true ? await tv1.HandleAsync(request,timeout.Token)
+                    : request.Command?.StartsWith("TV3_",StringComparison.Ordinal)==true ? await circulation.HandleAsync(request,timeout.Token) : await controller.HandleAsync(request, timeout.Token);
             await TcpProtocol.WriteAsync(stream, response, timeout.Token);
         }
         catch (Exception exception) when (exception is IOException or SocketException or JsonException or OperationCanceledException)
