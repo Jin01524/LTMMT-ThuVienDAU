@@ -1,0 +1,188 @@
+PASS all five login roles work over TCP
+PASS schema compatible TV3_HISTORY
+PASS unauthenticated TV3_HISTORY
+PASS forged session TV3_HISTORY
+PASS schema compatible TV3_VIOLATION_CANDIDATES
+PASS unauthenticated TV3_VIOLATION_CANDIDATES
+PASS forged session TV3_VIOLATION_CANDIDATES
+PASS schema compatible TV3_UNPAID
+PASS unauthenticated TV3_UNPAID
+PASS forged session TV3_UNPAID
+PASS schema compatible TV3_VIOLATION_LIST
+PASS unauthenticated TV3_VIOLATION_LIST
+PASS forged session TV3_VIOLATION_LIST
+PASS schema compatible TV3_VISITS
+PASS unauthenticated TV3_VISITS
+PASS forged session TV3_VISITS
+PASS schema compatible TV3_FEEDBACK_LIST
+PASS unauthenticated TV3_FEEDBACK_LIST
+PASS forged session TV3_FEEDBACK_LIST
+PASS schema compatible TV3_STATISTICS
+PASS unauthenticated TV3_STATISTICS
+PASS forged session TV3_STATISTICS
+PASS payload ID cannot elevate librarian to manager
+PASS reader cannot issue loans
+PASS cataloger cannot issue loans
+PASS system administrator has no circulation business privilege
+PASS fixture clock 2026-11-26T07:29:59+07:00
+PASS closed/cutoff 2026-11-26T07:29:59+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T11:15:00+07:00
+PASS closed/cutoff 2026-11-26T11:15:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T11:29:59+07:00
+PASS closed/cutoff 2026-11-26T11:29:59+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T11:30:00+07:00
+PASS closed/cutoff 2026-11-26T11:30:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T12:30:00+07:00
+PASS closed/cutoff 2026-11-26T12:30:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T13:29:59+07:00
+PASS closed/cutoff 2026-11-26T13:29:59+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T16:45:00+07:00
+PASS closed/cutoff 2026-11-26T16:45:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T17:00:00+07:00
+PASS closed/cutoff 2026-11-26T17:00:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-28T11:15:00+07:00
+PASS closed/cutoff 2026-11-28T11:15:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-28T13:30:00+07:00
+PASS closed/cutoff 2026-11-28T13:30:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-29T09:00:00+07:00
+PASS closed/cutoff 2026-11-29T09:00:00+07:00
+PASS closed borrowing leaves no ticket
+PASS fixture clock 2026-11-26T07:30:00+07:00
+PASS atomic borrow
+PASS fixture clock 2026-11-26T11:14:59+07:00
+PASS atomic borrow
+PASS fixture clock 2026-11-26T13:30:00+07:00
+PASS atomic borrow
+PASS fixture clock 2026-11-26T16:44:59+07:00
+PASS atomic borrow
+PASS fixture clock 2026-11-28T07:30:00+07:00
+PASS atomic borrow
+PASS fixture clock 2026-11-28T11:14:59+07:00
+PASS atomic borrow
+PASS fixture clock 2026-11-26T09:00:00+07:00
+PASS atomic borrow
+PASS student has 2 titles / 10 calendar days, end of due day
+PASS student quota enforced
+PASS duplicate title blocked
+PASS duplicate title rollback
+PASS duplicate copy IDs blocked
+PASS unavailable copy blocks entire batch
+PASS failed batch leaves earlier copy available
+PASS atomic borrow
+PASS staff has 3 titles / 15 days
+PASS TV3_READER_LOOKUP
+PASS reader lookup shows active loan count
+PASS TV3_COPY_LOOKUP
+PASS barcode lookup
+PASS TV3_RETURN_LOOKUP
+PASS return lookup shares correct detail primary key
+PASS return BINH_THUONG
+PASS partial return keeps loan open
+PASS return actor comes from authenticated session
+PASS client cannot turn normal return condition into invalid MAT enum
+PASS double return rejected
+PASS renew lookup has no reservation-table dependency
+PASS renew requires physical confirmation no other request
+PASS renew chooses explicit new due date
+PASS renew persisted selected date and count
+PASS renew cannot shorten due date
+PASS return BINH_THUONG
+PASS final return closes loan
+PASS atomic borrow
+PASS return BINH_THUONG
+PASS stale return aborts whole batch
+PASS earlier return rolled back
+PASS concurrent requests cannot borrow the same copy twice
+PASS atomic borrow
+PASS return MAT
+PASS unassessed lost/late return blocks borrowing
+PASS fixture holiday configuration
+PASS TV3_VIOLATION_CANDIDATES
+PASS client cannot bypass unconfirmed holiday calendar
+PASS fixture holiday configuration
+PASS TV3_VIOLATION_CANDIDATES
+PASS student overdue excludes configured holiday
+PASS create violation QUA_HAN
+PASS server recomputes fine, ignores client amount/day count
+PASS TV3_VIOLATION_CANDIDATES
+PASS lost compensation suggestion is twice 80000
+PASS create violation MAT_SACH
+PASS lost compensation is twice cover price
+PASS duplicate compensation rejected
+PASS unpaid violation blocks borrowing
+PASS TV3_UNPAID
+PASS unpaid fine shows chargeable holiday-adjusted days
+PASS collect multiple violations in one receipt
+PASS receipt total is correct without auto-unlock
+PASS payment preserves manager suspension and avoids KhoaDen constraint failure
+PASS collector identity ignores spoofed payload ID
+PASS double collection rejected
+PASS double collection creates no receipt
+PASS TV3_RECEIPT
+PASS print data LOAN
+PASS TV3_RECEIPT
+PASS print data RECEIPT
+PASS librarian cannot void by entering manager ID
+PASS manager voids collected violation
+PASS void preserves receipt and borrowing suspension
+PASS void is not repeatable
+PASS atomic borrow
+PASS return MAT
+PASS TV3_VIOLATION_CANDIDATES
+PASS unknown price stays unknown instead of default 100000
+PASS only manager may assess missing cover price
+PASS create violation MAT_SACH
+PASS manager equivalent-price compensation
+PASS atomic borrow
+PASS return MAT
+PASS create violation MAT_SACH
+PASS replacement book technical fee
+PASS mixed-reader receipt rejected
+PASS mixed-reader collection is atomic
+PASS atomic borrow
+PASS return HU_HONG
+PASS TV3_VIOLATION_CANDIDATES
+PASS page repair cost needs manager decision
+PASS create violation HONG_TRANG
+PASS damage uses actual assessed page repair cost
+PASS return BINH_THUONG
+PASS create violation QUA_HAN
+PASS staff overdue produces notice without monetary fine
+PASS TV3_RECEIPT
+PASS unit notice printable
+PASS reading-room entry with card/key handover
+PASS locker key cannot be assigned twice
+PASS physical handover confirmation required
+PASS wrong returned locker key rejected
+PASS fixture clock 2026-11-26T17:10:00+07:00
+PASS checkout possible after closing
+PASS scan toggles exit and returns assigned locker key
+PASS checkout records school-card return
+PASS fixture clock 2026-11-26T09:00:00+07:00
+PASS reader feedback derives identity from session
+PASS reader cannot impersonate another reader in feedback
+PASS TV3_FEEDBACK_LIST
+PASS reader feedback listing scoped to self
+PASS reader cannot process feedback
+PASS staff processes feedback
+PASS TV3_FEEDBACK_LIST
+PASS reply preserved in audit without extra schema columns
+PASS stale processed feedback cannot be overwritten
+PASS statistics independent aggregates
+PASS statistics do not duplicate receipt money across fine items or discard voided receipts
+PASS invalid statistics interval rejected
+PASS invalid history enum rejected
+PASS TV3_HISTORY
+PASS history search parameterized
+PASS account locked after login loses circulation access
+PASS unlinked reader account denied instead of seeing all feedback

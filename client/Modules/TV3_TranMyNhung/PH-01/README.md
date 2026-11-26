@@ -14,4 +14,4 @@ Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đ�
 dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
 Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Đã tích hợp vào solution chung qua TCP. Xem [bản bàn giao TV3](../../../../tai_lieu/TV3_Tich_hop_TCP.md) và bộ kiểm thử `cong_cu/kiem_tra_tv3`.

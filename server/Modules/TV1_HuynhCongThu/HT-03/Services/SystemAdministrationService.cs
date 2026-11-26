@@ -28,8 +28,7 @@ public sealed class SystemAdministrationService(DatabaseOptions options, Authent
         {
             pending.Add("Lịch lễ/Tết miễn phạt chưa được xác nhận; không tự chốt tiền phạt theo ngày.");
         }
-        pending.Add("Giờ mở cửa và giờ đóng cửa chưa được chốt.");
-        pending.Add("Số lần và thời hạn gia hạn chưa được chốt.");
+        pending.Add("Gia hạn tại quầy: chọn hạn mới và xác nhận không có người khác đăng ký; chưa áp số lần/ngày cố định.");
         pending.Add("Quy tắc đình chỉ cần được Quản lý thư viện xác nhận trước khi áp dụng.");
         return new SystemConfigurationInfo(json, pending);
     }
