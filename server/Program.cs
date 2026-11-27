@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text.Json;
 using ThuVienDAU.Protocol;
 using ThuVienDAU.Server.Controllers;
+using ThuVienDAU.Server.Services;
 using ThuVienDAU.Services;
 
 // One request/response per connection. Bound concurrent clients and per-request lifetime.
@@ -30,6 +31,7 @@ var authentication=new AuthenticationController(authenticationService);
 var tv1=new TV1Controller(authenticationService);
 var circulation = new ThuVienDAU.Circulation.CirculationService(authenticationService);
 var catalog = new CatalogController(catalogSession is null ? authenticationService : new CombinedCatalogSession(authenticationService,catalogSession));
+var maintenanceGate = new ServerMaintenanceGate();
 using var shutdown = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; shutdown.Cancel(); };
 var listener = new TcpListener(address, port);
@@ -68,13 +70,19 @@ async Task HandleAsync(TcpClient client)
         {
             var stream = client.GetStream();
             var request = await TcpProtocol.ReadAsync<TcpRequest>(stream, timeout.Token);
-            var controller = new DatabaseHealthController(new DatabaseHealthService());
-            var response = request.Command?.StartsWith("TV2_",StringComparison.Ordinal) == true
-                ? await catalog.HandleAsync(request,timeout.Token)
-                : request.Command?.StartsWith("AUTH_",StringComparison.Ordinal)==true
-                    ? await authentication.HandleAsync(request,timeout.Token)
-                    : request.Command?.StartsWith("TV1_",StringComparison.Ordinal)==true ? await tv1.HandleAsync(request,timeout.Token)
-                    : request.Command?.StartsWith("TV3_",StringComparison.Ordinal)==true ? await circulation.HandleAsync(request,timeout.Token) : await controller.HandleAsync(request, timeout.Token);
+            var isRestore = request.Command == "TV1_BACKUP_RESTORE";
+            timeout.CancelAfter(isRestore ? TimeSpan.FromMinutes(10) : TimeSpan.FromSeconds(15));
+            TcpResponse response;
+            if (isRestore)
+            {
+                using var maintenance = await maintenanceGate.EnterMaintenanceAsync(timeout.Token);
+                response = await DispatchAsync(request, timeout.Token);
+            }
+            else
+            {
+                using var operation = await maintenanceGate.EnterRequestAsync(timeout.Token);
+                response = await DispatchAsync(request, timeout.Token);
+            }
             await TcpProtocol.WriteAsync(stream, response, timeout.Token);
         }
         catch (Exception exception) when (exception is IOException or SocketException or JsonException or OperationCanceledException)
@@ -88,4 +96,18 @@ async Task HandleAsync(TcpClient client)
         }
         finally { slots.Release(); }
     }
+}
+
+async Task<TcpResponse> DispatchAsync(TcpRequest request, CancellationToken cancellationToken)
+{
+    var controller = new DatabaseHealthController(new DatabaseHealthService());
+    return request.Command?.StartsWith("TV2_", StringComparison.Ordinal) == true
+        ? await catalog.HandleAsync(request, cancellationToken)
+        : request.Command?.StartsWith("AUTH_", StringComparison.Ordinal) == true
+            ? await authentication.HandleAsync(request, cancellationToken)
+            : request.Command?.StartsWith("TV1_", StringComparison.Ordinal) == true
+                ? await tv1.HandleAsync(request, cancellationToken)
+                : request.Command?.StartsWith("TV3_", StringComparison.Ordinal) == true
+                    ? await circulation.HandleAsync(request, cancellationToken)
+                    : await controller.HandleAsync(request, cancellationToken);
 }

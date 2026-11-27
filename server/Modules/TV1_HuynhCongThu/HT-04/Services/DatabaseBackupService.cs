@@ -125,10 +125,6 @@ public sealed class DatabaseBackupService(DatabaseOptions options, Authenticatio
             Directory.CreateDirectory(Path.GetDirectoryName(liveRoot)!);
             Directory.Move(stageRoot, liveRoot);
             movedNew = true;
-            await WriteAuditAsync(actor.AccountId, "HT04_PHUC_HOI_THANH_CONG", request.BackupId,
-                new { database = options.Database, safetyBackup = safetyBackup.BackupId }, ct);
-            authentication.InvalidateAllSessions();
-            return new(request.BackupId, safetyBackup.BackupId, options.Database, true);
         }
         catch (Exception restoreException)
         {
@@ -137,14 +133,30 @@ public sealed class DatabaseBackupService(DatabaseOptions options, Authenticatio
                 await ImportDatabaseAsync(safetyPath, CancellationToken.None);
                 if (movedNew && Directory.Exists(liveRoot)) Directory.Delete(liveRoot, recursive: true);
                 if (movedOld && Directory.Exists(oldRoot)) Directory.Move(oldRoot, liveRoot);
-                await WriteAuditAsync(actor.AccountId, "HT04_PHUC_HOI_THAT_BAI", request.BackupId,
-                    new { database = options.Database, error = restoreException.GetType().Name }, CancellationToken.None);
             }
             catch (Exception rollbackException)
             {
+                authentication.InvalidateAllSessions();
                 throw new InvalidOperationException(
                     "Phục hồi thất bại và không thể hoàn tác hoàn toàn từ bản sao lưu an toàn " + safetyBackup.BackupId + ". Cần kiểm tra CSDL và thư mục tệp ngay.",
                     new AggregateException(restoreException, rollbackException));
+            }
+
+            try
+            {
+                await WriteAuditAsync(null, "HT04_PHUC_HOI_THAT_BAI", request.BackupId,
+                    new
+                    {
+                        database = options.Database,
+                        error = restoreException.GetType().Name,
+                        safetyBackup = safetyBackup.BackupId,
+                        sourceActor = new { actor.AccountId, actor.Username, actor.Role }
+                    }, CancellationToken.None);
+            }
+            catch (Exception auditException)
+            {
+                throw new AggregateException("Phục hồi thất bại; đã khôi phục từ backup an toàn nhưng không ghi được audit kết quả.",
+                    restoreException, auditException);
             }
             throw;
         }
@@ -152,6 +164,26 @@ public sealed class DatabaseBackupService(DatabaseOptions options, Authenticatio
         {
             if (Directory.Exists(stageRoot)) Directory.Delete(stageRoot, recursive: true);
         }
+
+        authentication.InvalidateAllSessions();
+        try
+        {
+            await WriteAuditAsync(null, "HT04_PHUC_HOI_THANH_CONG", request.BackupId,
+                new
+                {
+                    database = options.Database,
+                    safetyBackup = safetyBackup.BackupId,
+                    sourceActor = new { actor.AccountId, actor.Username, actor.Role }
+                }, CancellationToken.None);
+        }
+        catch (Exception auditException)
+        {
+            throw new InvalidOperationException(
+                "Phục hồi đã hoàn tất nhưng không thể ghi audit kết quả; dữ liệu không bị hoàn tác. Kiểm tra CSDL và audit ngay.",
+                auditException);
+        }
+
+        return new(request.BackupId, safetyBackup.BackupId, options.Database, true);
     }
 
     private async Task<SessionInfo> RequireManager(string sessionToken, CancellationToken ct)
@@ -301,12 +333,12 @@ public sealed class DatabaseBackupService(DatabaseOptions options, Authenticatio
         }
     }
 
-    private async Task WriteAuditAsync(int actorId, string action, string key, object details, CancellationToken ct)
+    private async Task WriteAuditAsync(int? actorId, string action, string key, object details, CancellationToken ct)
     {
         await using var connection = await connectionFactory.OpenAsync(ct);
         using var command = connection.CreateCommand();
         command.CommandText = "INSERT INTO NhatKy(IdTaiKhoan,HanhDong,BangDuLieu,KhoaBanGhi,ChiTiet) VALUES(@actor,@action,'CSDL',@key,@details)";
-        command.Parameters.AddWithValue("@actor", actorId);
+        command.Parameters.AddWithValue("@actor", (object?)actorId ?? DBNull.Value);
         command.Parameters.AddWithValue("@action", action);
         command.Parameters.AddWithValue("@key", key);
         command.Parameters.AddWithValue("@details", JsonSerializer.Serialize(details));
