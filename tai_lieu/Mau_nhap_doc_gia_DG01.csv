@@ -1,0 +1,4 @@
+MaSinhVien,MaGiangVien,HoTen,LoaiDocGia,MaKhoa,MaNganh,KhoaHoc,TrangThaiHocTap,ThuDienTu
+SV_TEST_0001,,Nguyen Van A,SINH_VIEN,KHOA_TEST,1234567,K23,DANG_HOC,sv.test@example.invalid
+,CB_TEST_0001,Tran Thi B,CAN_BO,KHOA_TEST,,,DANG_CONG_TAC,cb.test@example.invalid
+,GV_TEST_0001,Le Van C,GIANG_VIEN,KHOA_TEST,,,DANG_CONG_TAC,gv.test@example.invalid

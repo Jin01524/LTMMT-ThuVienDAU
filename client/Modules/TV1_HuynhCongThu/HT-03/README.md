@@ -12,6 +12,6 @@ Dịch vụ ghi/tra cứu nhật ký; đọc cấu hình; giờ đóng cửa, l�
 
 Mục **Công cụ → Cấu hình và nhật ký** cho Quản trị/Quản lý xem JSON cấu hình,
 các quyết định còn bỏ ngỏ và truy vấn tối đa 500 dòng nhật ký theo khoảng ngày.
-Nhật ký tạo bởi các nghiệp vụ có ghi audit hiện có; chưa tự ghi sự kiện đăng nhập.
+Audit đăng nhập/đăng xuất, import và backup/restore được ghi phía server.
 
 Đã ghép theo giao thức TCP; xem `tai_lieu/TV1_Ghep_TCP.md` để biết lệnh và cách chạy.

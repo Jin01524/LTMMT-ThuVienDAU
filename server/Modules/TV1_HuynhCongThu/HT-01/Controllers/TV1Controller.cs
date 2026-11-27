@@ -20,6 +20,8 @@ public sealed class TV1Controller(AuthenticationService authentication)
             object result = request.Command switch
             {
                 "TV1_READER_SEARCH" or "TV1_BORROW_PERMISSION" => await new ReaderManagementController(new ReaderManagementService(options, authentication)).HandleAsync(request, token, ct),
+                "TV1_READER_IMPORT_PREVIEW" or "TV1_READER_IMPORT_COMMIT" => await new ReaderImportController(new ReaderImportService(options, authentication)).HandleAsync(request, token, ct),
+                "TV1_BACKUP_LIST" or "TV1_BACKUP_CREATE" or "TV1_BACKUP_RESTORE" => await new DatabaseBackupController(new DatabaseBackupService(options, authentication)).HandleAsync(request, token, ct),
                 "TV1_CONFIGURATION" or "TV1_AUDIT" => await new SystemAdministrationController(new SystemAdministrationService(options, authentication)).HandleAsync(request, token, ct),
                 "TV1_READER_REPORT" => await new ReaderReportController(new ReaderReportService(options, authentication)).HandleAsync(request, token, ct),
                 _ => throw new ArgumentException("Lệnh TV1 không được hỗ trợ.")
