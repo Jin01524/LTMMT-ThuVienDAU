@@ -4,8 +4,9 @@ using System.Text.Json;
 using ThuVienDAU.Services;
 using ThuVienDAU.Models;
 using ThuVienDAU.Catalog;
+using ThuVienDAU.Server.Services;
 var logs=new List<string>();
-if(args.Length==1&&args[0]=="--parse-only"){TestImportFileParsing();Console.WriteLine($"PASS {logs.Count} import parser checks");return;}
+if(args.Length==1&&args[0]=="--parse-only"){TestImportFileParsing();await TestMaintenanceGateAsync();Console.WriteLine($"PASS {logs.Count} parser and maintenance-gate checks");return;}
 if(args.Length==0)throw new ArgumentException("Cần đường dẫn fixture JSON hoặc --parse-only.");
 var fixture=JsonDocument.Parse(File.ReadAllText(args[0])).RootElement;
 var config=Path.Combine(AppContext.BaseDirectory,"appsettings.local.json");
@@ -14,6 +15,7 @@ var auth=new AuthenticationService(new TcpCommandClient());var tokens=new List<s
 try
 {
  TestImportFileParsing();
+ await TestMaintenanceGateAsync();
  File.WriteAllText(config,JsonSerializer.Serialize(new{Server=new{Host="127.0.0.1",Port=fixture.GetProperty("port").GetInt32(),TimeoutSeconds=15}}));
  async Task<SessionInfo> Login(string role){var a=fixture.GetProperty("accounts").EnumerateArray().Single(x=>x.GetProperty("role").GetString()==role);var s=await auth.LoginAsync(a.GetProperty("username").GetString()!,a.GetProperty("password").GetString()!);tokens.Add(s.SessionId);return s;}
  var admin=await Login("QUAN_TRI");var manager=await Login("QUAN_LY_THU_VIEN");var bm=await Login("BIEN_MUC");var reader=await Login("DOC_GIA");
@@ -57,6 +59,27 @@ try
  Console.WriteLine($"PASS {logs.Count} actual client service checks");
 }
 finally{foreach(var t in tokens)try{await auth.LogoutAsync(t);}catch{}if(previous is null)File.Delete(config);else File.WriteAllBytes(config,previous);}
+async Task TestMaintenanceGateAsync()
+{
+ var gate=new ServerMaintenanceGate();
+ var activeRequest=await gate.EnterRequestAsync(CancellationToken.None);
+ var maintenanceTask=gate.EnterMaintenanceAsync(CancellationToken.None);
+ Check(!maintenanceTask.IsCompleted,"restore maintenance waits for active operations to drain");
+ var queuedRequestEntered=new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+ var queuedRequestTask=Task.Run(async()=>
+ {
+  using(await gate.EnterRequestAsync(CancellationToken.None))queuedRequestEntered.TrySetResult(true);
+ });
+ await Task.Delay(50);
+ Check(!queuedRequestEntered.Task.IsCompleted,"new operations are blocked while restore maintenance is pending");
+ activeRequest.Dispose();
+ using(var maintenance=await maintenanceTask.AsTask().WaitAsync(TimeSpan.FromSeconds(2)))
+ {
+  Check(!queuedRequestEntered.Task.IsCompleted,"restore holds the maintenance gate until completion");
+ }
+ await queuedRequestTask.WaitAsync(TimeSpan.FromSeconds(2));
+ Check(queuedRequestEntered.Task.IsCompleted,"queued operations resume after maintenance completes");
+}
 void TestImportFileParsing()
 {
  var folder=Path.Combine(Path.GetTempPath(),"tv1-import-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(folder);
