@@ -9,19 +9,31 @@ public partial class MainForm : Form, IMainView
     private readonly ReaderDirectoryService? readerDirectoryService;
     private readonly SystemAdministrationClientService? systemAdministrationService;
     private readonly ReaderReportClientService? readerReportService;
+    private readonly ReaderImportClientService? readerImportService;
+    private readonly DatabaseBackupClientService? databaseBackupService;
     private readonly SessionContext? sessionContext;
 
     public MainForm(AuthenticationService? authenticationService = null, SessionContext? sessionContext = null,
         ReaderDirectoryService? readerDirectoryService = null,
         SystemAdministrationClientService? systemAdministrationService = null,
-        ReaderReportClientService? readerReportService = null)
+        ReaderReportClientService? readerReportService = null,
+        ReaderImportClientService? readerImportService = null,
+        DatabaseBackupClientService? databaseBackupService = null)
     {
         this.authenticationService = authenticationService;
         this.sessionContext = sessionContext;
         this.readerDirectoryService = readerDirectoryService;
         this.systemAdministrationService = systemAdministrationService;
         this.readerReportService = readerReportService;
+        this.readerImportService = readerImportService;
+        this.databaseBackupService = databaseBackupService;
         InitializeComponent();
+        var readerImportMenu = new ToolStripMenuItem("DG-01 · Nhập hồ sơ độc giả");
+        readerImportMenu.Click += ReaderImportMenuItem_Click;
+        toolsMenuItem.DropDownItems.Insert(1, readerImportMenu);
+        var backupMenu = new ToolStripMenuItem("HT-04 · Sao lưu / phục hồi");
+        backupMenu.Click += DatabaseBackupMenuItem_Click;
+        toolsMenuItem.DropDownItems.Insert(2, backupMenu);
         var catalogMenu = new ToolStripMenuItem("TV2 · Biên mục");
         catalogMenu.Click += (_, _) => { using var workspace = new ThuVienDAU.Catalog.CatalogWorkspaceForm(sessionContext?.Current); workspace.ShowDialog(this); };
         catalogMenu.Enabled=sessionContext?.Current?.Role is "BIEN_MUC" or "QUAN_LY_THU_VIEN";
@@ -31,7 +43,7 @@ public partial class MainForm : Form, IMainView
         circulationMenu.Click += (_, _) => { if(sessionContext?.Current is null)return; using var workspace = new ThuVienDAU.Circulation.CirculationWorkspaceForm(sessionContext.Current); workspace.ShowDialog(this); };
         menuStrip.Items.Insert(1,circulationMenu);
         var logoutMenu=new ToolStripMenuItem("Đăng xuất");
-        logoutMenu.Click+=async(_,_)=> {logoutMenu.Enabled=false;try {if(authenticationService is not null && sessionContext?.Current is not null)await authenticationService.LogoutAsync(sessionContext.Current.SessionId);}catch(Exception ex) when(ex is IOException or System.Net.Sockets.SocketException or OperationCanceledException or UnauthorizedAccessException){}finally {sessionContext?.Clear();Close();}};
+        logoutMenu.Click+=async(_,_)=> {logoutMenu.Enabled=false;try {if(authenticationService is not null && sessionContext?.Current is not null)await authenticationService.LogoutAsync(sessionContext.Current.SessionId);}catch(Exception ex){MessageBox.Show(this,"Phiên đã được đóng trên client nhưng có thể chưa ghi đủ nhật ký đăng xuất: "+ex.Message,"Đăng xuất",MessageBoxButtons.OK,MessageBoxIcon.Warning);}finally {sessionContext?.Clear();Close();}};
         menuStrip.Items.Add(logoutMenu);
     }
 
@@ -40,6 +52,38 @@ public partial class MainForm : Form, IMainView
     private void CheckConnectionMenuItem_Click(object? sender, EventArgs e)
     {
         ConnectionCheckRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ReaderImportMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (readerImportService is null || sessionContext?.Current is null)
+        {
+            MessageBox.Show(this, "Chưa đăng nhập.", "Nhập hồ sơ độc giả", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        if (sessionContext.Current.Role != "QUAN_LY_THU_VIEN")
+        {
+            MessageBox.Show(this, "Chỉ Quản lý thư viện được chạy nhập hồ sơ.", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+        using var form = new ReaderImportForm(readerImportService, sessionContext);
+        form.ShowDialog(this);
+    }
+
+    private void DatabaseBackupMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (databaseBackupService is null || sessionContext?.Current is null) return;
+        if (sessionContext.Current.Role is not ("QUAN_TRI" or "QUAN_LY_THU_VIEN"))
+        {
+            MessageBox.Show(this, "Chỉ Quản trị hoặc Quản lý thư viện được sao lưu/phục hồi.", "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+        using var form = new DatabaseBackupForm(databaseBackupService, sessionContext);
+        if (form.ShowDialog(this) == DialogResult.OK)
+        {
+            sessionContext.Clear();
+            Close();
+        }
     }
 
     private void ReaderDirectoryMenuItem_Click(object? sender, EventArgs e)
@@ -115,6 +159,8 @@ public partial class MainForm : Form, IMainView
             readerDirectoryMenuItem.Visible = session.Role is "QUAN_TRI" or "QUAN_LY_THU_VIEN" or "BIEN_MUC" or "THU_THU";
             systemAdministrationMenuItem.Visible = session.Role is "QUAN_TRI" or "QUAN_LY_THU_VIEN";
             readerReportMenuItem.Visible = session.Role is "QUAN_TRI" or "QUAN_LY_THU_VIEN";
+            toolsMenuItem.DropDownItems[1].Visible = session.Role == "QUAN_LY_THU_VIEN";
+            toolsMenuItem.DropDownItems[2].Visible = session.Role is "QUAN_TRI" or "QUAN_LY_THU_VIEN";
             accountProvisionMenuItem.Visible = session.Role == "QUAN_TRI";
             readerAccountsMenuItem.Visible = session.Role == "BIEN_MUC";
         }

@@ -2,17 +2,14 @@
 
 Người phụ trách **Huỳnh Công Thủ** (TV1, 2351220232). Người rà soát **TV2**.
 
-Phụ thuộc trước khi hoàn tất HT-02, HT-03.
+## Luồng đã triển khai
 
-## Nghiệm thu
+Quản trị hoặc Quản lý thư viện có thể xem danh sách, tạo backup và phục hồi qua TCP. Server gọi `mysqldump.exe`/`mysql.exe`; gói ZIP gồm dump CSDL, manifest và PDF hợp lệ trong `data/tep-do-an`. Tạo file tạm, kiểm tra archive rồi đổi tên sang `.zip` để danh sách không lộ file chưa hoàn tất.
 
-Quản trị tạo bản sao lưu; phục hồi thử trên DB riêng; có xác nhận trước ghi đè và nhật ký kết quả.
+Phục hồi yêu cầu xác nhận chính xác `PHUC_HOI <Database>`, kiểm tra tên CSDL/archive, tạo backup an toàn trước, chuyển PDF theo thư mục staging và thu hồi mọi phiên sau thành công. Nếu thao tác đích lỗi, service thử khôi phục từ backup an toàn và báo lỗi rõ nếu rollback cũng thất bại. Các lần backup/restore được ghi audit.
 
-## Trách nhiệm server
+## Ràng buộc triển khai
 
-Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
-Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
+Cần cài MySQL client trên máy server và cho phép tìm thấy hai executable; mật khẩu truyền qua biến môi trường tiến trình con, không đặt trong tham số dòng lệnh. Archive chứa dữ liệu cá nhân chưa được mã hóa; bảo vệ thư mục backup bằng quyền hệ điều hành và chính sách lưu trữ phù hợp.
 
-Các bảng hoặc dữ liệu liên quan theo kế hoạch **Toàn bộ CSDL**.
-
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Build đã qua; chưa chạy backup/restore trên CSDL fixture, chưa xác minh rollback hoặc nghiệm thu UI. Không thử trên CSDL thật.

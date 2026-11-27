@@ -55,6 +55,8 @@ Payload/SessionToken dùng cùng frame 1 MiB hiện hành.
 | TV1_CONFIGURATION | rỗng | Vai trò cán bộ thư viện ở trên |
 | TV1_AUDIT | AuditQuery, khoảng [From,To) | QUAN_TRI, QUAN_LY_THU_VIEN |
 | TV1_READER_REPORT | ReaderReportQuery | QUAN_TRI, QUAN_LY_THU_VIEN |
+| TV1_READER_IMPORT_PREVIEW / TV1_READER_IMPORT_COMMIT | ReaderImportCommand | QUAN_LY_THU_VIEN |
+| TV1_BACKUP_LIST / TV1_BACKUP_CREATE / TV1_BACKUP_RESTORE | RestoreBackupRequest hoặc rỗng | QUAN_TRI, QUAN_LY_THU_VIEN |
 
 Các DTO cũ được giữ, bổ sung `TV1CommandContracts.cs`. Client service giữ chữ ký
 được các form TV1 gọi; thay phần truyền nhận bên trong bằng TcpCommandClient.
@@ -75,10 +77,11 @@ hình local hoặc DB đang dùng. Cần MySQL bin/Python như fixture TV2. Suit
 `cong_cu/kiem_tra_tv1_client` được fixture gọi với cấu hình thử, dùng service client
 thật, rồi khôi phục/xóa file cấu hình thử cạnh assembly.
 
-Log: `kiem_tra/TV1_Merge_TCP.txt`, `TV1_Client_TCP.txt` và hồi quy TV2. Kiểm thử local
-không thay thế nghiệm thu UI/LAN/máy in hoặc các module TV1 còn thiếu (DG-01 nhập
-Excel, HT-04 backup/restore, audit login/logout dùng chung, TC-02 toàn hệ thống).
+Log: `kiem_tra/TV1_Merge_TCP.txt`, `TV1_Client_TCP.txt` và hồi quy TV2. Parser DG-01
+đã chạy test CSV/XLSX giả. Chưa chạy fixture MySQL/TCP và backup/restore vì không có
+Python interpreter (chỉ có Windows app alias), dù MySQL binaries có trên máy. Chưa
+nghiệm thu UI/LAN vì không có máy đích. Các bước này vẫn cần làm trước TC-02.
 
 Các file cũ vẫn ghi trạng thái thiết kế tại thời điểm tạo; bản này mô tả code TCP
-đã ghép. PR này giải xung đột và giữ luồng hiện có, không đánh dấu mọi module TV1
-đều đã hoàn thành.
+đã ghép. DG-01, HT-04 và đóng gói thử đã được bổ sung nhưng không đánh dấu TC-02,
+nghiệm thu LAN/UI hoặc mọi module TV1 là hoàn tất.

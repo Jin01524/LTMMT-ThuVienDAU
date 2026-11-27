@@ -2,16 +2,12 @@
 
 Người phụ trách **Huỳnh Công Thủ** (TV1, 2351220232). Người rà soát **TV2, TV3**.
 
-Phụ thuộc trước khi hoàn tất HT-02.
+## Client
 
-## Nghiệm thu
+WinForms có menu theo vai trò, cấu hình TCP `Host`/`Port`/timeout tại `appsettings.local.json` và gọi nghiệp vụ qua dịch vụ TCP. Client không truy cập MySQL trực tiếp.
 
-Menu theo vai trò; tích hợp form, cấu hình IP/cổng server trên máy khách và cấu hình MySQL trên server; đóng gói hai ứng dụng.
+## Đóng gói thử Windows x64
 
-## Trách nhiệm client
+Chạy từ gốc repo: `powershell -ExecutionPolicy Bypass -File cong_cu/phat_hanh_tv1.ps1`. Kết quả nằm trong `artifacts/TV1/win-x64/client/`. Cấu hình đầu ra được tạo từ mẫu loopback; cập nhật `Host` thành IP máy server trên từng máy client.
 
-Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
-dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
-Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
-
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Đây là thư mục publish self-contained, chưa phải MSI/installer đã ký số. Chưa nghiệm thu cài đặt trên máy sạch hoặc giao tiếp nhiều máy LAN.

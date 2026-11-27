@@ -2,16 +2,8 @@
 
 Người phụ trách **Huỳnh Công Thủ** (TV1, 2351220232). Người rà soát **TV2**.
 
-Phụ thuộc trước khi hoàn tất HT-02, HT-03.
+## Luồng client
 
-## Nghiệm thu
+Form cho vai trò quản trị/quản lý xem danh sách backup, tạo bản mới và phục hồi bản đã chọn. Trước khi gửi yêu cầu phục hồi, người dùng phải xác nhận cảnh báo và nhập `PHUC_HOI <Database>`; khi thành công, ứng dụng báo mã backup an toàn và yêu cầu đăng nhập lại.
 
-Quản trị tạo bản sao lưu; phục hồi thử trên DB riêng; có xác nhận trước ghi đè và nhật ký kết quả.
-
-## Trách nhiệm client
-
-Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
-dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
-Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
-
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Backup lưu trên server, không tải archive về máy client. Cần xác minh backup/restore thực tế trên CSDL thử trước khi dùng ở môi trường vận hành.

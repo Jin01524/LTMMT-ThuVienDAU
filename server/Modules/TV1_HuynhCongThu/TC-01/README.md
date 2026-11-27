@@ -2,17 +2,14 @@
 
 Người phụ trách **Huỳnh Công Thủ** (TV1, 2351220232). Người rà soát **TV2, TV3**.
 
-Phụ thuộc trước khi hoàn tất HT-02.
+## Server
 
-## Nghiệm thu
+Server TCP đọc `server/appsettings.local.json` cho cấu hình MySQL; cấu hình không được lấy từ client. Menu TV1 gọi dịch vụ server qua cùng giao thức TCP và quyền được xác minh lại ở server.
 
-Menu theo vai trò; tích hợp form, cấu hình IP/cổng server trên máy khách và cấu hình MySQL trên server; đóng gói hai ứng dụng.
+## Đóng gói thử Windows x64
 
-## Trách nhiệm server
+Từ gốc repo chạy `powershell -ExecutionPolicy Bypass -File cong_cu/phat_hanh_tv1.ps1`. Script publish self-contained server và WinForms client vào `artifacts/TV1/win-x64/`, sau đó tạo cấu hình local từ file mẫu để không phát hành mật khẩu local của máy build.
 
-Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
-Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
+Trước khi chạy, chỉnh `server/appsettings.local.json` ở thư mục server; trên từng máy client chỉnh `client/appsettings.local.json` với IP/cổng server. Server cần MySQL 8+, schema đã tạo, và MySQL client `mysql.exe`/`mysqldump.exe` trong PATH để dùng HT-04. Không có MSI, ký số hay cài đặt Windows service trong phạm vi script này.
 
-Các bảng hoặc dữ liệu liên quan theo kế hoạch **Dùng chung**.
-
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Chưa chạy publish trên máy đích hoặc nghiệm thu LAN/UI thực tế.
