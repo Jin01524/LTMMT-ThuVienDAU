@@ -7,6 +7,8 @@
   <Compile Include="../../client/Modules/TV1_HuynhCongThu/HT-01/Services/FeatureCommandClient.cs" Link="FeatureCommandClient.cs" />
   <Compile Include="../../client/Modules/TV1_HuynhCongThu/HT-02/Services/AuthenticationService.cs" Link="AuthenticationService.cs" />
   <Compile Include="../../client/Modules/TV1_HuynhCongThu/DG-02/Services/ReaderDirectoryService.cs" Link="ReaderDirectoryService.cs" />
+  <Compile Include="../../client/Modules/TV1_HuynhCongThu/DG-01/Services/ReaderImportFileReader.cs" Link="ReaderImportFileReader.cs" />
+  <Compile Include="../../client/Modules/TV1_HuynhCongThu/DG-01/Services/ReaderImportClientService.cs" Link="ReaderImportClientService.cs" />
   <Compile Include="../../client/Modules/TV1_HuynhCongThu/HT-03/Services/SystemAdministrationClientService.cs" Link="SystemAdministrationClientService.cs" />
   <Compile Include="../../client/Modules/TV1_HuynhCongThu/BC-01/Services/ReaderReportClientService.cs" Link="ReaderReportClientService.cs" />
   <Compile Include="../../client/Modules/TV2_VoNgocBinh/Shared/CatalogClientController.cs" Link="CatalogClientController.cs" />

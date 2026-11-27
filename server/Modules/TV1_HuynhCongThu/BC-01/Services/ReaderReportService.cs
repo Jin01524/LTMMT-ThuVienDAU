@@ -39,7 +39,7 @@ public sealed class ReaderReportService(DatabaseOptions options, AuthenticationS
               AND (@major IS NULL OR n.TenNganh=@major)";
 
         using var countCommand = connection.CreateCommand();
-        countCommand.CommandText = $"SELECT COUNT(*), SUM(d.TrangThaiHoSo='HOAT_DONG'), SUM(d.DuocMuon=1) {joins}";
+        countCommand.CommandText = $"SELECT COUNT(*), SUM(d.TrangThaiHoSo='HOAT_DONG'), SUM(d.DuocMuon=1 AND d.TrangThaiHoSo='HOAT_DONG') {joins}";
         AddFilters(countCommand, readerType, faculty, major);
         await using var countReader = await countCommand.ExecuteReaderAsync(cancellationToken);
         await countReader.ReadAsync(cancellationToken);

@@ -15,7 +15,7 @@ public sealed class AuthenticationController(AuthenticationService service)
             switch(request.Command)
             {
                 case "AUTH_LOGIN":result=await service.LoginAsync(Body<LoginRequest>(request),ct);break;
-                case "AUTH_LOGOUT":service.Logout(token);result=new { loggedOut=true };break;
+                case "AUTH_LOGOUT":await service.LogoutAsync(token,ct);result=new { loggedOut=true };break;
                 case "AUTH_ACCOUNTS":result=await service.GetAccountsAsync(token,ct);break;
                 case "AUTH_READER_ACCOUNTS":result=await service.GetReaderAccountsAsync(token,ct);break;
                 case "AUTH_PROVISION":result=await service.ProvisionAccountAsync(Body<ProvisionAccountRequest>(request) with { SessionId=token },ct);break;

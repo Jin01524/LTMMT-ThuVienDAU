@@ -30,17 +30,49 @@ public sealed class AuthenticationService(DatabaseOptions? options = null) : ICa
         return session with{Role=role};
     }
     public void Logout(string id){sessions.TryRemove(id,out _);}
+    public void InvalidateAllSessions()=>sessions.Clear();
     public async Task<SessionInfo> LoginAsync(LoginRequest request,CancellationToken ct)
     {
         if(string.IsNullOrWhiteSpace(request.Username)||request.Username.Length>100||string.IsNullOrWhiteSpace(request.Password)||request.Password.Length>256)throw new UnauthorizedAccessException("Tên đăng nhập hoặc mật khẩu không đúng.");
         await using var db=await Factory().OpenAsync(ct);using var cmd=db.CreateCommand();
         cmd.CommandText="SELECT t.IdTaiKhoan,t.IdDocGia,t.TenDangNhap,t.VaiTro,t.MatKhauDaBam,d.HoTen FROM TaiKhoan t LEFT JOIN DocGia d ON d.IdDocGia=t.IdDocGia WHERE t.TenDangNhap=@name AND t.DangHoatDong=1";
-        cmd.Parameters.AddWithValue("@name",request.Username.Trim());await using var reader=await cmd.ExecuteReaderAsync(ct);
-        if(!await reader.ReadAsync(ct)||reader.IsDBNull(4)||!VerifyPassword(request.Password,(byte[])reader[4]))throw new UnauthorizedAccessException("Tên đăng nhập hoặc mật khẩu không đúng.");
+        cmd.Parameters.AddWithValue("@name",request.Username.Trim());
+        int? accountId=null;int? readerId=null;string? username=null;string? role=null;string? displayName=null;byte[]? passwordHash=null;
+        await using(var reader=await cmd.ExecuteReaderAsync(ct))
+        {
+            if(await reader.ReadAsync(ct))
+            {
+                accountId=reader.GetInt32(0);readerId=reader.IsDBNull(1)?null:reader.GetInt32(1);username=reader.GetString(2);role=reader.GetString(3);
+                passwordHash=reader.IsDBNull(4)?null:(byte[])reader[4];displayName=reader.IsDBNull(5)?username:reader.GetString(5);
+            }
+        }
+        if(accountId is null||passwordHash is null||!VerifyPassword(request.Password,passwordHash))
+        {
+            await WriteAuthenticationAuditAsync(db,null,"DANG_NHAP_THAT_BAI","UNKNOWN","THAT_BAI",ct);
+            throw new UnauthorizedAccessException("Tên đăng nhập hoặc mật khẩu không đúng.");
+        }
         foreach(var pair in sessions)if(pair.Value.Expires<=DateTimeOffset.UtcNow)sessions.TryRemove(pair.Key,out _);
         var token=Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
-        var session=new SessionInfo(token,reader.GetInt32(0),reader.IsDBNull(1)?null:reader.GetInt32(1),reader.GetString(2),reader.GetString(3),reader.IsDBNull(5)?reader.GetString(2):reader.GetString(5));
+        var session=new SessionInfo(token,accountId.Value,readerId,username!,role!,displayName!);
+        await WriteAuthenticationAuditAsync(db,accountId,"DANG_NHAP_THANH_CONG",accountId.Value.ToString(),"THANH_CONG",ct);
         sessions[token]=new(session,DateTimeOffset.UtcNow.AddMinutes(30));return session;
+    }
+    public async Task LogoutAsync(string id,CancellationToken ct)
+    {
+        if(!TryGetSession(id,out var session))return;
+        try
+        {
+            await using var db=await Factory().OpenAsync(ct);
+            await WriteAuthenticationAuditAsync(db,session.AccountId,"DANG_XUAT",session.AccountId.ToString(),"THANH_CONG",ct);
+        }
+        finally{Logout(id);}
+    }
+    private static async Task WriteAuthenticationAuditAsync(MySqlConnection db,int? accountId,string action,string recordKey,string outcome,CancellationToken ct)
+    {
+        using var command=db.CreateCommand();
+        command.CommandText="INSERT INTO NhatKy(IdTaiKhoan,HanhDong,BangDuLieu,KhoaBanGhi,ChiTiet) VALUES(@actor,@action,'TaiKhoan',@key,JSON_OBJECT('KetQua',@outcome))";
+        command.Parameters.AddWithValue("@actor",(object?)accountId??DBNull.Value);command.Parameters.AddWithValue("@action",action);command.Parameters.AddWithValue("@key",recordKey);command.Parameters.AddWithValue("@outcome",outcome);
+        await command.ExecuteNonQueryAsync(ct);
     }
     private async Task<SessionInfo> RequireAsync(MySqlConnection db,MySqlTransaction tx,string token,string[] roles,CancellationToken ct)
     {

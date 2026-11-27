@@ -2,17 +2,16 @@
 
 Người phụ trách **Huỳnh Công Thủ** (TV1, 2351220232). Người rà soát **TV2**.
 
-Phụ thuộc trước khi hoàn tất HT-02, HT-03.
+## Luồng đã triển khai
 
-## Nghiệm thu
+Client đọc `.xlsx`/`.csv`, xem trước và gửi tối đa 500 dòng tới server. Server chỉ cho `QUAN_LY_THU_VIEN` chạy import; kiểm tra lại mã, nhóm độc giả, trạng thái, khoa/ngành và quan hệ ngành-khoa. Mã trường được chuẩn hóa bỏ khoảng trắng và chuyển chữ hoa.
 
-Một pipeline Excel: xem trước, kiểm thiếu/trùng mã, thêm/cập nhật và xuất lỗi; gồm SV và CB/GV; không sửa tay hồ sơ.
+Các dòng hợp lệ được thêm/cập nhật trong một giao dịch; dòng lỗi được trả riêng để xuất CSV. Lô được ghi audit trong cùng giao dịch. Mã sinh viên chỉ dùng cho sinh viên; mã cán bộ/giảng viên dùng cho các loại còn lại. Ô trống khi cập nhật giữ giá trị cũ; hồ sơ không có trong file không bị xóa.
 
-## Trách nhiệm server
+Trạng thái học tập/công tác được lưu nguyên văn và ánh xạ sang `TrangThaiHoSo`. Hồ sơ không hoạt động không được mượn theo kiểm tra nghiệp vụ hiện hành; quyền `DuocMuon` vẫn là quyền quản lý độc lập, không tự bật/tắt theo import. Giá trị trạng thái chưa được ánh xạ bị từ chối theo dòng.
 
-Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
-Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
+Các cột không có trong schema `DocGia` không được nhập. Danh mục trạng thái còn lại cần đối chiếu dữ liệu chính thức của trường trước nghiệm thu.
 
-Các bảng hoặc dữ liệu liên quan theo kế hoạch **Khoa, NganhDaoTao, DocGia, TaiKhoan**.
+## Kiểm tra
 
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Parser CSV/XLSX có test với tiêu đề workbook và dữ liệu giả. Chưa chạy fixture MySQL/TCP hoặc nghiệm thu giao diện trên máy người dùng.

@@ -19,7 +19,10 @@ Cập nhật: **25/11/2026**. Hạn nộp: **29/11/2026**.
 | KK-01 — kiểm kê | Danh sách dự kiến, quét/đối chiếu, chốt và xuất CSV |
 | KK-02 — thanh lý | Biên mục đề nghị, Quản lý duyệt/chốt/từ chối, kiểm khoản mượn mở |
 | BC-02 — tài liệu/kho | Thống kê theo DDC/loại/ngày nhập, không nhân số đầu do nhiều bản, xuất CSV |
-| HT-02 — đăng nhập/phiên | Đã ghép đăng nhập 5 vai trò qua TCP, phiên hết hạn/đăng xuất và quyền tài khoản độc giả |
+| HT-02 — đăng nhập/phiên | Đăng nhập 5 vai trò qua TCP, phiên hết hạn/đăng xuất, audit login/logout và quyền tài khoản độc giả |
+| DG-01 — nhập hồ sơ | Import Excel/CSV, xem trước, kiểm tra phía server, nhập dòng hợp lệ, audit; parser đã test bằng dữ liệu giả |
+| HT-04 — backup/restore | Có service/UI TCP; chưa kiểm thử trên CSDL fixture, cần MySQL client trên server |
+| TC-01 / TC-02 | Có script publish thử Windows x64; chưa nghiệm thu LAN/UI, phục hồi hoặc demo tích hợp |
 | Các module khác | Đã phân công; đang chờ triển khai theo kế hoạch |
 
 Các module TV2 đã có giao dịch, kiểm quyền phía server và nhật ký; biên mục/đồ án có kiểm phiên bản khi sửa. Đã ghép phiên HT-02; còn cần nghiệm thu thao tác UI/LAN thực tế. Kết quả kiểm thử không đồng nghĩa toàn bộ 29 module đã hoàn tất. Xem [bàn giao sáu module TV2 còn lại](tai_lieu/TV2_Hoan_thien.md).

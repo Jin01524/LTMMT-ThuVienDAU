@@ -2,16 +2,10 @@
 
 Người phụ trách **Huỳnh Công Thủ** (TV1, 2351220232). Người rà soát **TV2**.
 
-Phụ thuộc trước khi hoàn tất HT-02, HT-03.
+## Luồng client
 
-## Nghiệm thu
+Form nhập hỗ trợ `.xlsx`/`.csv`, tối đa 10 MiB và 500 dòng; hiển thị xem trước, kết quả kiểm tra và cho xuất riêng các dòng lỗi. Có thể hủy trước khi ghi; khi xác nhận, chỉ dòng hợp lệ được gửi vào giao dịch server.
 
-Một pipeline Excel: xem trước, kiểm thiếu/trùng mã, thêm/cập nhật và xuất lỗi; gồm SV và CB/GV; không sửa tay hồ sơ.
+Mẫu CSV và quy tắc cột/giá trị: [Mau_nhap_doc_gia_DG01.csv](../../../../tai_lieu/Mau_nhap_doc_gia_DG01.csv), [DG01_Quy_tac_nhap_doc_gia.md](../../../../tai_lieu/DG01_Quy_tac_nhap_doc_gia.md).
 
-## Trách nhiệm client
-
-Các lớp giao diện đặt trong `Views/`, bộ điều phối thao tác đặt trong `Controllers/`,
-dữ liệu trình bày đặt trong `Models/`. Gọi TCP Socket qua dịch vụ client.
-Kiểm quyền và giao dịch dữ liệu được thực hiện trên server.
-
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Kiểm thử parser dùng tiêu đề workbook và dữ liệu giả; chưa nghiệm thu thao tác UI/LAN với danh sách chính thức của trường.

@@ -6,13 +6,10 @@ Phụ thuộc trước khi hoàn tất HT-04, BC-01, TC-01, TL-05, TL-07, KK-02,
 
 ## Nghiệm thu
 
-Ba thành viên chạy ca xuyên module, sửa lỗi phần mình; kịch bản demo, hướng dẫn và báo cáo thống nhất.
+Ba thành viên cần chạy ca xuyên module trên fixture riêng; kịch bản demo, hướng dẫn và báo cáo cần thống nhất.
 
-## Trách nhiệm server
+## Trạng thái
 
-Controller TCP nhận yêu cầu và trả JSON; Service kiểm quyền, xử lý nghiệp vụ;
-Repository/Data thực hiện truy vấn có tham số và dùng chung giao dịch khi cần.
+Build server/client và test parser DG-01 đã chạy. Chưa chạy fixture MySQL/TCP trong phiên này vì Python interpreter không sẵn sàng (chỉ có Windows app alias); chưa test backup/restore, phục hồi rollback, UI/LAN hoặc demo tích hợp. Các module phụ thuộc do TV2/TV3 phụ trách cũng cần được xác nhận trước nghiệm thu cuối.
 
-Các bảng hoặc dữ liệu liên quan theo kế hoạch **Toàn bộ CSDL**.
-
-Đã bố trí thư mục và phạm vi bàn giao. Mô đun đang chờ triển khai nghiệp vụ.
+Không đánh dấu TC-02 hoàn tất chỉ từ build hoặc parser test.
